@@ -45,8 +45,7 @@
                         <p style="color: #64748b; font-size: 14px; max-width: 600px;">Supervise sus reservas entrantes y mantenga una comunicación fluida con sus huéspedes para asegurar una experiencia de cinco estrellas.</p>
                     </div>
                     <div style="display: flex; gap: 1rem;">
-                        <button class="btn" style="background: #e2e8f0; color: #475569; font-weight: 700; font-size: 13px;"><i class="fa-solid fa-download"></i> Exportar</button>
-                        <button class="btn btn-primary" style="font-weight: 700; font-size: 13px;"><i class="fa-solid fa-plus"></i> Nueva Reserva</button>
+                        <button class="btn btn-primary" style="padding: 0.8rem 1.5rem; font-weight: 800; font-size: 13px; border-radius: 12px; background: #0f172a; color: white;"><i class="fa-solid fa-plus"></i> Nueva Reserva</button>
                     </div>
                 </header>
 
@@ -63,10 +62,6 @@
                     <div class="kpi-host-card">
                         <span class="label">Ocupación este mes</span>
                         <div class="value">88%</div>
-                    </div>
-                    <div class="kpi-host-card">
-                        <span class="label">Ingresos Previstos</span>
-                        <div class="value">€12.4k</div>
                     </div>
                 </section>
 

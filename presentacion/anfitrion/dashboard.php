@@ -43,20 +43,6 @@
                         <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; color: #1e293b;">Bienvenido, Carlos</h1>
                         <p style="color: #94a3b8; font-size: 14px; font-weight: 500;">Aquí tienes el rendimiento de tus propiedades para este mes.</p>
                     </header>
-                    <!-- Hero Card -->
-                    <div class="host-hero-card">
-                        <div>
-                            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">Ingresos del mes</span>
-                            <div style="font-size: 3.5rem; font-weight: 800; margin-top: 0.75rem; letter-spacing: -2px;">€12,450.80</div>
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #d1fae5; margin-top: 1.5rem;">
-                                <i class="fa-solid fa-chart-line"></i> +14.2% respecto al mes anterior
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                            <button style="background: rgba(255,255,255,0.15); color: white; border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;">Ver reportes</button>
-                            <button style="background: white; color: #1e40af; border: none; padding: 0.8rem 2rem; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">Retirar fondos</button>
-                        </div>
-                    </div>
 
                     <!-- Side Mini KPIs -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">

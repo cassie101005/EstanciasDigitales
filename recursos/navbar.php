@@ -65,7 +65,6 @@ if ($is_host || $is_admin) {
         
         <div class="nav-icons-box">
             <i class="fa-regular fa-bell"></i>
-            <i class="fa-regular fa-message"></i>
         </div>
         <div class="nav-profile-avatar">
             <img src="https://i.pravatar.cc/100?u=<?php echo $is_host ? 'host' : 'huesped'; ?>" alt="Profile">

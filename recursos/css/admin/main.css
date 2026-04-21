@@ -155,6 +155,103 @@
 
 /* Status Badges */
 .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
-.pill-completed { background: #d1fae5; color: #064e3b; }
-.pill-confirmed { background: #eff6ff; color: #1e40af; }
-.pill-pending { background: #fee2e2; color: #991b1b; }
+.pill-completed, .pill-disponible { background: #d1fae5; color: #064e3b; }
+.pill-confirmed, .pill-premium { background: #eff6ff; color: #1e40af; }
+.pill-pending, .pill-ocupada { background: #fee2e2; color: #991b1b; }
+.pill-neutral { background: #f1f5f9; color: #475569; }
+
+/* Filter Bar */
+.filter-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+}
+.filter-group { flex: 1; }
+.filter-group label { display: block; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; }
+.filter-input-wrapper {
+    position: relative;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.filter-input-wrapper i { color: #94a3b8; font-size: 14px; }
+.filter-input-wrapper input, .filter-input-wrapper select {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    width: 100%;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.page-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #64748b;
+}
+.page-btn.active { background: #1e40af; color: white; }
+.page-btn:hover:not(.active) { background: #f1f5f9; }
+
+/* Tabs System */
+.admin-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 14px;
+    width: fit-content;
+    margin-bottom: 2rem;
+}
+.admin-tab {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.admin-tab.active {
+    background: white;
+    color: #1e40af;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* User Table specific */
+.user-id-sub { font-size: 10px; color: #94a3b8; font-weight: 700; display: block; margin-top: 2px; }
+.reservas-pill { 
+    display: inline-flex; width: 28px; height: 28px; background: #f0f4ff; color: #1e40af; 
+    border-radius: 50%; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+}
+.pill-suspendido { background: #fee2e2; color: #991b1b; }
+.pill-activo { background: #d1fae5; color: #064e3b; }
+
+/* Alert Badge */
+.stat-alert-icon {
+    width: 36px; height: 36px; border-radius: 8px; background: #fff1f2; color: #e11d48;
+    display: flex; align-items: center; justify-content: center;
+}

@@ -57,15 +57,6 @@
                     <div class="kpi-footer">Promedio mensual: <strong>142</strong></div>
                 </div>
 
-                <div class="kpi-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="background: #ecfdf5; color: #065f46; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;"><i class="fa-solid fa-wallet"></i></div>
-                        <span class="trend-badge trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +8.2%</span>
-                    </div>
-                    <span class="kpi-label">Ingresos Mensuales</span>
-                    <div class="kpi-value">€42,950</div>
-                    <div class="kpi-footer">Meta trimestral: <strong>78% alcanzada</strong></div>
-                </div>
 
                 <div class="kpi-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">

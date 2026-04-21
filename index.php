@@ -163,25 +163,6 @@
                     </button>
                 </form>
 
-                <!-- Social Login -->
-                <div class="mt-10">
-                    <div class="relative flex items-center mb-8">
-                        <div class="flex-grow border-t border-outline-variant/30"></div>
-                        <span class="flex-shrink mx-4 text-xs font-bold text-outline uppercase tracking-widest">O continuar con</span>
-                        <div class="flex-grow border-t border-outline-variant/30"></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <button class="flex items-center justify-center gap-3 px-4 py-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg hover:bg-surface-container-low transition-colors">
-                            <img alt="Google Logo" class="w-5 h-5" src="https://www.google.com/favicon.ico"/>
-                            <span class="text-sm font-semibold">Google</span>
-                        </button>
-                        <button class="flex items-center justify-center gap-3 px-4 py-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg hover:bg-surface-container-low transition-colors">
-                            <span class="material-symbols-outlined text-on-surface">apple</span>
-                            <span class="text-sm font-semibold">Apple</span>
-                        </button>
-                    </div>
-                </div>
 
                 <footer class="mt-12 text-center">
                     <p class="text-xs text-on-surface-variant tracking-widest uppercase">

@@ -44,7 +44,7 @@
                         <h1 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 0.5rem;">Mis Propiedades</h1>
                         <p style="color: #64748b; font-size: 14px; max-width: 600px;">Gestiona tus estancias de lujo, actualiza disponibilidades y optimiza tus ingresos desde un solo lugar.</p>
                     </div>
-                    <button class="btn btn-primary" style="padding: 1rem 2rem; font-weight: 800; font-size: 14px; border-radius: 12px; box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);"><i class="fa-solid fa-plus"></i> Nueva Propiedad</button>
+                    <button class="btn btn-primary" style="padding: 1rem 2rem; font-weight: 800; font-size: 14px; border-radius: 12px; background: #0f172a; color: white; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);"><i class="fa-solid fa-plus"></i> Nueva Propiedad</button>
                 </header>
 
                 <!-- KPI Grid -->

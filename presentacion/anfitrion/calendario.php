@@ -161,14 +161,6 @@
                             </div>
                         </div>
 
-                        <!-- Market Analysis Card -->
-                        <div class="optim-card" style="background: #2563eb; padding: 1.5rem; border-radius: 20px;">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 700;">
-                                <i class="fa-solid fa-chart-line"></i> Análisis de Mercado
-                            </div>
-                            <p style="font-size: 13px; line-height: 1.5; color: white; opacity: 0.9;">La demanda en tu zona ha subido un 15% para septiembre. Considera aumentar tu tarifa un 5%.</p>
-                            <button style="width: 100%; padding: 0.8rem; background: white; color: #2563eb; border: none; border-radius: 12px; margin-top: 1.5rem; font-weight: 800; font-size: 12px; cursor: pointer;">Ver recomendaciones</button>
-                        </div>
                     </aside>
                 </div>
             </div>
