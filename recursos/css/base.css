@@ -1,0 +1,110 @@
+@import url('variables.css');
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-default);
+    font-weight: 600;
+    font-size: var(--label-md);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: var(--transition-smooth);
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-container));
+    color: var(--on-primary);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 8px 24px rgba(0, 63, 177, 0.25);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--surface-container-highest);
+    color: var(--on-surface);
+}
+
+.btn-secondary:hover {
+    background: var(--surface-container-high);
+}
+
+.btn-tertiary {
+    background: var(--tertiary-container);
+    color: var(--on-tertiary-container);
+}
+
+/* Inputs */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: var(--label-md);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--on-surface-variant);
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-default);
+    background: var(--surface-container);
+    border: 2px solid transparent;
+    font-family: inherit;
+    font-size: var(--body-md);
+    transition: var(--transition-smooth);
+}
+
+.form-control:focus {
+    outline: none;
+    background: var(--surface-container-lowest);
+    border-color: var(--primary);
+}
+
+/* Badges */
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: var(--label-sm);
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: var(--tertiary-container);
+    color: var(--on-tertiary-container);
+}
+
+.badge-error {
+    background-color: var(--error-container);
+    color: var(--on-error-container);
+}
+
+/* Sidebar & Nav Items */
+.nav-item {
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-default);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--on-surface-variant);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+}
+
+.nav-item:hover, .nav-item.active {
+    background: var(--surface-container-low);
+    color: var(--primary);
+}
+
+.nav-item.active {
+    background: var(--primary-container);
+    color: var(--on-primary);
+}

@@ -1,0 +1,160 @@
+/* Admin Dashboard - High Fidelity Design */
+
+.admin-body {
+    background: #f4f7fb;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.admin-wrapper {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sidebar V2 */
+.sidebar-v2 {
+    width: 260px;
+    background: white;
+    padding: 2rem 1.25rem 8rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    border-right: 1px solid #f1f5f9;
+    z-index: 1000;
+}
+
+.admin-logo-box {
+    margin-bottom: 3.5rem;
+}
+.admin-logo-box h2 { font-size: 1.25rem; font-weight: 800; color: #1e40af; letter-spacing: -0.5px; }
+.admin-logo-box p { font-size: 10px; color: #94a3b8; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+
+.side-nav-v2 { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.side-nav-item {
+    padding: 0.8rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 0.25rem;
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.side-nav-item i { font-size: 1.1rem; width: 20px; }
+.side-nav-item:hover { background: rgba(30, 64, 175, 0.05); color: #1e40af; }
+.side-nav-item.active {
+    background: white;
+    color: #1e40af;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.new-prop-btn {
+    background: #2563eb;
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 2rem;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+/* Content Area */
+.admin-content-main {
+    grid-column: 2;
+    min-width: 0;
+    padding: 2.5rem 4rem;
+}
+
+.admin-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+}
+.admin-topbar h1 { font-size: 2rem; font-weight: 800; color: #1e293b; letter-spacing: -1px; }
+
+.admin-profile-box {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.notif-bell {
+    width: 44px; height: 44px; border-radius: 50%; background: #f1f5f9;
+    display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+    color: #475569; position: relative;
+}
+.notif-bell::after { content: ''; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; position: absolute; top: 12px; right: 12px; }
+
+/* KPI Enhancements */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+}
+.kpi-card {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+}
+.kpi-card .kpi-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+.kpi-card .kpi-value { font-size: 2.25rem; font-weight: 800; color: #1e293b; letter-spacing: -1px; margin-bottom: 1rem; }
+.kpi-card .kpi-footer { font-size: 11px; font-weight: 700; color: #64748b; border-top: 1px solid #f8fafc; padding-top: 0.75rem; }
+
+.trend-badge { 
+    padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; 
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.trend-up { background: #d1fae5; color: #065f46; }
+.trend-stable { background: #f1f5f9; color: #475569; }
+
+/* Dashboard Layout Grid */
+.admin-dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 3rem;
+}
+
+/* Featured Property Card */
+.featured-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+}
+.featured-img-box { position: relative; height: 180px; }
+.featured-img-box img { width: 100%; height: 100%; object-fit: cover; }
+.featured-badge { 
+    position: absolute; top: 1rem; left: 1rem; 
+    background: #a5f3bc; color: #065f46; padding: 6px 12px; 
+    border-radius: 99px; font-size: 9px; font-weight: 800; 
+}
+.featured-info { padding: 1.5rem; }
+.tag-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.mini-tag { background: #f8fafc; color: #94a3b8; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+
+/* Top Hosts List */
+.best-hosts-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+.host-rank-card {
+    background: white; padding: 1rem; border-radius: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid #f1f5f9;
+}
+.host-rank-card.top { border-left: 4px solid #1e40af; }
+
+/* Status Badges */
+.status-pill { padding: 6px 12px; border-radius: 8px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.pill-completed { background: #d1fae5; color: #064e3b; }
+.pill-confirmed { background: #eff6ff; color: #1e40af; }
+.pill-pending { background: #fee2e2; color: #991b1b; }

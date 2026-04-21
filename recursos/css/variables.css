@@ -1,0 +1,43 @@
+:root {
+    /* Primary Colors */
+    --primary: #1e40af; /* Vibrant Indigo-Blue for the whole system */
+    --primary-container: #2563eb;
+    --on-primary: #ffffff;
+    
+    /* Surface / Neutral Colors */
+    --surface: #faf8ff;
+    --surface-bright: #faf8ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f3f3fe;
+    --surface-container: #ededf8;
+    --surface-container-high: #e7e7f3;
+    --surface-container-highest: #e2e1ed;
+    --on-surface: #191b23;
+    --on-surface-variant: #434654;
+    
+    /* Success / Tertiary */
+    --tertiary: #005439;
+    --tertiary-container: #006f4d;
+    --on-tertiary: #ffffff;
+    --tertiary-fixed: #85f8c4;
+    
+    /* Error */
+    --error: #ba1a1a;
+    --error-container: #ffdad6;
+    
+    /* Outlines (Ghost Borders) */
+    --outline: #737686;
+    --outline-variant: rgba(195, 197, 215, 0.2); /* 20% opacity ghost border */
+
+    /* Typography */
+    --font-main: 'Inter', sans-serif;
+    
+    /* Radii */
+    --radius-sm: 0.25rem;
+    --radius-default: 0.75rem;
+    --radius-lg: 1.5rem;
+    --radius-full: 9999px;
+    
+    /* Shadows - Ambient & Diffused */
+    --shadow-ambient: 0 12px 40px rgba(25, 27, 35, 0.06);
+}
