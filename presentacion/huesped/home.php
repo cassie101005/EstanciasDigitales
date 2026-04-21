@@ -74,8 +74,6 @@
             card.innerHTML = `
                 <div class="img-container">
                     <img src="${p.img}" alt="${p.loc}">
-                    ${p.fav ? '<div class="badge-fav">Favorito</div>' : ''}
-                    <div class="btn-wish"><i class="fa-regular fa-heart"></i></div>
                 </div>
                 <div class="card-content">
                     <div class="card-content-top">

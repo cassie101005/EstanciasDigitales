@@ -157,7 +157,7 @@
     </div>
 
     <!-- Floating Button -->
-    <div class="floating-add-btn" onclick="alert('Nueva Propiedad')">
+    <div class="floating-add-btn" title="Nueva Propiedad - Subir al sistema">
         <i class="fa-solid fa-plus"></i>
     </div>
 </body>
