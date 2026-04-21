@@ -157,7 +157,7 @@
     </div>
 
     <!-- Floating Button -->
-    <div class="floating-add-btn" title="Nueva Propiedad - Subir al sistema">
+    <div class="floating-add-btn" onclick="window.location.href='nueva-propiedad.php'" title="Nueva Propiedad - Subir al sistema">
         <i class="fa-solid fa-plus"></i>
     </div>
 </body>

@@ -6,6 +6,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 $is_reservas = ($current_page == 'reservas.php');
 $is_host = strpos($_SERVER['REQUEST_URI'], '/anfitrion/') !== false;
 $is_admin = strpos($_SERVER['REQUEST_URI'], '/admin/') !== false;
+$hide_search = $hide_search ?? false;
 
 // Dynamic Search Placeholder (Host & Admin Mode)
 $host_placeholder = "Buscar...";
@@ -33,25 +34,26 @@ if ($is_host || $is_admin) {
                 <i class="fa-solid fa-house-laptop"></i> EstanciasDigitales
             </div>
         <?php endif; ?>
-        
-        <?php if ($is_host || $is_admin): ?>
+        <?php if (($is_host || $is_admin) && !$hide_search): ?>
             <!-- Search bar for Host/Admin -->
             <div class="nav-search-pill host-search-desktop" style="width: 400px; background: #f8fafc; border: 1px solid #e2e8f0;">
                 <i class="fa-solid fa-magnifying-glass" style="opacity: 0.4;"></i>
                 <input type="text" placeholder="<?php echo $host_placeholder; ?>">
             </div>
-        <?php elseif ($is_reservas): ?>
-            <!-- Search bar exclusive for Reservas Huésped -->
-            <div class="nav-search-pill">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Buscar estancias..." readonly>
-            </div>
-        <?php else: ?>
-            <!-- Menu links next to logo for non-reservas guest pages -->
-            <div class="nav-links-left">
-                <a href="<?php echo ($is_root ? "presentacion/huesped/" : ""); ?>home.php" class="nav-link <?php echo $current_page == 'home.php' ? 'active' : ''; ?>">Marketplace</a>
-                <a href="<?php echo ($is_root ? "presentacion/huesped/" : ""); ?>reservas.php" class="nav-link <?php echo $current_page == 'reservas.php' ? 'active' : ''; ?>">Reservaciones</a>
-            </div>
+        <?php elseif (!$is_host && !$is_admin): ?>
+            <?php if ($is_reservas): ?>
+                <!-- Search bar exclusive for Reservas Huésped -->
+                <div class="nav-search-pill">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar estancias..." readonly>
+                </div>
+            <?php else: ?>
+                <!-- Menu links next to logo for non-reservas guest pages -->
+                <div class="nav-links-left">
+                    <a href="<?php echo ($is_root ? "presentacion/huesped/" : ""); ?>home.php" class="nav-link <?php echo $current_page == 'home.php' ? 'active' : ''; ?>">Marketplace</a>
+                    <a href="<?php echo ($is_root ? "presentacion/huesped/" : ""); ?>reservas.php" class="nav-link <?php echo $current_page == 'reservas.php' ? 'active' : ''; ?>">Reservaciones</a>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 
