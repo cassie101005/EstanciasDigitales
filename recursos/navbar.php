@@ -36,7 +36,7 @@ if ($is_host || $is_admin) {
         <?php endif; ?>
         <?php if (($is_host || $is_admin) && !$hide_search): ?>
             <!-- Search bar for Host/Admin -->
-            <div class="nav-search-pill host-search-desktop" style="width: 400px; background: #f8fafc; border: 1px solid #e2e8f0;">
+            <div class="nav-search-pill host-search-desktop" style="width: 400px;">
                 <i class="fa-solid fa-magnifying-glass" style="opacity: 0.4;"></i>
                 <input type="text" placeholder="<?php echo $host_placeholder; ?>">
             </div>
@@ -73,126 +73,6 @@ if ($is_host || $is_admin) {
         </div>
     </div>
 </nav>
-<style>
-/* Global Navbar Component Styles */
-.nav-huesped {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: white;
-    padding: 0 4rem;
-    position: sticky;
-    top: 0;
-    z-index: 999; /* Below sidebar but above content */
-    border-bottom: 1px solid #f1f3f5;
-}
-
-.nav-left-group {
-    display: flex;
-    align-items: center;
-    gap: 3rem;
-}
-
-.logo-branded {
-    color: #1e40af;
-    font-size: 1.15rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.nav-links-left {
-    display: flex;
-    gap: 2rem;
-}
-
-.nav-link {
-    font-size: 14px;
-    font-weight: 700;
-    color: #8c92a5;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-.nav-link.active {
-    color: #1e40af;
-}
-
-/* Search Pill */
-.nav-search-pill {
-    background: #f1f3f9;
-    padding: 0.5rem 1.5rem;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    width: 320px;
-}
-.nav-search-pill input {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.nav-right-group {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.host-mode-link {
-    font-size: 14px;
-    font-weight: 800;
-    color: #1e40af;
-    cursor: pointer;
-}
-
-.nav-icons-box {
-    display: flex;
-    gap: 1.5rem;
-    font-size: 1.25rem;
-    color: #495057;
-    opacity: 0.7;
-}
-
-.host-mobile-toggle {
-    display: none;
-    font-size: 1.5rem;
-    color: #1e40af;
-    cursor: pointer;
-}
-
-.nav-profile-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #eee;
-}
-.nav-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-@media (max-width: 1024px) {
-    .nav-huesped { 
-        padding: 0 1.5rem; 
-    }
-    .host-mobile-toggle {
-        display: block;
-    }
-    .host-search-desktop {
-        display: none !important;
-    }
-}
-
-@media (max-width: 1000px) {
-    .nav-left-group { gap: 1rem; }
-    .nav-search-pill { display: none; }
-}
-</style>
 
 <script>
 function toggleHostSidebar() {

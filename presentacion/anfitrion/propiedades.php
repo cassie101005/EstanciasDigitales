@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>Mis Propiedades | Modo Anfitrión</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
+    <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
+    <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
     <link rel="stylesheet" href="../../recursos/css/host/main.css">
-    <link rel="stylesheet" href="../../recursos/css/admin/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,7 +15,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: #1e40af; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-house-laptop"></i>
                         Estancias Digitales
                     </h2>
@@ -44,7 +45,7 @@
                         <h1 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 0.5rem;">Mis Propiedades</h1>
                         <p style="color: #64748b; font-size: 14px; max-width: 600px;">Gestiona tus estancias de lujo, actualiza disponibilidades y optimiza tus ingresos desde un solo lugar.</p>
                     </div>
-                    <button class="btn btn-primary" onclick="window.location.href='nueva-propiedad.php'" style="padding: 1rem 2rem; font-weight: 800; font-size: 14px; border-radius: 12px; background: #0f172a; color: white; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);"><i class="fa-solid fa-plus"></i> Nueva Propiedad</button>
+                    <button class="btn btn-primary" onclick="window.location.href='nueva-propiedad.php'" style="padding: 1rem 2rem; font-weight: 800; font-size: 14px; border-radius: 12px; background: #1e40af; color: white; box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);"><i class="fa-solid fa-plus"></i> Nueva Propiedad</button>
                 </header>
 
                 <!-- KPI Grid -->

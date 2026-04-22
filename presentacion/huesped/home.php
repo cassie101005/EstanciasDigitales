@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Marketplace | Estancias Digitales</title>
     <link rel="stylesheet" href="../../recursos/css/main.css">
+    <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
     <link rel="stylesheet" href="../../recursos/css/huesped/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

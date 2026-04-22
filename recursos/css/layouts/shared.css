@@ -1,0 +1,92 @@
+/* Shared Layout Styles for Admin and Host Panels */
+:root {
+    --sidebar-width: 260px;
+}
+
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.host-body, .admin-body {
+    background: #f8fafc;
+}
+
+.host-wrapper {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .host-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sidebar Host / Shared - Light Mode */
+.sidebar-host {
+    width: var(--sidebar-width);
+    background: #eff6ff;
+    padding: 2rem 1.25rem 8rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    border-right: 1px solid #dbeafe;
+    z-index: 1000;
+}
+
+@media (max-width: 1024px) {
+    .sidebar-host {
+        transform: translateX(-100%);
+        z-index: 2100;
+        transition: transform 0.3s ease;
+    }
+    .sidebar-host.mobile-active {
+        transform: translateX(0);
+    }
+}
+
+.host-logo-box {
+    margin-bottom: 3.5rem;
+}
+.host-logo-box h2 { font-size: 1.25rem; font-weight: 800; color: #1e40af; letter-spacing: -0.5px; }
+.host-logo-box p { font-size: 10px; color: #94a3b8; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+
+.side-nav-host { list-style: none; padding: 0; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.side-nav-item {
+    padding: 0.8rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 0.25rem;
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.side-nav-item:hover { background: rgba(30, 64, 175, 0.05); color: #1e40af; }
+.side-nav-item.active {
+    background: white;
+    color: #1e40af;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Main Content Wrapper */
+.host-content-main {
+    grid-column: 2;
+    min-width: 0;
+    background: #f8fafc;
+}
+
+@media (max-width: 1024px) {
+    .host-content-main {
+        grid-column: 1;
+    }
+}
