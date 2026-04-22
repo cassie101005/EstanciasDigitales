@@ -13,53 +13,29 @@
         theme: {
           extend: {
             "colors": {
-                    "tertiary": "#005439",
-                    "surface-bright": "#faf8ff",
-                    "primary-fixed-dim": "#b5c4ff",
-                    "tertiary-container": "#006f4d",
-                    "primary-fixed": "#dbe1ff",
-                    "on-background": "#191b23",
-                    "inverse-primary": "#b5c4ff",
-                    "on-secondary-fixed": "#01174b",
-                    "error": "#ba1a1a",
-                    "on-primary-fixed": "#00174d",
-                    "on-secondary-fixed-variant": "#334479",
-                    "tertiary-fixed": "#85f8c4",
+                    "primary": "#7C3AED",
+                    "primary-container": "#6D28D9",
                     "on-primary": "#ffffff",
-                    "tertiary-fixed-dim": "#68dba9",
-                    "secondary": "#4b5c92",
-                    "background": "#faf8ff",
-                    "surface-container-low": "#f3f3fe",
-                    "surface-variant": "#e2e1ed",
-                    "on-tertiary-fixed": "#002114",
-                    "on-primary-fixed-variant": "#003dab",
-                    "error-container": "#ffdad6",
-                    "outline-variant": "#c3c5d7",
-                    "on-surface": "#191b23",
-                    "inverse-surface": "#2e3039",
-                    "on-surface-variant": "#434654",
-                    "surface-container-high": "#e7e7f3",
-                    "surface-container-highest": "#e2e1ed",
-                    "surface": "#faf8ff",
-                    "secondary-fixed-dim": "#b5c4ff",
+                    "secondary": "#7c3aed",
+                    "secondary-container": "#1D4ED8",
                     "on-secondary": "#ffffff",
-                    "secondary-fixed": "#dbe1ff",
-                    "outline": "#737686",
-                    "inverse-on-surface": "#f0f0fb",
-                    "on-secondary-container": "#3d4e84",
-                    "on-primary-container": "#d4dcff",
-                    "primary-container": "#1a56db",
-                    "surface-dim": "#d9d9e4",
-                    "surface-container-lowest": "#ffffff",
-                    "primary": "#003fb1",
-                    "secondary-container": "#b1c2ff",
-                    "on-tertiary-fixed-variant": "#005137",
-                    "surface-tint": "#1353d8",
-                    "on-error-container": "#93000a",
-                    "surface-container": "#ededf8",
-                    "on-error": "#ffffff",
+                    "tertiary": "#F59E0B",
+                    "tertiary-container": "#D97706",
                     "on-tertiary": "#ffffff",
-                    "on-tertiary-container": "#7ff2be"
+                    "tertiary-fixed": "#FDE68A",
+                    "on-tertiary-fixed": "#78350F",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#F9FAFB",
+                    "surface-container": "#F3F4F6",
+                    "surface-container-high": "#E5E7EB",
+                    "surface-variant": "#F3F4F6",
+                    "outline": "#9CA3AF",
+                    "outline-variant": "#D1D5DB",
+                    "on-surface": "#111827",
+                    "on-surface-variant": "#4B5563",
+                    "background": "#F9FAFB",
+                    "surface-bright": "#ffffff"
             },
             "borderRadius": {
                     "DEFAULT": "0.75rem",
@@ -83,19 +59,19 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .glass-panel {
-            background: rgba(250, 248, 255, 0.8);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(20px);
         }
         .role-btn.active {
-            background-color: #f3f3fe;
-            border-color: rgba(0, 63, 177, 0.2);
-            color: #003fb1;
+            background-color: rgba(124, 58, 237, 0.05);
+            border-color: rgba(124, 58, 237, 0.3);
+            color: #7C3AED;
         }
     </style>
 </head>
 <body class="bg-surface-bright text-on-surface antialiased min-h-screen flex items-center justify-center p-0 sm:p-4 md:p-8 lg:p-12 overflow-x-hidden">
     <!-- Auth Container -->
-    <main class="w-full max-w-[1440px] grid lg:grid-cols-2 bg-surface-container-lowest rounded-none md:rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(25,27,35,0.06)] min-h-fit lg:min-h-[850px]">
+    <main class="w-full max-w-[1440px] grid lg:grid-cols-2 bg-surface-container-lowest rounded-none md:rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(17,24,39,0.08)] min-h-fit lg:min-h-[850px]">
         
         <!-- Left Side: Interactive Form Canvas -->
         <section class="flex flex-col p-8 md:p-16 lg:p-20 justify-center">

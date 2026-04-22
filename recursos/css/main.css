@@ -1,26 +1,8 @@
 /* Global Design System & Responsive Foundation */
-
-:root {
-    --primary: #1e40af;
-    --primary-container: #2563eb;
-    --on-primary: #ffffff;
-    --surface: #faf8ff;
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #f3f3fe;
-    --surface-container: #ededf8;
-    --on-surface: #191b23;
-    --on-surface-variant: #434654;
-    --tertiary: #005439;
-    --tertiary-container: #006f4d;
-    --on-tertiary: #ffffff;
-    --radius-default: 0.75rem;
-    --radius-lg: 1.5rem;
-    --shadow-ambient: 0 12px 40px rgba(25, 27, 35, 0.06);
-    --font-family: 'Inter', sans-serif;
-}
+@import url('variables.css');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-family); background-color: var(--surface); color: var(--on-surface); line-height: 1.5; overflow-x: hidden; }
+body { font-family: var(--font-main); background-color: var(--background); color: var(--text-main); line-height: 1.5; overflow-x: hidden; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; font-family: inherit; }
 
@@ -87,16 +69,16 @@ button { cursor: pointer; border: none; font-family: inherit; }
 .card-content-top { display: flex; justify-content: space-between; align-items: baseline; }
 .card-title { font-weight: 700; font-size: 15px; }
 .card-rating { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 4px; }
-.card-desc, .card-dates { font-size: 14px; color: var(--on-surface-variant); }
+.card-desc, .card-dates { font-size: 14px; color: #4b5563; }
 .card-price { margin-top: 4px; font-size: 15px; }
 
 /* General UI Components */
 .tonal-card { 
-    background: var(--surface-container-lowest); 
+    background: var(--surface); 
     border-radius: var(--radius-default); 
     box-shadow: var(--shadow-ambient); 
     padding: 2rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
 }
 .btn { 
     display: inline-flex; padding: 0.75rem 2rem; 

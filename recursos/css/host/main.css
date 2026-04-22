@@ -9,19 +9,19 @@
 
 .host-top-header {
     height: 80px;
-    background: white;
+    background: var(--surface);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 4rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 999;
 }
 
 .search-bar-host {
-    background: #f1f5f9;
+    background: var(--background);
     padding: 0.6rem 1.5rem;
     border-radius: 99px;
     display: flex;
@@ -39,18 +39,18 @@
     margin: 2.5rem 0;
 }
 .kpi-host-card {
-    background: #f1f5f9;
+    background: var(--background);
     padding: 2rem;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
     transition: all 0.3s;
 }
-.kpi-host-card:hover { background: white; border-color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.03); }
+.kpi-host-card:hover { background: var(--surface); border-color: var(--primary); box-shadow: 0 10px 25px rgba(124, 58, 237, 0.05); }
 .kpi-host-card .label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 0.75rem; display: block; letter-spacing: 0.5px; }
-.kpi-host-card .value { font-size: 1.8rem; font-weight: 800; color: #1e293b; display: flex; align-items: baseline; }
+.kpi-host-card .value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); display: flex; align-items: baseline; }
 
 /* Host Calendar Styles */
 .calendar-layout-grid {
@@ -60,10 +60,10 @@
 }
 
 .calendar-main-box {
-    background: white;
+    background: var(--surface);
     border-radius: 2rem;
     padding: 3rem;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border);
 }
 
 .calendar-days-grid {
@@ -75,7 +75,7 @@
 
 .cal-day-box {
     height: 100px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border);
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -85,13 +85,13 @@
     position: relative;
     cursor: pointer;
 }
-.cal-day-box .price { font-size: 10px; color: #1e40af; font-weight: 600; }
-.cal-day-box.not-current { color: #e2e8f0; border-color: transparent; cursor: default; }
+.cal-day-box .price { font-size: 10px; color: var(--primary); font-weight: 600; }
+.cal-day-box.not-current { color: var(--border); border-color: transparent; cursor: default; }
 
-.cal-day-box.reserved { background: #eff6ff; color: #1e40af; border-color: transparent; }
-.cal-day-box.selected { background: #1e40af; color: white; border-color: transparent; border-radius: 12px; z-index: 2; }
+.cal-day-box.reserved { background: rgba(124, 58, 237, 0.05); color: var(--primary); border-color: transparent; }
+.cal-day-box.selected { background: var(--primary); color: white; border-color: transparent; border-radius: 12px; z-index: 2; }
 .cal-day-box.selected .price { color: rgba(255,255,255,0.7); }
-.cal-day-box.blocked { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+.cal-day-box.blocked { background: var(--background); color: #94a3b8; cursor: not-allowed; }
 .cal-day-box.blocked .price { color: #cbd5e1; }
 
 .cal-legend { display: flex; gap: 2rem; margin-top: 3rem; font-size: 12px; font-weight: 700; color: #64748b; }
@@ -99,7 +99,7 @@
 
 /* Calendar Sidebar Items */
 .cal-detail-card {
-    background: white;
+    background: var(--surface);
     border-radius: 1.5rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -108,8 +108,8 @@
     display: flex; gap: 1rem; padding: 1rem; border-radius: 12px;
     transition: background 0.2s; cursor: pointer;
 }
-.event-item:hover { background: #f8fafc; }
-.event-icon { width: 40px; height: 40px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+.event-item:hover { background: var(--background); }
+.event-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(124, 58, 237, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
 
 /* Reviews */
 /* Property Cards Host */
@@ -121,13 +121,13 @@
 }
 
 .host-prop-card {
-    background: white;
+    background: var(--surface);
     border-radius: 1.5rem;
     overflow: hidden;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
     transition: transform 0.2s, box-shadow 0.2s;
 }
-.host-prop-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+.host-prop-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08); }
 
 .card-img-wrapper {
     height: 240px;
@@ -150,7 +150,7 @@
     gap: 6px;
 }
 .status-activa { background: rgba(6, 95, 70, 0.9); color: white; }
-.status-pausada { background: rgba(30, 64, 175, 0.9); color: white; }
+.status-pausada { background: rgba(124, 58, 237, 0.9); color: white; }
 .status-mantenimiento { background: rgba(153, 27, 27, 0.9); color: white; }
 
 .btn-edit-float {
@@ -167,13 +167,13 @@
 
 .host-card-content { padding: 1.5rem; }
 .host-card-info-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
-.host-card-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; max-width: 70%; line-height: 1.2; }
-.host-card-price { font-size: 14px; font-weight: 800; color: #1e40af; }
+.host-card-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); max-width: 70%; line-height: 1.2; }
+.host-card-price { font-size: 14px; font-weight: 800; color: var(--primary); }
 
 .host-card-footer {
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--background);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -185,7 +185,7 @@
 
 /* Host Dashboard - Home Card & Grid Styles */
 .host-hero-card {
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-radius: 2rem;
     padding: 3rem;
     color: white;
@@ -195,7 +195,7 @@
     flex-direction: column;
     justify-content: space-between;
     min-height: 280px;
-    box-shadow: 0 20px 40px rgba(30, 64, 175, 0.15);
+    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.2);
 }
 
 @media (max-width: 1300px) {
@@ -208,13 +208,13 @@
 }
 
 .mini-stat-card {
-    background: white;
+    background: var(--surface);
     border-radius: 24px;
     padding: 1.5rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border);
     margin-bottom: 1.5rem;
 }
 .mini-stat-icon {
@@ -224,7 +224,7 @@
 }
 
 .quick-actions-box {
-    background: #f1f5f9;
+    background: var(--background);
     padding: 2rem;
     border-radius: 2.5rem;
 }
@@ -235,7 +235,7 @@
     margin-top: 1.5rem;
 }
 .action-btn-card {
-    background: white;
+    background: var(--surface);
     padding: 2rem 1.5rem;
     border-radius: 20px;
     display: flex;
@@ -249,30 +249,30 @@
 }
 .action-btn-card:hover { 
     transform: translateY(-5px); 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    border-color: #e2e8f0;
+    box-shadow: 0 10px 25px rgba(124, 58, 237, 0.1);
+    border-color: var(--primary);
 }
-.action-btn-card i { font-size: 1.5rem; color: #1e40af; }
-.action-btn-card span { font-size: 11px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
+.action-btn-card i { font-size: 1.5rem; color: var(--primary); }
+.action-btn-card span { font-size: 11px; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
 
 .reservation-list-item {
-    background: white;
+    background: var(--surface);
     padding: 1.5rem;
     border-radius: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.5rem;
-    border: 1px solid #f8fafc;
+    border: 1px solid var(--border);
     transition: all 0.2s;
 }
-.reservation-list-item:hover { border-color: #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+.reservation-list-item:hover { border-color: var(--primary); box-shadow: 0 4px 15px rgba(17, 24, 39, 0.05); }
 
 /* Tables & Lists */
 .admin-table-container {
-    background: white;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.02);
     overflow: hidden;
 }
 
@@ -291,7 +291,7 @@
 }
 .table-v2 td {
     padding: 1.5rem 2rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--border);
     vertical-align: middle;
 }
 
@@ -305,15 +305,15 @@
 
 /* Review Cards */
 .review-card {
-    background: white;
+    background: var(--surface);
     padding: 2rem;
     border-radius: 1.5rem;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border);
     transition: all 0.3s;
 }
 .review-card:hover {
-    border-color: #1e40af;
-    box-shadow: 0 15px 40px rgba(30, 64, 175, 0.05);
+    border-color: var(--primary);
+    box-shadow: 0 15px 40px rgba(124, 58, 237, 0.1);
 }
 
 .floating-add-btn {
@@ -321,12 +321,12 @@
     bottom: 3.5rem;
     right: 3.5rem;
     width: 65px; height: 65px;
-    background: #1e40af;
+    background: var(--primary);
     color: white;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.5rem;
-    box-shadow: 0 15px 35px rgba(30, 64, 175, 0.4);
+    box-shadow: 0 15px 35px rgba(124, 58, 237, 0.4);
     cursor: pointer;
     z-index: 2000;
     transition: transform 0.3s ease;

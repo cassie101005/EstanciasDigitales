@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-shield-halved"></i>
                         Estancias Digitales
                     </h2>
@@ -29,10 +29,6 @@
                     <li class="side-nav-item" onclick="window.location.href='huespedes.php'"><i class="fa-solid fa-users"></i> Huéspedes</li>
                     <li class="side-nav-item" onclick="window.location.href='anfitriones.php'"><i class="fa-solid fa-key"></i> Anfitriones</li>
                 </nav>
-            </div>
-
-            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
-                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</li>
             </div>
         </aside>
 
@@ -50,7 +46,7 @@
             <section class="kpi-grid">
                 <div class="kpi-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="background: #eff6ff; color: #1e40af; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;"><i class="fa-solid fa-chart-simple"></i></div>
+                        <div style="background: #eff6ff; color: #7c3aed; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px;"><i class="fa-solid fa-chart-simple"></i></div>
                         <span class="trend-badge trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12.5%</span>
                     </div>
                     <span class="kpi-label">Total Reservas</span>
@@ -75,7 +71,7 @@
                 <section>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;">Reservas Recientes</h2>
-                        <a href="#" style="font-size: 13px; font-weight: 700; color: #1e40af; text-decoration: none;">Ver todas <i class="fa-solid fa-arrow-right" style="font-size: 10px; margin-left: 4px;"></i></a>
+                        <a href="#" style="font-size: 13px; font-weight: 700; color: #7c3aed; text-decoration: none;">Ver todas <i class="fa-solid fa-arrow-right" style="font-size: 10px; margin-left: 4px;"></i></a>
                     </div>
 
                     <div style="background: white; border-radius: 20px; border: 1px solid #f1f5f9; overflow: hidden;">
@@ -132,7 +128,7 @@
                                         <div style="font-size: 11px; color: #94a3b8;">2 noches</div>
                                     </td>
                                     <td style="padding: 1.5rem; text-align: center;">
-                                        <span class="status-pill pill-confirmed" style="background: #f0f4ff; color: #1e40af;">Confirmado</span>
+                                        <span class="status-pill pill-confirmed" style="background: #f0f4ff; color: #7c3aed;">Confirmado</span>
                                     </td>
                                     <td style="padding: 1.5rem; text-align: right; font-size: 15px; font-weight: 800;">€890</td>
                                 </tr>
@@ -178,7 +174,7 @@
                         <div class="featured-info">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <h3 style="font-size: 1.25rem; font-weight: 800;">Palacio del Sol</h3>
-                                <div style="font-size: 14px; font-weight: 800; color: #1e40af;">€550<span style="font-size: 11px; color: #94a3b8; font-weight: 600;">/noche</span></div>
+                                <div style="font-size: 14px; font-weight: 800; color: #7c3aed;">€550<span style="font-size: 11px; color: #94a3b8; font-weight: 600;">/noche</span></div>
                             </div>
                             <p style="font-size: 12px; line-height: 1.6; color: #64748b; margin-top: 0.75rem;">Málaga, Costa del Sol. 5 habitaciones, piscina privada, acceso exclusivo a la playa.</p>
                             <div class="tag-row">

@@ -1,33 +1,20 @@
 :root {
-    /* Primary Colors */
-    --primary: #1e40af; /* Vibrant Indigo-Blue for the whole system */
-    --primary-container: #2563eb;
-    --on-primary: #ffffff;
-    
-    /* Surface / Neutral Colors */
-    --surface: #faf8ff;
-    --surface-bright: #faf8ff;
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #f3f3fe;
-    --surface-container: #ededf8;
-    --surface-container-high: #e7e7f3;
-    --surface-container-highest: #e2e1ed;
-    --on-surface: #191b23;
-    --on-surface-variant: #434654;
-    
-    /* Success / Tertiary */
-    --tertiary: #005439;
-    --tertiary-container: #006f4d;
-    --on-tertiary: #ffffff;
-    --tertiary-fixed: #85f8c4;
-    
-    /* Error */
-    --error: #ba1a1a;
-    --error-container: #ffdad6;
-    
+    /* Nueva Paleta de Sistema "Ventanas" */
+    --primary: #7c3aed; /* Morado */
+    --secondary: #1e40af; /* Azul oscuro */
+    --background: #f9fafb; /* Fondo */
+    --text-main: #111827; /* Texto */
+    --accent: #f59e0b; /* Acento ambar/amarillo */
+
+    /* Variantes útiles basadas en la paleta */
+    --primary-hover: #6d28d9;
+    --secondary-hover: #1e3a8a;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+
     /* Outlines (Ghost Borders) */
     --outline: #737686;
-    --outline-variant: rgba(195, 197, 215, 0.2); /* 20% opacity ghost border */
+    --outline-variant: rgba(195, 197, 215, 0.2);
 
     /* Typography */
     --font-main: 'Inter', sans-serif;
@@ -39,5 +26,5 @@
     --radius-full: 9999px;
     
     /* Shadows - Ambient & Diffused */
-    --shadow-ambient: 0 12px 40px rgba(25, 27, 35, 0.06);
+    --shadow-ambient: 0 12px 40px rgba(17, 24, 39, 0.05);
 }

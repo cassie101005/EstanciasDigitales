@@ -1,11 +1,11 @@
 /* Host Form Specific Styles */
 .form-section-card {
-    background: white;
+    background: var(--surface);
     border-radius: 20px;
     padding: 2.5rem;
     margin-bottom: 2rem;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(17, 24, 39, 0.02);
 }
 .section-title {
     display: flex;
@@ -13,11 +13,11 @@
     gap: 12px;
     font-size: 1.25rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--text-main);
     margin-bottom: 2rem;
 }
 .section-title i {
-    color: #1e40af;
+    color: var(--primary);
 }
 .form-grid {
     display: grid;
@@ -32,22 +32,23 @@
 .form-group label {
     font-size: 13px;
     font-weight: 700;
-    color: #475569;
+    color: #4b5563;
 }
 .form-group input, .form-group select, .form-group textarea {
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: var(--background);
+    border: 1px solid var(--border);
     padding: 0.85rem 1.25rem;
     border-radius: 12px;
     font-size: 14px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-main);
     transition: all 0.2s;
     outline: none;
+    color: var(--text-main);
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    background: white;
-    border-color: #1e40af;
-    box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+    background: var(--surface);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
 }
 .small-hint {
     font-size: 11px;
@@ -76,23 +77,23 @@
     cursor: pointer;
 }
 .upload-area {
-    border: 2px dashed #e2e8f0;
+    border: 2px dashed var(--border);
     border-radius: 20px;
     padding: 4rem;
     text-align: center;
-    background: #f8fafc;
+    background: var(--background);
     cursor: pointer;
     transition: all 0.2s;
 }
 .upload-area:hover {
-    border-color: #1e40af;
-    background: #eff6ff;
+    border-color: var(--primary);
+    background: rgba(124, 58, 237, 0.05);
 }
 .upload-icon-box {
     width: 64px;
     height: 64px;
-    background: #eff6ff;
-    color: #1e40af;
+    background: rgba(124, 58, 237, 0.05);
+    color: var(--primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -108,7 +109,7 @@
 }
 .img-thumb {
     aspect-ratio: 1;
-    background: #f1f5f9;
+    background: var(--background);
     border-radius: 16px;
     display: flex;
     align-items: center;
@@ -117,6 +118,7 @@
     font-size: 2rem;
     overflow: hidden;
     position: relative;
+    border: 1px solid var(--border);
 }
 .img-thumb img {
     width: 100%;
@@ -131,7 +133,7 @@
     padding-bottom: 5rem;
 }
 .btn-cancel {
-    background: #e2e8f0;
+    background: var(--border);
     color: #475569;
     border: none;
     padding: 1rem 2.5rem;
@@ -141,7 +143,7 @@
     cursor: pointer;
 }
 .btn-save {
-    background: #1e40af;
+    background: var(--primary);
     color: white;
     border: none;
     padding: 1rem 2.5rem;
@@ -152,5 +154,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
 }
+

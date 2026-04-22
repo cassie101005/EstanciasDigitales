@@ -68,8 +68,8 @@ if ($is_host || $is_admin) {
         <div class="nav-icons-box">
             <i class="fa-regular fa-bell"></i>
         </div>
-        <div class="nav-profile-avatar">
-            <img src="https://i.pravatar.cc/100?u=<?php echo $is_host ? 'host' : 'huesped'; ?>" alt="Profile">
+        <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor: pointer;">
+            <img src="https://i.pravatar.cc/100?u=<?php echo ($is_host ?? false) ? 'host' : 'huesped'; ?>" alt="Profile">
         </div>
     </div>
 </nav>
@@ -82,3 +82,5 @@ function toggleHostSidebar() {
     }
 }
 </script>
+
+<?php include __DIR__ . '/user_profile_modal.php'; ?>
