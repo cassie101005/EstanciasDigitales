@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-shield-halved"></i>
                         Estancias Digitales
                     </h2>
@@ -29,6 +29,10 @@
                     <li class="side-nav-item active" onclick="window.location.href='huespedes.php'"><i class="fa-solid fa-users"></i> Huéspedes</li>
                     <li class="side-nav-item" onclick="window.location.href='anfitriones.php'"><i class="fa-solid fa-key"></i> Anfitriones</li>
                 </nav>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
+                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</li>
             </div>
         </aside>
 
@@ -123,7 +127,7 @@
                             <div style="background: #eff6ff; color: #3b82f6; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-user-plus"></i></div>
                         </div>
                         <span style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Nuevos este mes</span>
-                        <div style="font-size: 2.25rem; font-weight: 800; color: #111827; margin: 0.5rem 0;">+124</div>
+                        <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-main); margin: 0.5rem 0;">+124</div>
                         <div style="font-size: 11px; font-weight: 700; color: #059669;"><i class="fa-solid fa-arrow-trend-up"></i> 12% incremento</div>
                     </div>
 
@@ -132,7 +136,7 @@
                             <div style="background: #f1f5f9; color: #64748b; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-arrow-rotate-right"></i></div>
                         </div>
                         <span style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Tasa de Conversión</span>
-                        <div style="font-size: 2.25rem; font-weight: 800; color: #111827; margin: 0.5rem 0;">64.2%</div>
+                        <div style="font-size: 2.25rem; font-weight: 800; color: var(--text-main); margin: 0.5rem 0;">64.2%</div>
                         <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">De registrados a activos</div>
                     </div>
                 </div>

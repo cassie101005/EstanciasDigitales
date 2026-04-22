@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>GestiÛn de Propiedades | Estancias Admin</title>
+    <title>Gesti√≥n de Propiedades | Estancias Admin</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
@@ -16,7 +16,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-shield-halved"></i>
                         Estancias Digitales
                     </h2>
@@ -26,9 +26,13 @@
                 <nav class="side-nav-host">
                     <li class="side-nav-item" onclick="window.location.href='dashboard.php'"><i class="fa-solid fa-house"></i> Inicio</li>
                     <li class="side-nav-item active" onclick="window.location.href='propiedades.php'"><i class="fa-solid fa-building"></i> Propiedades</li>
-                    <li class="side-nav-item" onclick="window.location.href='huespedes.php'"><i class="fa-solid fa-users"></i> HuÈspedes</li>
+                    <li class="side-nav-item" onclick="window.location.href='huespedes.php'"><i class="fa-solid fa-users"></i> Hu√©spedes</li>
                     <li class="side-nav-item" onclick="window.location.href='anfitriones.php'"><i class="fa-solid fa-key"></i> Anfitriones</li>
                 </nav>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
+                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesi√≥n</li>
             </div>
         </aside>
 
@@ -39,7 +43,7 @@
             <div style="padding: 3rem 4rem;">
                 <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
                     <div>
-                        <h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -1.5px; color: #0f172a; margin-bottom: 0.5rem;">GestiÛn de Propiedades</h1>
+                        <h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -1.5px; color: #0f172a; margin-bottom: 0.5rem;">Gesti√≥n de Propiedades</h1>
                         <p style="color: #64748b; font-weight: 500; font-size: 1.1rem;">Administra el inventario global de alojamientos y sus estados.</p>
                     </div>
                     <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px;">
@@ -51,7 +55,7 @@
                 <!-- Filter Bar -->
                 <section class="filter-container">
                     <div class="filter-group">
-                        <label>Ciudad / UbicaciÛn</label>
+                        <label>Ciudad / Ubicaci√≥n</label>
                         <div class="filter-input-wrapper">
                             <i class="fa-solid fa-location-dot"></i>
                             <select>
@@ -66,18 +70,18 @@
                         <label>Rango de Precio (Noche)</label>
                         <div style="display: flex; gap: 0.5rem; align-items: center;">
                             <div class="filter-input-wrapper">
-                                <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">Ä</span>
+                                <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">‚Ç¨</span>
                                 <input type="text" placeholder="Min">
                             </div>
-                            <span style="color: #e2e8f0;">ó</span>
+                            <span style="color: #e2e8f0;">‚Äî</span>
                             <div class="filter-input-wrapper">
-                                <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">Ä</span>
-                                <input type="text" placeholder="M·x">
+                                <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">‚Ç¨</span>
+                                <input type="text" placeholder="M√°x">
                             </div>
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label>CategorÌa</label>
+                        <label>Categor√≠a</label>
                         <div class="filter-input-wrapper">
                             <select>
                                 <option>Cualquiera</option>
@@ -87,7 +91,7 @@
                             </select>
                         </div>
                     </div>
-                    <button style="background: var(--primary); color: white; border: none; padding: 0 2rem; height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer;">Aplicar Filtros</button>
+                    <button style="background: #1e293b; color: white; border: none; padding: 0 2rem; height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer;">Aplicar Filtros</button>
                 </section>
 
                 <!-- Properties Table -->
@@ -96,8 +100,8 @@
                         <thead>
                             <tr style="background: #f8fafc; border-bottom: 1px solid #f1f5f9;">
                                 <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Propiedad</th>
-                                <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">AnfitriÛn</th>
-                                <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">CategorÌa</th>
+                                <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Anfitri√≥n</th>
+                                <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Categor√≠a</th>
                                 <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Precio / Noche</th>
                                 <th style="padding: 1.5rem; text-align: left; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Estado</th>
                                 <th style="padding: 1.5rem; text-align: right; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Acciones</th>
@@ -117,15 +121,15 @@
                                 <td style="padding: 1.5rem;">
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <img src="https://i.pravatar.cc/100?u=elena" style="width: 32px; height: 32px; border-radius: 50%;">
-                                        <span style="font-size: 13px; font-weight: 700;">Elena MartÌnez</span>
+                                        <span style="font-size: 13px; font-weight: 700;">Elena Mart√≠nez</span>
                                     </div>
                                 </td>
                                 <td style="padding: 1.5rem;">
                                     <span class="status-pill pill-premium">PREMIUM</span>
                                 </td>
-                                <td style="padding: 1.5rem; font-size: 15px; font-weight: 800;">450Ä<span style="font-size: 10px; color: #94a3b8; font-weight: 600;">/noche</span></td>
+                                <td style="padding: 1.5rem; font-size: 15px; font-weight: 800;">450‚Ç¨<span style="font-size: 10px; color: #94a3b8; font-weight: 600;">/noche</span></td>
                                 <td style="padding: 1.5rem;">
-                                    <span class="status-pill pill-disponible">? Disponible</span>
+                                    <span class="status-pill pill-disponible">‚óè Disponible</span>
                                 </td>
                                 <td style="padding: 1.5rem; text-align: right;">
                                     <i class="fa-solid fa-ellipsis" style="color: #94a3b8; cursor: pointer;"></i>
@@ -136,8 +140,8 @@
                                     <div style="display: flex; align-items: center; gap: 1rem;">
                                         <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=60&q=80" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
                                         <div>
-                                            <div style="font-size: 14px; font-weight: 800;">¡tico Industrial en Eixample</div>
-                                            <div style="font-size: 11px; color: #94a3b8;"><i class="fa-solid fa-location-dot"></i> Barcelona, CataluÒa</div>
+                                            <div style="font-size: 14px; font-weight: 800;">√Åtico Industrial en Eixample</div>
+                                            <div style="font-size: 11px; color: #94a3b8;"><i class="fa-solid fa-location-dot"></i> Barcelona, Catalu√±a</div>
                                         </div>
                                     </div>
                                 </td>
@@ -150,9 +154,9 @@
                                 <td style="padding: 1.5rem;">
                                     <span class="status-pill pill-neutral">APARTAMENTO</span>
                                 </td>
-                                <td style="padding: 1.5rem; font-size: 15px; font-weight: 800;">185Ä<span style="font-size: 10px; color: #94a3b8; font-weight: 600;">/noche</span></td>
+                                <td style="padding: 1.5rem; font-size: 15px; font-weight: 800;">185‚Ç¨<span style="font-size: 10px; color: #94a3b8; font-weight: 600;">/noche</span></td>
                                 <td style="padding: 1.5rem;">
-                                    <span class="status-pill pill-ocupada">? Ocupada</span>
+                                    <span class="status-pill pill-ocupada">‚óè Ocupada</span>
                                 </td>
                                 <td style="padding: 1.5rem; text-align: right;">
                                     <i class="fa-solid fa-ellipsis" style="color: #94a3b8; cursor: pointer;"></i>
@@ -164,22 +168,22 @@
                                         <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=60&q=80" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
                                         <div>
                                             <div style="font-size: 14px; font-weight: 800;">Casa de Campo La Dehesa</div>
-                                            <div style="font-size: 11px; color: #94a3b8;"><i class="fa-solid fa-location-dot"></i> Ronda, AndalucÌa</div>
+                                            <div style="font-size: 11px; color: #94a3b8;"><i class="fa-solid fa-location-dot"></i> Ronda, Andaluc√≠a</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td style="padding: 1.5rem;">
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <img src="https://i.pravatar.cc/100?u=ana" style="width: 32px; height: 32px; border-radius: 50%;">
-                                        <span style="font-size: 13px; font-weight: 700;">Ana BelÈn Ruiz</span>
+                                        <span style="font-size: 13px; font-weight: 700;">Ana Bel√©n Ruiz</span>
                                     </div>
                                 </td>
                                 <td style="padding: 1.5rem;">
                                     <span class="status-pill pill-neutral" style="background: #fef3c7; color: #92400e;">RURAL</span>
                                 </td>
-                                <td style="padding: 1.5rem; font-size: 15px; font-weight: 800;">120Ä<span style="font-size: 10px; color: #94a3b8; font-weight: 600;">/noche</span></td>
+                                <td style="padding: 1.5rem; font-size: 15px; font-weight: 800;">120‚Ç¨<span style="font-size: 10px; color: #94a3b8; font-weight: 600;">/noche</span></td>
                                 <td style="padding: 1.5rem;">
-                                    <span class="status-pill pill-disponible">? Disponible</span>
+                                    <span class="status-pill pill-disponible">‚óè Disponible</span>
                                 </td>
                                 <td style="padding: 1.5rem; text-align: right;">
                                     <i class="fa-solid fa-ellipsis" style="color: #94a3b8; cursor: pointer;"></i>
@@ -207,12 +211,12 @@
                     <div class="kpi-card" style="padding: 2rem;">
                         <div style="background: #ecfdf5; color: #065f46; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;"><i class="fa-solid fa-hotel"></i></div>
                         <span style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Total Propiedades</span>
-                        <div style="font-size: 2.25rem; font-weight: 800; margin: 0.5rem 0; color: #111827;">128</div>
+                        <div style="font-size: 2.25rem; font-weight: 800; margin: 0.5rem 0; color: var(--text-main);">128</div>
                         <div style="font-size: 11px; color: #94a3b8; font-weight: 600;"><strong>12 nuevas</strong> este mes</div>
                     </div>
 
                     <div class="kpi-card" style="padding: 2rem;">
-                        <h4 style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 1.5rem;">DistribuciÛn Geogr·fica</h4>
+                        <h4 style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 1.5rem;">Distribuci√≥n Geogr√°fica</h4>
                         <div class="progress-stat">
                             <div class="progress-stat-header">
                                 <span style="font-size: 13px; font-weight: 800;">Madrid</span>
@@ -228,8 +232,8 @@
                             <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 35%; background: #6366f1;"></div></div>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                            <a href="#" style="font-size: 12px; font-weight: 800; color: #7c3aed; text-decoration: none;">Ver reporte detallado</a>
-                            <i class="fa-solid fa-arrow-right" style="color: #7c3aed; font-size: 12px;"></i>
+                            <a href="#" style="font-size: 12px; font-weight: 800; color: var(--primary); text-decoration: none;">Ver reporte detallado</a>
+                            <i class="fa-solid fa-arrow-right" style="color: var(--primary); font-size: 12px;"></i>
                         </div>
                     </div>
                 </div>

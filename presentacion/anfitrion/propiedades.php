@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-house-laptop"></i>
                         Estancias Digitales
                     </h2>
@@ -29,6 +29,10 @@
                     <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
                 </nav>
             </div>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
+                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</li>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -41,7 +45,7 @@
                         <h1 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 0.5rem;">Mis Propiedades</h1>
                         <p style="color: #64748b; font-size: 14px; max-width: 600px;">Gestiona tus estancias de lujo, actualiza disponibilidades y optimiza tus ingresos desde un solo lugar.</p>
                     </div>
-                    <button class="btn btn-primary" onclick="window.location.href='nueva-propiedad.php'" style="padding: 1rem 2rem; font-weight: 800; font-size: 14px; border-radius: 12px; background: #7c3aed; color: white; box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);"><i class="fa-solid fa-plus"></i> Nueva Propiedad</button>
+                    <button class="btn btn-primary" onclick="window.location.href='nueva-propiedad.php'" style="padding: 1rem 2rem; font-weight: 800; font-size: 14px; border-radius: 12px; background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);"><i class="fa-solid fa-plus"></i> Nueva Propiedad</button>
                 </header>
 
                 <!-- KPI Grid -->
@@ -52,7 +56,7 @@
                     </div>
                     <div class="kpi-host-card">
                         <span class="label">Ocupación Media</span>
-                        <div class="value">84% <span style="font-size: 11px; background: #f0f4ff; color: #7c3aed; padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Alto rendimiento</span></div>
+                        <div class="value">84% <span style="font-size: 11px; background: #f0f4ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Alto rendimiento</span></div>
                     </div>
                     <div class="kpi-host-card" style="grid-column: span 2;">
                         <span class="label">Ingresos Estimados</span>
@@ -71,7 +75,7 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 1rem; font-size: 1.1rem; color: #94a3b8;">
-                        <i class="fa-solid fa-grip" style="color: #7c3aed; cursor: pointer;"></i>
+                        <i class="fa-solid fa-grip" style="color: var(--primary); cursor: pointer;"></i>
                         <i class="fa-solid fa-list" style="cursor: pointer;"></i>
                     </div>
                 </div>
@@ -94,7 +98,7 @@
                             <div class="host-card-footer">
                                 <span><i class="fa-solid fa-bed"></i> 4 Dorm.</span>
                                 <span><i class="fa-solid fa-shower"></i> 3 Baños</span>
-                                <span style="color: #111827;">9.8 <i class="fa-solid fa-star" style="color: #7c3aed;"></i></span>
+                                <span style="color: var(--text-main);">9.8 <i class="fa-solid fa-star" style="color: var(--primary);"></i></span>
                             </div>
                         </div>
                     </div>
@@ -115,7 +119,7 @@
                             <div class="host-card-footer">
                                 <span><i class="fa-solid fa-bed"></i> 1 Dorm.</span>
                                 <span><i class="fa-solid fa-shower"></i> 1 Baño</span>
-                                <span style="color: #111827;">8.4 <i class="fa-solid fa-star" style="color: #7c3aed;"></i></span>
+                                <span style="color: var(--text-main);">8.4 <i class="fa-solid fa-star" style="color: var(--primary);"></i></span>
                             </div>
                         </div>
                     </div>
@@ -136,7 +140,7 @@
                             <div class="host-card-footer">
                                 <span><i class="fa-solid fa-bed"></i> 2 Dorm.</span>
                                 <span><i class="fa-solid fa-shower"></i> 2 Baños</span>
-                                <span style="color: #111827;">9.2 <i class="fa-solid fa-star" style="color: #7c3aed;"></i></span>
+                                <span style="color: var(--text-main);">9.2 <i class="fa-solid fa-star" style="color: var(--primary);"></i></span>
                             </div>
                         </div>
                     </div>

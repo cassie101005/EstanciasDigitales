@@ -15,7 +15,7 @@
 
     <div class="reservation-container">
         <header>
-            <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem;">Mis Reservaciones</h1>
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Mis Reservaciones</h1>
             <p style="color: #64748b; font-size: 1.1rem;">Gestiona tus estancias actuales y revisa tus experiencias pasadas.</p>
         </header>
 
@@ -72,7 +72,7 @@
             <div class="res-card-v2">
                 <div class="res-img-box">
                     <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80">
-                    <div class="status-badge-v2" style="background: #7c3aed;">CONFIRMADA</div>
+                    <div class="status-badge-v2" style="background: var(--primary);">CONFIRMADA</div>
                 </div>
                 <div class="res-content-box">
                     <h2 style="font-size: 1.5rem; font-weight: 700;">Refugio Maldivas</h2>

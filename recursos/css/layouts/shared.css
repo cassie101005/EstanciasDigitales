@@ -1,4 +1,7 @@
-/* Shared Layout Styles for Admin and Host Panels */
+/* ============================================
+   SHARED.CSS — Layout Admin & Anfitrión
+   Paleta Ventanas: #7C3AED | #F9FAFB | #111827
+   ============================================ */
 :root {
     --sidebar-width: 260px;
 }
@@ -7,11 +10,11 @@ html, body {
     overflow-x: hidden;
     width: 100%;
     margin: 0;
-    font-family: var(--font-main);
+    font-family: 'Inter', sans-serif;
 }
 
 .host-body, .admin-body {
-    background: var(--background);
+    background: #F9FAFB;
 }
 
 .host-wrapper {
@@ -20,24 +23,22 @@ html, body {
     min-height: 100vh;
     width: 100%;
 }
-
 @media (max-width: 1024px) {
-    .host-wrapper {
-        grid-template-columns: 1fr;
-    }
+    .host-wrapper { grid-template-columns: 1fr; }
 }
 
-/* Sidebar Host / Shared - Light Mode */
+/* ── Sidebar ── */
 .sidebar-host {
     width: var(--sidebar-width);
-    background: var(--surface);
-    padding: 2rem 1.25rem 8rem 1.25rem;
+    background: #FFFFFF;
+    padding: 2rem 1.25rem 4rem 1.25rem;
     display: flex;
     flex-direction: column;
     position: fixed;
     height: 100vh;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid #E5E7EB;
     z-index: 1000;
+    overflow-y: auto;
 }
 
 @media (max-width: 1024px) {
@@ -51,42 +52,64 @@ html, body {
     }
 }
 
-.host-logo-box {
-    margin-bottom: 3.5rem;
-}
-.host-logo-box h2 { font-size: 1.25rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.5px; }
-.host-logo-box p { font-size: 10px; color: #6b7280; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
-
-.side-nav-host { list-style: none; padding: 0; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.side-nav-item {
-    padding: 0.8rem 1.25rem;
+/* Logo box */
+.host-logo-box { margin-bottom: 3rem; }
+.host-logo-box h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.5px;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    color: #4b5563;
+    gap: 10px;
+}
+.host-logo-box p {
+    font-size: 10px;
+    color: #9CA3AF;
+    font-weight: 700;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Nav items */
+.side-nav-host {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.side-nav-item {
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    color: #6B7280;
     font-weight: 600;
     font-size: 14px;
-    margin-bottom: 0.25rem;
     border-radius: 12px;
     transition: all 0.2s;
     cursor: pointer;
 }
-.side-nav-item:hover { background: rgba(124, 58, 237, 0.05); color: var(--primary); }
+.side-nav-item i { width: 18px; text-align: center; }
+.side-nav-item:hover {
+    background: rgba(124, 58, 237, 0.07);
+    color: var(--primary);
+}
 .side-nav-item.active {
     background: rgba(124, 58, 237, 0.1);
     color: var(--primary);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+    font-weight: 700;
+    box-shadow: none;
 }
 
-/* Main Content Wrapper */
+/* Contenido principal */
 .host-content-main {
     grid-column: 2;
     min-width: 0;
-    background: var(--background);
+    background: #F9FAFB;
 }
-
 @media (max-width: 1024px) {
-    .host-content-main {
-        grid-column: 1;
-    }
+    .host-content-main { grid-column: 1; }
 }

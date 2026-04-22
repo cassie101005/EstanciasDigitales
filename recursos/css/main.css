@@ -1,43 +1,49 @@
-/* Global Design System & Responsive Foundation */
+/* ============================================
+   MAIN.CSS — Estilos base globales
+   Importa variables.css como fuente de verdad
+   ============================================ */
 @import url('variables.css');
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-main); background-color: var(--background); color: var(--text-main); line-height: 1.5; overflow-x: hidden; }
-a { text-decoration: none; color: inherit; }
-button { cursor: pointer; border: none; font-family: inherit; }
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Responsive Container */
-.container { 
-    max-width: 1440px; 
-    margin: 0 auto; 
-    padding: 0 4rem; 
+body {
+    font-family: var(--font-main);
+    background-color: var(--background);
+    color: var(--text-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; font-family: inherit; }
+img { display: block; max-width: 100%; }
+ul, ol { list-style: none; }
+
+/* ── Responsive Container ── */
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 4rem;
+}
 @media (max-width: 768px) {
     .container { padding: 0 1.5rem; }
 }
 
-/* Global Grid System - Matches Stitch Design */
+/* ── Grilla de Propiedades ── */
 .prop-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2.5rem;
-    padding: 1rem 4rem 4rem 4rem; /* Standard edge spacing */
+    padding: 1rem 4rem 4rem 4rem;
 }
-
-@media (max-width: 900px) {
-    .prop-grid { padding: 1rem 2rem 4rem 2rem; }
-}
-
+@media (max-width: 900px) { .prop-grid { padding: 1rem 2rem 4rem 2rem; } }
 @media (max-width: 640px) {
-    .prop-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        padding: 1rem 1.5rem 4rem 1.5rem;
-    }
+    .prop-grid { grid-template-columns: 1fr; gap: 2rem; padding: 1rem 1.5rem 4rem 1.5rem; }
 }
 
-/* Property Cards */
+/* ── Tarjetas de Propiedades ── */
 .prop-card-v2 {
     display: flex;
     flex-direction: column;
@@ -48,43 +54,123 @@ button { cursor: pointer; border: none; font-family: inherit; }
 .prop-card-v2:hover { transform: translateY(-4px); }
 
 .img-container {
-    aspect-ratio: 1.1; 
+    aspect-ratio: 1.1;
     border-radius: var(--radius-lg);
     overflow: hidden;
     position: relative;
-    background: #eee;
+    background: var(--border);
 }
 .img-container img { width: 100%; height: 100%; object-fit: cover; }
 
 .badge-fav {
     position: absolute; top: 1rem; left: 1rem;
-    background: #008a60; color: white; padding: 4px 12px;
-    border-radius: 999px; font-size: 11px; font-weight: 700;
+    background: var(--accent); color: white;
+    padding: 4px 12px; border-radius: var(--radius-full);
+    font-size: 11px; font-weight: 700;
 }
 .btn-wish {
     position: absolute; top: 1rem; right: 1rem;
-    color: white; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    color: white; font-size: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .card-content-top { display: flex; justify-content: space-between; align-items: baseline; }
-.card-title { font-weight: 700; font-size: 15px; }
+.card-title { font-weight: 700; font-size: 15px; color: var(--text-main); }
 .card-rating { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 4px; }
-.card-desc, .card-dates { font-size: 14px; color: #4b5563; }
-.card-price { margin-top: 4px; font-size: 15px; }
+.card-desc, .card-dates { font-size: 14px; color: var(--text-muted); }
+.card-price { margin-top: 4px; font-size: 15px; font-weight: 700; }
 
-/* General UI Components */
-.tonal-card { 
-    background: var(--surface); 
-    border-radius: var(--radius-default); 
-    box-shadow: var(--shadow-ambient); 
+/* ── Componentes UI Globales ── */
+.tonal-card {
+    background: var(--surface);
+    border-radius: var(--radius-default);
+    box-shadow: var(--shadow-md);
     padding: 2rem;
     border: 1px solid var(--border);
 }
-.btn { 
-    display: inline-flex; padding: 0.75rem 2rem; 
-    border-radius: var(--radius-default); 
-    font-weight: 700; font-size: 14px;
-    transition: all 0.2s;
+
+/* Botones */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-default);
+    font-weight: 700;
+    font-size: 14px;
+    transition: var(--transition);
 }
-.btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-primary);
+}
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(124, 58, 237, 0.35);
+}
+
+.btn-secondary {
+    background: var(--secondary);
+    color: white;
+}
+.btn-secondary:hover { background: var(--secondary-hover); transform: translateY(-2px); }
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+}
+.btn-outline:hover { background: rgba(124, 58, 237, 0.06); }
+
+.btn-accent {
+    background: var(--accent);
+    color: white;
+}
+.btn-accent:hover { background: var(--accent-hover); }
+
+.btn-ghost {
+    background: var(--surface-raised, var(--border));
+    color: var(--text-main);
+}
+.btn-ghost:hover { background: var(--border); }
+
+/* Inputs */
+.form-control {
+    width: 100%;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--radius-default);
+    border: 1.5px solid var(--border);
+    background: var(--background);
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 14px;
+    transition: var(--transition);
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+    background: var(--surface);
+}
+.form-control::placeholder { color: var(--text-placeholder); }
+
+/* Badges de estado */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-error   { background: var(--error-bg);   color: var(--error);   }
+.badge-primary { background: rgba(124, 58, 237, 0.1); color: var(--primary); }
+.badge-secondary { background: rgba(30, 64, 175, 0.1); color: var(--secondary); }

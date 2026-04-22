@@ -1,6 +1,6 @@
 /* Layout */
 .host-layout { display: flex; min-height: 100vh; }
-.sidebar-host { width: 280px; background: #191b23; color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+.sidebar-host { width: 280px; background: var(--text-main); color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; }
 .main-host { flex: 1; margin-left: 280px; padding: 3rem; background: var(--surface); }
 
 /* Sidebar */

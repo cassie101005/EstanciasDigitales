@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-house-laptop"></i>
                         Estancias Digitales
                     </h2>
@@ -29,6 +29,10 @@
                     <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
                 </nav>
             </div>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
+                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</li>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -39,7 +43,7 @@
                 <header style="margin-bottom: 3rem;">
                     <h1 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 1rem;">Calendario de Disponibilidad</h1>
                     <div style="display: flex; gap: 1rem;">
-                        <div class="filter-dropdown" style="background: #f1f5f9; padding: 0.6rem 1.25rem; border-radius: 99px; font-size: 13px; font-weight: 700; color: #7c3aed; display: flex; align-items: center; gap: 1rem;">
+                        <div class="filter-dropdown" style="background: #f1f5f9; padding: 0.6rem 1.25rem; border-radius: 99px; font-size: 13px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 1rem;">
                             Villa Mediterránea - Costa del Sol <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
                         </div>
                         <div class="filter-dropdown" style="background: #f1f5f9; padding: 0.6rem 1.25rem; border-radius: 99px; font-size: 13px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 1rem;">
@@ -114,7 +118,7 @@
                         <div class="cal-detail-card" style="box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
                             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                                 <h3 style="font-size: 1.1rem; font-weight: 800;">Detalles del Día</h3>
-                                <span style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #7c3aed; padding: 4px 10px; border-radius: 8px; text-transform: uppercase;">9 Sep 2024</span>
+                                <span style="font-size: 10px; font-weight: 800; background: #eff6ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; text-transform: uppercase;">9 Sep 2024</span>
                             </header>
 
                             <div style="background: #fcfcfc; border: 1px solid #f1f1f1; padding: 1.25rem; border-radius: 16px; margin-bottom: 1.5rem;">
@@ -125,13 +129,13 @@
                             </div>
 
                             <div style="background: #eff6ff; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; position: relative;">
-                                <span style="display: block; font-size: 11px; font-weight: 800; color: #7c3aed; text-transform: uppercase; margin-bottom: 10px;">Tarifa por noche</span>
+                                <span style="display: block; font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 10px;">Tarifa por noche</span>
                                 <div style="font-size: 1.5rem; font-weight: 800; color: #000;">€120.00</div>
-                                <i class="fa-solid fa-pencil" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: #7c3aed; opacity: 0.5; cursor: pointer;"></i>
+                                <i class="fa-solid fa-pencil" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--primary); opacity: 0.5; cursor: pointer;"></i>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                <button style="background: #7c3aed; color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                                <button style="background: var(--primary); color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                                     <i class="fa-regular fa-money-bill-1" style="font-size: 1.25rem;"></i> Ajustar tarifa
                                 </button>
                                 <button style="background: #f1f5f9; color: #64748b; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">

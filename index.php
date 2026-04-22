@@ -13,29 +13,45 @@
         theme: {
           extend: {
             "colors": {
-                    "primary": "#7C3AED",
-                    "primary-container": "#6D28D9",
-                    "on-primary": "#ffffff",
-                    "secondary": "#7c3aed",
-                    "secondary-container": "#1D4ED8",
-                    "on-secondary": "#ffffff",
-                    "tertiary": "#F59E0B",
-                    "tertiary-container": "#D97706",
-                    "on-tertiary": "#ffffff",
-                    "tertiary-fixed": "#FDE68A",
-                    "on-tertiary-fixed": "#78350F",
-                    "error": "#ba1a1a",
-                    "surface-container-lowest": "#ffffff",
-                    "surface-container-low": "#F9FAFB",
-                    "surface-container": "#F3F4F6",
-                    "surface-container-high": "#E5E7EB",
-                    "surface-variant": "#F3F4F6",
-                    "outline": "#9CA3AF",
-                    "outline-variant": "#D1D5DB",
-                    "on-surface": "#111827",
-                    "on-surface-variant": "#4B5563",
-                    "background": "#F9FAFB",
-                    "surface-bright": "#ffffff"
+                    /* ── Paleta Ventanas ── */
+                    "primary":              "#7C3AED",
+                    "primary-container":    "#6D28D9",
+                    "on-primary":           "#ffffff",
+                    "secondary":            "#1E40AF",
+                    "accent":              "#F59E0B",
+                    /* ── Fondos ── */
+                    "background":           "#F9FAFB",
+                    "surface":              "#FFFFFF",
+                    "surface-bright":       "#F9FAFB",
+                    "surface-container-lowest": "#FFFFFF",
+                    "surface-container-low":    "#F9FAFB",
+                    "surface-container":        "#F3F4F6",
+                    "surface-container-high":   "#E5E7EB",
+                    "surface-container-highest":"#D1D5DB",
+                    "surface-variant":          "#F3F4F6",
+                    /* ── Texto ── */
+                    "on-surface":           "#111827",
+                    "on-background":        "#111827",
+                    "on-surface-variant":   "#6B7280",
+                    /* ── Bordes ── */
+                    "outline":              "#9CA3AF",
+                    "outline-variant":      "#E5E7EB",
+                    /* ── Estados ── */
+                    "error":                "#DC2626",
+                    "error-container":      "#FEE2E2",
+                    /* ── Tertiary (acento ámbar) ── */
+                    "tertiary":             "#F59E0B",
+                    "tertiary-container":   "#D97706",
+                    "tertiary-fixed":       "#FEF3C7",
+                    "on-tertiary":          "#FFFFFF",
+                    "on-tertiary-fixed":    "#78350F",
+                    "on-tertiary-container":"#92400E",
+                    /* ── Misc ── */
+                    "inverse-surface":      "#111827",
+                    "inverse-on-surface":   "#F9FAFB",
+                    "inverse-primary":      "#C4B5FD",
+                    "surface-tint":         "#7C3AED",
+                    "surface-dim":          "#E5E7EB"
             },
             "borderRadius": {
                     "DEFAULT": "0.75rem",
@@ -59,11 +75,11 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(250, 248, 255, 0.8);
             backdrop-filter: blur(20px);
         }
         .role-btn.active {
-            background-color: rgba(124, 58, 237, 0.05);
+            background-color: rgba(124, 58, 237, 0.08);
             border-color: rgba(124, 58, 237, 0.3);
             color: #7C3AED;
         }
@@ -71,7 +87,7 @@
 </head>
 <body class="bg-surface-bright text-on-surface antialiased min-h-screen flex items-center justify-center p-0 sm:p-4 md:p-8 lg:p-12 overflow-x-hidden">
     <!-- Auth Container -->
-    <main class="w-full max-w-[1440px] grid lg:grid-cols-2 bg-surface-container-lowest rounded-none md:rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(17,24,39,0.08)] min-h-fit lg:min-h-[850px]">
+    <main class="w-full max-w-[1440px] grid lg:grid-cols-2 bg-surface-container-lowest rounded-none md:rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(25,27,35,0.06)] min-h-fit lg:min-h-[850px]">
         
         <!-- Left Side: Interactive Form Canvas -->
         <section class="flex flex-col p-8 md:p-16 lg:p-20 justify-center">
@@ -134,7 +150,7 @@
                     </div>
                     <input type="hidden" id="role_input" value="huesped">
 
-                    <button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-lg shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all" type="submit">
+                    <button class="w-full py-4 text-on-primary font-bold rounded-lg transition-all active:scale-[0.98]" type="submit" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); box-shadow: 0 8px 25px rgba(124,58,237,0.35); font-size: 15px; letter-spacing: 0.02em;">
                         Entrar al Portal
                     </button>
                 </form>
@@ -152,7 +168,7 @@
         <!-- Right Side: Inspirational Property Image -->
         <section class="hidden lg:block relative overflow-hidden">
             <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2070')">
-                <div class="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent"></div>
+                <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(124,58,237,0.7) 0%, rgba(30,64,175,0.2) 50%, transparent 100%);"></div>
             </div>
             
             <!-- Floating Feature Card -->

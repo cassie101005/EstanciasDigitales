@@ -31,7 +31,7 @@ if ($is_host || $is_admin) {
             </div>
         <?php else: ?>
             <div class="logo-branded" onclick="window.location.href='<?php echo $base_path; ?>index.php'">
-                <i class="fa-solid fa-house-laptop"></i> EstanciasDigitales
+                <i class="fa-solid fa-house-laptop"></i> Estancias Digitales
             </div>
         <?php endif; ?>
         <?php if (($is_host || $is_admin) && !$hide_search): ?>
@@ -68,8 +68,8 @@ if ($is_host || $is_admin) {
         <div class="nav-icons-box">
             <i class="fa-regular fa-bell"></i>
         </div>
-        <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor: pointer;">
-            <img src="https://i.pravatar.cc/100?u=<?php echo ($is_host ?? false) ? 'host' : 'huesped'; ?>" alt="Profile">
+        <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor:pointer;">
+            <img src="https://i.pravatar.cc/100?u=<?php echo ($is_host ?? false) ? 'host' : 'huesped'; ?>" alt="Perfil">
         </div>
     </div>
 </nav>

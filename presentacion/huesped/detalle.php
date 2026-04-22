@@ -76,7 +76,7 @@
                         <div style="display:flex; align-items:center; gap: 1.25rem;"><i class="fa-solid fa-broom" style="width: 24px;"></i> Servicio de limpieza diario</div>
                         <div style="display:flex; align-items:center; gap: 1.25rem;"><i class="fa-solid fa-car" style="width: 24px;"></i> Estacionamiento gratuito (3 autos)</div>
                     </div>
-                    <button class="btn" style="margin-top: 3rem; background: white; border: 1px solid #111827; border-radius: 8px; padding: 0.8rem 2rem;">Mostrar los 45 servicios</button>
+                    <button class="btn" style="margin-top: 3rem; background: white; border: 1px solid #191b23; border-radius: 8px; padding: 0.8rem 2rem;">Mostrar los 45 servicios</button>
                 </section>
 
                 <section class="rules-section">

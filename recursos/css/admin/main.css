@@ -1,13 +1,13 @@
 /* Admin Dashboard Specific Components */
 .new-prop-btn {
-    background: var(--primary);
+    background: var(--primary-hover);
     color: white;
     padding: 1rem;
     border-radius: 12px;
     font-weight: 700;
     text-align: center;
     margin-top: 2rem;
-    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
 }
 
 /* Content Area */
@@ -23,7 +23,7 @@
     align-items: flex-start;
     margin-bottom: 3rem;
 }
-.admin-topbar h1 { font-size: 2rem; font-weight: 800; color: var(--text-main); letter-spacing: -1px; }
+.admin-topbar h1 { font-size: 2rem; font-weight: 800; color: #1e293b; letter-spacing: -1px; }
 
 .admin-profile-box {
     display: flex;
@@ -31,9 +31,9 @@
     gap: 1.5rem;
 }
 .notif-bell {
-    width: 44px; height: 44px; border-radius: 50%; background: var(--surface);
+    width: 44px; height: 44px; border-radius: 50%; background: #f1f5f9;
     display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-    color: #475569; position: relative; border: 1px solid var(--border);
+    color: #475569; position: relative;
 }
 .notif-bell::after { content: ''; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; position: absolute; top: 12px; right: 12px; }
 
@@ -45,24 +45,24 @@
     margin: 2.5rem 0;
 }
 .kpi-card {
-    background: var(--surface);
+    background: white;
     padding: 2.5rem 2rem;
     border-radius: 24px;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 20px rgba(17, 24, 39, 0.02);
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
     display: flex;
     flex-direction: column;
 }
 .kpi-card .kpi-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
-.kpi-card .kpi-value { font-size: 2.25rem; font-weight: 800; color: var(--text-main); letter-spacing: -1px; margin-bottom: 1rem; }
-.kpi-card .kpi-footer { font-size: 11px; font-weight: 700; color: #64748b; border-top: 1px solid var(--background); padding-top: 0.75rem; }
+.kpi-card .kpi-value { font-size: 2.25rem; font-weight: 800; color: #1e293b; letter-spacing: -1px; margin-bottom: 1rem; }
+.kpi-card .kpi-footer { font-size: 11px; font-weight: 700; color: #64748b; border-top: 1px solid #f8fafc; padding-top: 0.75rem; }
 
 .trend-badge { 
     padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; 
     display: inline-flex; align-items: center; gap: 4px;
 }
 .trend-up { background: #d1fae5; color: #065f46; }
-.trend-stable { background: var(--background); color: #475569; }
+.trend-stable { background: #f1f5f9; color: #475569; }
 
 /* Dashboard Layout Grid */
 .admin-dashboard-layout {
@@ -73,10 +73,10 @@
 
 /* Featured Property Card */
 .featured-card {
-    background: var(--surface);
+    background: white;
     border-radius: 20px;
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 1px solid #f1f5f9;
 }
 .featured-img-box { position: relative; height: 180px; }
 .featured-img-box img { width: 100%; height: 100%; object-fit: cover; }
@@ -87,42 +87,42 @@
 }
 .featured-info { padding: 1.5rem; }
 .tag-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
-.mini-tag { background: var(--background); color: #94a3b8; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+.mini-tag { background: #f8fafc; color: #94a3b8; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
 
 /* Top Hosts List */
 .best-hosts-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
 .host-rank-card {
-    background: var(--surface); padding: 1rem; border-radius: 16px;
+    background: white; padding: 1rem; border-radius: 16px;
     display: flex; align-items: center; justify-content: space-between;
-    border: 1px solid var(--border);
+    border: 1px solid #f1f5f9;
 }
 .host-rank-card.top { border-left: 4px solid var(--primary); }
 
 /* Status Badges */
 .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 9px; font-weight: 800; text-transform: uppercase; }
 .pill-completed, .pill-disponible { background: #d1fae5; color: #064e3b; }
-.pill-confirmed, .pill-premium { background: rgba(124, 58, 237, 0.1); color: var(--primary); }
+.pill-confirmed, .pill-premium { background: #eff6ff; color: var(--primary); }
 .pill-pending, .pill-ocupada { background: #fee2e2; color: #991b1b; }
-.pill-neutral { background: var(--background); color: #475569; }
+.pill-neutral { background: #f1f5f9; color: #475569; }
 
 /* Filter Bar */
 .filter-container {
-    background: var(--surface);
+    background: white;
     padding: 2rem;
     border-radius: 20px;
-    border: 1px solid var(--border);
+    border: 1px solid #f1f5f9;
     margin-bottom: 2rem;
     display: flex;
     align-items: flex-end;
     gap: 1.5rem;
-    box-shadow: 0 10px 40px rgba(17, 24, 39, 0.02);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.02);
 }
 .filter-group { flex: 1; }
 .filter-group label { display: block; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem; }
 .filter-input-wrapper {
     position: relative;
-    background: var(--background);
-    border: 1px solid var(--border);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 0.75rem 1rem;
     display: flex;
@@ -136,7 +136,7 @@
     outline: none;
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-main);
+    color: #1e293b;
     width: 100%;
 }
 
@@ -160,17 +160,16 @@
     color: #64748b;
 }
 .page-btn.active { background: var(--primary); color: white; }
-.page-btn:hover:not(.active) { background: var(--background); }
+.page-btn:hover:not(.active) { background: #f1f5f9; }
 
 /* Tabs System */
 .admin-tabs {
     display: flex;
-    background: var(--surface);
+    background: #f1f5f9;
     padding: 6px;
     border-radius: 14px;
     width: fit-content;
     margin-bottom: 2rem;
-    border: 1px solid var(--border);
 }
 .admin-tab {
     padding: 0.75rem 1.5rem;
@@ -182,15 +181,15 @@
     transition: all 0.2s;
 }
 .admin-tab.active {
-    background: var(--background);
+    background: white;
     color: var(--primary);
-    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 /* User Table specific */
 .user-id-sub { font-size: 10px; color: #94a3b8; font-weight: 700; display: block; margin-top: 2px; }
 .reservas-pill { 
-    display: inline-flex; width: 28px; height: 28px; background: rgba(124, 58, 237, 0.1); color: var(--primary); 
+    display: inline-flex; width: 28px; height: 28px; background: #f0f4ff; color: var(--primary); 
     border-radius: 50%; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
 }
 .pill-suspendido { background: #fee2e2; color: #991b1b; }

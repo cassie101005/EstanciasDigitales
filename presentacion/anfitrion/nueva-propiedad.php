@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: #7c3aed; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-house-laptop"></i>
                         Estancias Digitales
                     </h2>
@@ -29,6 +29,10 @@
                     <li class="side-nav-item" onclick="window.location.href='calendario.php'"><i class="fa-solid fa-calendar-days"></i> Calendario</li>
                     <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
                 </nav>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
+                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</li>
             </div>
         </aside>
 
@@ -160,7 +164,7 @@
                             <div class="upload-icon-box">
                                 <i class="fa-solid fa-cloud-arrow-up"></i>
                             </div>
-                            <h3 style="font-size: 1.15rem; font-weight: 800; color: #111827; margin-bottom: 0.5rem;">Arrastra tus fotos aquí</h3>
+                            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Arrastra tus fotos aquí</h3>
                             <p style="color: #94a3b8; font-size: 14px;">O haz clic para seleccionar archivos desde tu equipo (JPG, PNG hasta 10MB)</p>
                         </div>
                         <div class="img-previews">

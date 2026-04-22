@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Reservas | Modo Anfitrión</title>
+    <title>GestiÃ³n de Reservas | Modo AnfitriÃ³n</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
@@ -15,11 +15,11 @@
         <aside class="sidebar-host">
             <div style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="host-logo-box">
-                    <h2 style="color: var(--primary); font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-house-laptop"></i>
                         Estancias Digitales
                     </h2>
-                    <p>Modo Anfitrión</p>
+                    <p>Modo AnfitriÃ³n</p>
                 </div>
                 
                 <nav class="side-nav-host">
@@ -28,6 +28,10 @@
                     <li class="side-nav-item" onclick="window.location.href='calendario.php'"><i class="fa-solid fa-calendar-days"></i> Calendario</li>
                     <li class="side-nav-item active" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
                 </nav>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
+                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar SesiÃ³n</li>
             </div>
         </aside>
 
@@ -38,8 +42,8 @@
             <div style="padding: 2.5rem 4rem; max-width: 1600px; margin: 0 auto;">
                 <header style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <div>
-                        <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem;">Gestión de Reservas</h1>
-                        <p style="color: #64748b; font-size: 14px; max-width: 600px;">Supervise sus reservas entrantes y mantenga una comunicación fluida con sus huéspedes para asegurar una experiencia de cinco estrellas.</p>
+                        <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem;">GestiÃ³n de Reservas</h1>
+                        <p style="color: #64748b; font-size: 14px; max-width: 600px;">Supervise sus reservas entrantes y mantenga una comunicaciÃ³n fluida con sus huÃ©spedes para asegurar una experiencia de cinco estrellas.</p>
                     </div>
                     <div style="display: flex; gap: 1rem;">
                         <button class="btn btn-primary" style="padding: 0.8rem 1.5rem; font-weight: 800; font-size: 13px; border-radius: 12px; background: var(--primary); color: white;"><i class="fa-solid fa-plus"></i> Nueva Reserva</button>
@@ -53,11 +57,11 @@
                         <div class="value">124 <span style="font-size: 12px; color: #10b981; margin-left: 10px;">+12%</span></div>
                     </div>
                     <div class="kpi-host-card">
-                        <span class="label">Calificación Media</span>
-                        <div class="value">4.9 <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1rem;"></i></div>
+                        <span class="label">CalificaciÃ³n Media</span>
+                        <div class="value">4.9 <i class="fa-solid fa-star" style="color: var(--primary); font-size: 1rem;"></i></div>
                     </div>
                     <div class="kpi-host-card">
-                        <span class="label">Ocupación este mes</span>
+                        <span class="label">OcupaciÃ³n este mes</span>
                         <div class="value">88%</div>
                     </div>
                 </section>
@@ -65,9 +69,9 @@
                 <!-- Reservations Table -->
                 <section class="admin-table-container" style="border-radius: 1.5rem; margin-top: 2rem;">
                     <div style="padding: 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 1.5rem;">
-                        <h3 style="font-size: 1.25rem; font-weight: 800; color: #111827;">Reservas Recientes</h3>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Reservas Recientes</h3>
                         <div style="display: flex; gap: 1rem; font-size: 12px; font-weight: 800;">
-                            <span style="color: white; background: #7c3aed; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Todas</span>
+                            <span style="color: white; background: var(--primary); padding: 8px 16px; border-radius: 99px; cursor: pointer;">Todas</span>
                             <span style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Confirmadas</span>
                             <span style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Finalizadas</span>
                         </div>
@@ -91,21 +95,21 @@
                                         <div style="display: flex; align-items: center; gap: 1rem;">
                                             <img src="https://i.pravatar.cc/100?u=e" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
                                             <div>
-                                                <div style="font-size: 14px; font-weight: 800; color: #111827;">Elena Rodríguez</div>
-                                                <div style="font-size : 11px; color: #64748b; font-weight: 600;">Súper Huésped • 12 estancias</div>
+                                                <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">Elena RodrÃ­guez</div>
+                                                <div style="font-size : 11px; color: #64748b; font-weight: 600;">SÃºper HuÃ©sped â€¢ 12 estancias</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: #111827;">Villa Mediterránea</div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Villa MediterrÃ¡nea</div>
                                         <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Alicante, ES</div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: #111827;">12 May - 18 May</div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">12 May - 18 May</div>
                                         <div style="font-size: 11px; color: #64748b; font-weight: 600;">6 noches</div>
                                     </td>
                                     <td><span class="status-tag" style="background: #d1fae5; color: #065f46;">Confirmada</span></td>
-                                    <td><strong style="font-size: 15px; color: #7c3aed;">€1,240.00</strong></td>
+                                    <td><strong style="font-size: 15px; color: var(--primary);">â‚¬1,240.00</strong></td>
                                     <td>
                                         <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
                                             <i class="fa-solid fa-ellipsis"></i>
@@ -117,21 +121,21 @@
                                         <div style="display: flex; align-items: center; gap: 1rem;">
                                             <img src="https://i.pravatar.cc/100?u=m" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
                                             <div>
-                                                <div style="font-size: 14px; font-weight: 800; color: #111827;">Marco Jansen</div>
-                                                <div style="font-size : 11px; color: #64748b; font-weight: 600;">Huésped Nuevo</div>
+                                                <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">Marco Jansen</div>
+                                                <div style="font-size : 11px; color: #64748b; font-weight: 600;">HuÃ©sped Nuevo</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: #111827;">Loft Industrial</div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Loft Industrial</div>
                                         <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Madrid, ES</div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: #111827;">05 May - 08 May</div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">05 May - 08 May</div>
                                         <div style="font-size: 11px; color: #64748b; font-weight: 600;">3 noches</div>
                                     </td>
                                     <td><span class="status-tag" style="background: #f1f5f9; color: #64748b;">Finalizada</span></td>
-                                    <td><strong style="font-size: 15px; color: #111827;">€450.00</strong></td>
+                                    <td><strong style="font-size: 15px; color: var(--text-main);">â‚¬450.00</strong></td>
                                     <td>
                                         <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
                                             <i class="fa-solid fa-ellipsis"></i>
@@ -147,10 +151,10 @@
                 <section style="margin-top: 5rem;">
                     <header style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem;">
                          <div>
-                            <h2 style="font-size: 2rem; font-weight: 800; color: #111827; letter-spacing: -1px;">Reseñas de Huéspedes</h2>
-                            <p style="color: #64748b; font-size: 15px; font-weight: 500; margin-top: 0.5rem;">Gestione el feedback de sus clientes y mejore su reputación.</p>
+                            <h2 style="font-size: 2rem; font-weight: 800; color: var(--text-main); letter-spacing: -1px;">ReseÃ±as de HuÃ©spedes</h2>
+                            <p style="color: #64748b; font-size: 15px; font-weight: 500; margin-top: 0.5rem;">Gestione el feedback de sus clientes y mejore su reputaciÃ³n.</p>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; color: #7c3aed; font-weight: 800; background: #f0f4ff; padding: 10px 20px; border-radius: 12px;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary); font-weight: 800; background: #f0f4ff; padding: 10px 20px; border-radius: 12px;">
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
                             <i class="fa-solid fa-star"></i>
@@ -166,17 +170,17 @@
                                 <div style="display: flex; gap: 1rem;">
                                     <img src="https://i.pravatar.cc/100?u=l" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
                                     <div>
-                                        <div style="font-size: 15px; font-weight: 800; color: #111827;">Lucía Méndez</div>
-                                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Villa Mediterránea • Abril 2024</div>
+                                        <div style="font-size: 15px; font-weight: 800; color: var(--text-main);">LucÃ­a MÃ©ndez</div>
+                                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Villa MediterrÃ¡nea â€¢ Abril 2024</div>
                                     </div>
                                 </div>
-                                <div style="color: #7c3aed; font-size: 12px; display: flex; gap: 2px;">
+                                <div style="color: var(--primary); font-size: 12px; display: flex; gap: 2px;">
                                     <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                                 </div>
                             </div>
                             <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 2rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"Una estancia maravillosa. La casa estaba impecable y los detalles de bienvenida fueron un toque excelente. Volveremos sin duda."</p>
                             <div style="text-align: right; border-top: 1px solid #f1f5f9; padding-top: 1.5rem;">
-                                <a href="#" style="font-size: 13px; font-weight: 800; color: #7c3aed; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">Responder comentario <i class="fa-solid fa-reply"></i></a>
+                                <a href="#" style="font-size: 13px; font-weight: 800; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">Responder comentario <i class="fa-solid fa-reply"></i></a>
                             </div>
                         </div>
 
@@ -185,19 +189,19 @@
                                 <div style="display: flex; gap: 1rem;">
                                     <img src="https://i.pravatar.cc/100?u=t" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
                                     <div>
-                                        <div style="font-size: 15px; font-weight: 800; color: #111827;">Thomas Müller</div>
-                                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Loft Industrial • Marzo 2024</div>
+                                        <div style="font-size: 15px; font-weight: 800; color: var(--text-main);">Thomas MÃ¼ller</div>
+                                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Loft Industrial â€¢ Marzo 2024</div>
                                     </div>
                                 </div>
-                                <div style="color: #7c3aed; font-size: 12px; display: flex; gap: 2px;">
+                                <div style="color: var(--primary); font-size: 12px; display: flex; gap: 2px;">
                                     <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
                                 </div>
                             </div>
-                            <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 1.5rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"El apartamento es muy céntrico y moderno. Solo tuvimos un pequeño problema con el Wi-Fi el primer día, pero el anfitrión lo resolvió rápido."</p>
+                            <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 1.5rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"El apartamento es muy cÃ©ntrico y moderno. Solo tuvimos un pequeÃ±o problema con el Wi-Fi el primer dÃ­a, pero el anfitriÃ³n lo resolviÃ³ rÃ¡pido."</p>
                             
                             <div style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid #f1f5f9;">
-                                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.75rem; letter-spacing: 0.5px;">Tu respuesta</div>
-                                <p style="font-size: 14px; color: #64748b; line-height: 1.6;">"Gracias Thomas, nos alegra que pudieras disfrutar del loft a pesar del contratiempo técnico."</p>
+                                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); margin-bottom: 0.75rem; letter-spacing: 0.5px;">Tu respuesta</div>
+                                <p style="font-size: 14px; color: #64748b; line-height: 1.6;">"Gracias Thomas, nos alegra que pudieras disfrutar del loft a pesar del contratiempo tÃ©cnico."</p>
                                 <div style="text-align: right; margin-top: 1.25rem;">
                                     <a href="#" style="font-size: 12px; font-weight: 800; color: #94a3b8; text-decoration: none;">Editar respuesta</a>
                                 </div>
