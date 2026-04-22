@@ -116,7 +116,7 @@
                 <div class="flex gap-8 mb-10 border-b border-outline-variant/20">
                     <button class="pb-4 text-sm font-bold text-primary border-b-2 border-primary tracking-wide">Iniciar
                         sesión</button>
-                    <button
+                    <button type="button" onclick="abrirModalRegistro()"
                         class="pb-4 text-sm font-medium text-on-surface-variant hover:text-primary transition-colors tracking-wide">Crear
                         cuenta</button>
                 </div>
@@ -158,7 +158,7 @@
                     <!-- Role Selection -->
                     <div class="space-y-3">
                         <p class="text-xs font-bold uppercase tracking-widest text-outline">Tipo de acceso</p>
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <button type="button" onclick="selectRole('huesped', this)"
                                 class="role-btn active flex flex-col items-center justify-center p-3 rounded-lg bg-surface-container-low border border-transparent transition-all">
                                 <span class="material-symbols-outlined mb-1">person</span>
@@ -169,11 +169,6 @@
                                 <span class="material-symbols-outlined mb-1">key</span>
                                 <span class="text-[10px] font-bold uppercase">Anfitrión</span>
                             </button>
-                            <button type="button" onclick="selectRole('admin', this)"
-                                class="role-btn flex flex-col items-center justify-center p-3 rounded-lg bg-surface-container-low border border-transparent text-on-surface-variant hover:bg-surface-container-high transition-all">
-                                <span class="material-symbols-outlined mb-1">admin_panel_settings</span>
-                                <span class="text-[10px] font-bold uppercase">Admin</span>
-                            </button>
                         </div>
                     </div>
                     <input type="hidden" id="role_input" value="huesped">
@@ -183,6 +178,10 @@
                         style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); box-shadow: 0 8px 25px rgba(124,58,237,0.35); font-size: 15px; letter-spacing: 0.02em;">
                         Entrar al Portal
                     </button>
+                    <div class="flex justify-center items-center px-1">
+                            <a class="text-xs font-semibold text-primary hover:underline underline-offset-4"
+                                href="#">Ingresar como administrador</a>
+                        </div>
                 </form>
 
 
@@ -236,6 +235,46 @@
         </section>
     </main>
 
+    <!-- Modal de Registro -->
+    <div id="modalRegistro" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+        <div class="bg-surface w-full max-w-md rounded-xl shadow-2xl p-8 relative transform scale-95 transition-transform duration-300">
+            <button type="button" onclick="cerrarModalRegistro()" class="absolute top-4 right-4 text-on-surface-variant hover:text-error transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 class="text-2xl font-bold text-on-surface mb-2">Crear nueva cuenta</h2>
+            <p class="text-sm text-on-surface-variant mb-6">Regístrate como <span id="txtRolSeleccionado" class="font-bold text-primary capitalize"></span> para continuar.</p>
+            
+            <form onsubmit="handleRegistro(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-on-surface-variant">Nombre</label>
+                        <input id="regNombre" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="Juan" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-on-surface-variant">Apellido</label>
+                        <input id="regApellido" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="Pérez" />
+                    </div>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-on-surface-variant">Correo electrónico</label>
+                    <input id="regCorreo" type="email" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="nombre@ejemplo.com" />
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-on-surface-variant">Contraseña</label>
+                    <input id="regPassword" type="password" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="••••••••" />
+                </div>
+
+                <div id="regAlert" class="hidden text-xs text-error mt-2"></div>
+
+                <button type="submit" class="w-full mt-6 py-3 text-on-primary font-bold rounded-lg transition-all active:scale-[0.98]" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
+                    Registrarme
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Background Decorative Elements -->
     <div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none opacity-40">
         <div class="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/5 blur-[120px]"></div>
@@ -251,6 +290,74 @@
             element.classList.add('active', 'text-primary', 'border-primary/20');
             element.classList.remove('text-on-surface-variant');
             document.getElementById('role_input').value = role;
+        }
+
+        function abrirModalRegistro() {
+            const role = document.getElementById('role_input').value;
+            const roleNameDisplay = role === 'huesped' ? 'Viajero' : role === 'anfitrion' ? 'Anfitrión' : role;
+            document.getElementById('txtRolSeleccionado').innerText = roleNameDisplay;
+            
+            const modal = document.getElementById('modalRegistro');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function cerrarModalRegistro() {
+            const modal = document.getElementById('modalRegistro');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function handleRegistro(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Registrando...';
+            btn.disabled = true;
+
+            const rol = document.getElementById('role_input').value;
+            const idRol = rol === 'huesped' ? 2 : (rol === 'anfitrion' ? 3 : 1);
+            
+            const payload = {
+                idRol: idRol,
+                nombre: document.getElementById('regNombre').value,
+                apellido: document.getElementById('regApellido').value,
+                correo: document.getElementById('regCorreo').value,
+                contrasenia: document.getElementById('regPassword').value
+            };
+
+            try {
+                const res = await fetch('./apis/auth/registro.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if (data.ok) {
+                    cerrarModalRegistro();
+                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                    event.target.reset();
+                } else {
+                    const regAlert = document.getElementById('regAlert');
+                    regAlert.innerText = data.mensaje || data.error || 'Error en el registro';
+                    regAlert.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                const regAlert = document.getElementById('regAlert');
+                regAlert.innerText = 'Error de conexión';
+                regAlert.classList.remove('hidden');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
     </script>
     <script src="./recursos/js/auth/auth.js"></script>
