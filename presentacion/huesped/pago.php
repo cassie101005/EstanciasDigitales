@@ -5,6 +5,7 @@
     <title>Confirmar y Pagar | Estancias Digitales</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/main.css">
+    <link rel="stylesheet" href="../../recursos/css/components/navbar.css?v=1">
     <link rel="stylesheet" href="../../recursos/css/huesped/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -44,39 +45,6 @@
                          </div>
                     </div>
                     <strong style="font-size: 1.25rem;">$4,350.00 <span style="font-size: 11px; font-weight: 400; color: #999;">hoy</span></strong>
-                </div>
-
-                <!-- Payment Details Form -->
-                <div style="margin-top: 4rem; padding-top: 3rem; border-top: 1px solid #eee;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; font-weight: 800;">Detalles del pago</h2>
-                        <div style="display: flex; gap: 0.5rem; color: #ddd; font-size: 1.5rem;">
-                            <i class="fa-brands fa-cc-visa"></i>
-                            <i class="fa-brands fa-cc-mastercard"></i>
-                        </div>
-                    </div>
-
-                    <div class="card-form-grid">
-                        <div class="input-group-v2" style="grid-column: span 2;">
-                            <label>Nombre en la tarjeta</label>
-                            <input type="text" placeholder="Ej. Juan Pérez">
-                        </div>
-                        <div class="input-group-v2" style="grid-column: span 2;">
-                            <label>Número de tarjeta</label>
-                            <div style="position: relative;">
-                                <input type="text" placeholder="0000 0000 0000 0000" style="width: 100%; box-sizing: border-box;">
-                                <i class="fa-regular fa-credit-card" style="position: absolute; right: 1.5rem; top: 1.25rem; opacity: 0.3;"></i>
-                            </div>
-                        </div>
-                        <div class="input-group-v2">
-                            <label>Vencimiento</label>
-                            <input type="text" placeholder="MM / AA">
-                        </div>
-                        <div class="input-group-v2">
-                            <label>CVV</label>
-                            <input type="text" placeholder="123">
-                        </div>
-                    </div>
                 </div>
 
                 <div class="tonal-card" style="margin-top: 3rem; background: #f8f9fa;">

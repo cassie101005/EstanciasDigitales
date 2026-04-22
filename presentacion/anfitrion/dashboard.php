@@ -31,9 +31,6 @@
                 </nav>
             </div>
 
-            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid #f1f5f9; list-style: none;">
-                <li class="side-nav-item" style="color: #ef4444;" onclick="window.location.href='../../index.php'"><i class="fa-solid fa-power-off"></i> Cerrar Sesión</li>
-            </div>
         </aside>
 
         <main class="host-content-main">
