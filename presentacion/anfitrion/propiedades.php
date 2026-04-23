@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +7,7 @@
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
-    <link rel="stylesheet" href="../../recursos/css/host/main.css">
+    <link rel="stylesheet" href="../../recursos/css/anfitrion/host_main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -79,72 +80,101 @@
                 </div>
 
                 <!-- Property Grid -->
-                <section class="host-prop-grid">
-                    <!-- Card 1: Activa -->
-                    <div class="host-prop-card">
-                        <div class="card-img-wrapper">
-                            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80">
-                            <div class="card-badge-status status-activa">● ACTIVA</div>
-                            <div class="btn-edit-float"><i class="fa-solid fa-pencil"></i></div>
-                        </div>
-                        <div class="host-card-content">
-                            <div class="host-card-info-row">
-                                <h3 class="host-card-title">Villa Mediterránea Luxe</h3>
-                                <span class="host-card-price">€450<span style="font-size: 10px; font-weight: 400; color: #94a3b8;">/noche</span></span>
-                            </div>
-                            <p style="font-size: 13px; color: #64748b;"><i class="fa-solid fa-location-dot" style="margin-right: 5px; opacity: 0.5;"></i> Ibiza, Islas Baleares</p>
-                            <div class="host-card-footer">
-                                <span><i class="fa-solid fa-bed"></i> 4 Dorm.</span>
-                                <span><i class="fa-solid fa-shower"></i> 3 Baños</span>
-                                <span style="color: var(--text-main);">9.8 <i class="fa-solid fa-star" style="color: var(--primary);"></i></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: Pausada -->
-                    <div class="host-prop-card">
-                        <div class="card-img-wrapper">
-                            <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=600&q=80">
-                            <div class="card-badge-status status-pausada">● PAUSADA</div>
-                            <div class="btn-edit-float"><i class="fa-solid fa-pencil"></i></div>
-                        </div>
-                        <div class="host-card-content">
-                            <div class="host-card-info-row">
-                                <h3 class="host-card-title">Loft Industrial Malasaña</h3>
-                                <span class="host-card-price">€180<span style="font-size: 10px; font-weight: 400; color: #94a3b8;">/noche</span></span>
-                            </div>
-                            <p style="font-size: 13px; color: #64748b;"><i class="fa-solid fa-location-dot" style="margin-right: 5px; opacity: 0.5;"></i> Madrid, Centro</p>
-                            <div class="host-card-footer">
-                                <span><i class="fa-solid fa-bed"></i> 1 Dorm.</span>
-                                <span><i class="fa-solid fa-shower"></i> 1 Baño</span>
-                                <span style="color: var(--text-main);">8.4 <i class="fa-solid fa-star" style="color: var(--primary);"></i></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Mantenimiento -->
-                    <div class="host-prop-card">
-                        <div class="card-img-wrapper">
-                            <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80">
-                            <div class="card-badge-status status-mantenimiento">● MANTENIMIENTO</div>
-                            <div class="btn-edit-float"><i class="fa-solid fa-pencil"></i></div>
-                        </div>
-                        <div class="host-card-content">
-                            <div class="host-card-info-row">
-                                <h3 class="host-card-title">Ático Skyline Diagonal</h3>
-                                <span class="host-card-price">€320<span style="font-size: 10px; font-weight: 400; color: #94a3b8;">/noche</span></span>
-                            </div>
-                            <p style="font-size: 13px; color: #64748b;"><i class="fa-solid fa-location-dot" style="margin-right: 5px; opacity: 0.5;"></i> Barcelona, Diagonal Mar</p>
-                            <div class="host-card-footer">
-                                <span><i class="fa-solid fa-bed"></i> 2 Dorm.</span>
-                                <span><i class="fa-solid fa-shower"></i> 2 Baños</span>
-                                <span style="color: var(--text-main);">9.2 <i class="fa-solid fa-star" style="color: var(--primary);"></i></span>
-                            </div>
-                        </div>
-                    </div>
+                <section class="host-prop-grid" id="gridPropiedades">
+                    <!-- Skeletons mientras carga -->
+                    <div class="host-prop-card prop-skeleton"></div>
+                    <div class="host-prop-card prop-skeleton"></div>
+                    <div class="host-prop-card prop-skeleton"></div>
                 </section>
+
+                <!-- Estado vacío -->
+                <div id="estadoVacio" style="display:none; text-align:center; padding:5rem 2rem; color:#94a3b8;">
+                    <i class="fa-solid fa-house-circle-xmark" style="font-size:3rem; margin-bottom:1.5rem; display:block;"></i>
+                    <h3 style="font-size:1.25rem; font-weight:800; color:#1e293b; margin-bottom:0.5rem;">Sin propiedades registradas</h3>
+                    <p style="font-size:14px; margin-bottom:2rem;">Aún no has registrado ninguna propiedad. ¡Empieza ahora!</p>
+                    <button onclick="window.location.href='nueva-propiedad.php'"
+                        style="padding:0.9rem 2rem; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;">
+                        <i class="fa-solid fa-plus"></i> Registrar primera propiedad
+                    </button>
+                </div>
+
             </div>
         </main>
     </div>
+
+<style>
+.prop-skeleton {
+    height: 380px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmerProp 1.4s infinite;
+}
+@keyframes shimmerProp {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+</style>
+
+<script>
+(async function cargarPropiedades() {
+    const grid        = document.getElementById('gridPropiedades');
+    const estadoVacio = document.getElementById('estadoVacio');
+
+    try {
+        const res  = await fetch('../../apis/anfitrion/propiedades.php?accion=listar');
+        const data = await res.json();
+
+        grid.innerHTML = ''; // limpia skeletons
+
+        if (!data.ok || data.propiedades.length === 0) {
+            grid.style.display = 'none';
+            estadoVacio.style.display = 'block';
+            return;
+        }
+
+        data.propiedades.forEach(p => {
+            const imgSrc = p.imagenPrincipal
+                ? `../../${p.imagenPrincipal}`
+                : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
+
+            const ubicacion = [p.ciudad, p.estado].filter(Boolean).join(', ') || 'Sin ubicación';
+            const precio    = parseFloat(p.dPrecioNoche || 0).toLocaleString('es-ES', {minimumFractionDigits: 0});
+
+            grid.innerHTML += `
+                <div class="host-prop-card" style="cursor:pointer;"
+                     onclick="window.location.href='detalle-propiedad.php?id=${p.idPropiedad}'">
+                    <div class="card-img-wrapper">
+                        <img src="${imgSrc}" alt="${p.vNombre}" loading="lazy"
+                             onerror="this.src='https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'">
+                        <div class="card-badge-status status-activa">● ACTIVA</div>
+                        <div class="btn-edit-float" onclick="event.stopPropagation(); window.location.href='editar-propiedad.php?id=${p.idPropiedad}'">
+                            <i class="fa-solid fa-pencil"></i>
+                        </div>
+                    </div>
+                    <div class="host-card-content">
+                        <div class="host-card-info-row">
+                            <h3 class="host-card-title">${p.vNombre}</h3>
+                            <span class="host-card-price">€${precio}<span style="font-size:10px;font-weight:400;color:#94a3b8;">/noche</span></span>
+                        </div>
+                        <p style="font-size:13px; color:#64748b;">
+                            <i class="fa-solid fa-location-dot" style="margin-right:5px; opacity:0.5;"></i>${ubicacion}
+                        </p>
+                        <div class="host-card-footer">
+                            <span><i class="fa-solid fa-bed"></i> ${p.iNumeroHabitaciones || '—'} Dorm.</span>
+                            <span><i class="fa-solid fa-users"></i> ${p.iCapacidadHuespedes || '—'} Huésp.</span>
+                            <span style="font-size:11px; background:#f0f4ff; color:var(--primary); padding:3px 8px; border-radius:6px; font-weight:700;">
+                                ${p.tipo || 'Propiedad'}
+                            </span>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+    } catch (err) {
+        console.error('Error cargando propiedades:', err);
+        grid.innerHTML = '<p style="color:#ef4444; padding:2rem;">Error al cargar propiedades.</p>';
+    }
+})();
+</script>
 </body>
 </html>

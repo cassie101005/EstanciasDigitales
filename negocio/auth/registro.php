@@ -1,14 +1,13 @@
 <?php
 require_once '../../datos/conexion.php';
+require_once '../../datos/auth/queries_auth.php';
+
+$queriesAuth = new QueriesAuth($conexion);
 
 // 1. Verificar si el correo ya existe
-$sqlVerificar = "SELECT idUsuario FROM tbl_usuarios WHERE vCorreo = ? LIMIT 1";
-$stmtVerificar = $conexion->prepare($sqlVerificar);
-$stmtVerificar->bind_param("s", $correo);
-$stmtVerificar->execute();
-$consultaVerificar = $stmtVerificar->get_result();
+$resultadoVerificacion = $queriesAuth->verificarCorreoExistente($correo);
 
-if ($consultaVerificar->num_rows > 0) {
+if ($resultadoVerificacion->num_rows > 0) {
     $resultado = [
         'ok' => false,
         'mensaje' => 'El correo ya está registrado.'
@@ -16,31 +15,19 @@ if ($consultaVerificar->num_rows > 0) {
     exit;
 }
 
-// 2. Insertar el nuevo usuario
-$sqlInsertar = "INSERT INTO tbl_usuarios (
-                    idRol,
-                    vNombre,
-                    vApellido,
-                    dFechaNacimiento,
-                    vCorreo,
-                    vTelefono,
-                    vContrasenia,
-                    bEstado
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
+// 2. Preparar datos para inserción
+$datosUsuario = [
+    'idRol' => $idRol,
+    'nombre' => $nombre,
+    'apellido' => $apellido,
+    'fechaNacimiento' => $fechaNacimiento,
+    'correo' => $correo,
+    'telefono' => $telefono,
+    'contrasenia' => $contrasenia
+];
 
-$stmtInsertar = $conexion->prepare($sqlInsertar);
-$stmtInsertar->bind_param(
-    "issssss",
-    $idRol,
-    $nombre,
-    $apellido,
-    $fechaNacimiento,
-    $correo,
-    $telefono,
-    $contrasenia
-);
-
-if ($stmtInsertar->execute()) {
+// 3. Insertar el nuevo usuario
+if ($queriesAuth->insertarUsuario($datosUsuario)) {
     $resultado = [
         'ok' => true,
         'mensaje' => 'Usuario registrado correctamente.',
@@ -52,3 +39,4 @@ if ($stmtInsertar->execute()) {
         'mensaje' => 'No se pudo registrar el usuario.'
     ];
 }
+?>

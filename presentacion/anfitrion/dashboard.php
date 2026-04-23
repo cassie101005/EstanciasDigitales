@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
-    <link rel="stylesheet" href="../../recursos/css/host/main.css">
+    <link rel="stylesheet" href="../../recursos/css/anfitrion/host_main.css">
     <link rel="stylesheet" href="../../recursos/css/admin/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
