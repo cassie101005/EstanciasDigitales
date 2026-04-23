@@ -31,6 +31,7 @@ if ($resultadoQuery->num_rows === 0) {
                 $_SESSION['idRol'] = $usuario['idRol'];
                 $_SESSION['rol'] = $usuario['vNombreRol'];
                 $_SESSION['nombre'] = $usuario['vNombre'] . ' ' . $usuario['vApellido'];
+                $_SESSION['foto'] = $usuario['vFoto'] ?? '';
 
                 // 8. Definir ruta según rol
                 $ruta = './presentacion/huesped/home.php';

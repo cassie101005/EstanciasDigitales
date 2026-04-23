@@ -1,4 +1,42 @@
-<!DOCTYPE html>
+<?php
+session_start();
+require_once '../../datos/conexion.php';
+
+$idHost = $_SESSION['idUsuario'] ?? 1; // 1 por defecto para pruebas
+
+// 1. Consultar reservaciones de las propiedades del anfitrión
+$sqlRes = "SELECT r.*, p.vNombre as nombrePropiedad, p.idPropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto
+           FROM tbl_reserva r
+           JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+           JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
+           WHERE p.idUsuario = ?
+           ORDER BY r.dtFechaInicio DESC";
+$stmtRes = $conexion->prepare($sqlRes);
+$stmtRes->bind_param("i", $idHost);
+$stmtRes->execute();
+$reservas = $stmtRes->get_result();
+
+// 2. Consultar comentarios de las propiedades del anfitrión
+$sqlCom = "SELECT c.*, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto
+           FROM tbl_comentarios c
+           JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
+           JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
+           WHERE p.idUsuario = ?
+           ORDER BY c.dtFechaRegistro DESC";
+$stmtCom = $conexion->prepare($sqlCom);
+$stmtCom->bind_param("i", $idHost);
+$stmtCom->execute();
+$comentarios = $stmtCom->get_result();
+
+// 3. Calcular promedio (opcional pero bueno para los KPI)
+$sqlAvg = "SELECT AVG(iCalificacion) as promedio, COUNT(*) as total FROM tbl_comentarios c JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad WHERE p.idUsuario = ?";
+$stmtAvg = $conexion->prepare($sqlAvg);
+$stmtAvg->bind_param("i", $idHost);
+$stmtAvg->execute();
+$avgData = $stmtAvg->get_result()->fetch_assoc();
+$promedio = round($avgData['promedio'] ?? 5.0, 1);
+$totalComentarios = $avgData['total'] ?? 0;
+?>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -52,11 +90,11 @@
                 <section class="kpi-host-grid">
                     <div class="kpi-host-card">
                         <span class="label">Total Reservas</span>
-                        <div class="value">124 <span style="font-size: 12px; color: #10b981; margin-left: 10px;">+12%</span></div>
+                        <div class="value"><?php echo $reservas->num_rows; ?></div>
                     </div>
                     <div class="kpi-host-card">
                         <span class="label">Calificación Media</span>
-                        <div class="value">4.9 <i class="fa-solid fa-star" style="color: var(--primary); font-size: 1rem;"></i></div>
+                        <div class="value"><?php echo $promedio; ?> <i class="fa-solid fa-star" style="color: var(--primary); font-size: 1rem;"></i></div>
                     </div>
                     <div class="kpi-host-card">
                         <span class="label">Ocupación este mes</span>
@@ -88,58 +126,53 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 1rem;">
-                                            <img src="https://i.pravatar.cc/100?u=e" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
-                                            <div>
-                                                <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">Elena Rodríguez</div>
-                                                <div style="font-size : 11px; color: #64748b; font-weight: 600;">Súper Huésped • 12 estancias</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Villa Mediterránea</div>
-                                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Alicante, ES</div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">12 May - 18 May</div>
-                                        <div style="font-size: 11px; color: #64748b; font-weight: 600;">6 noches</div>
-                                    </td>
-                                    <td><span class="status-tag" style="background: #d1fae5; color: #065f46;">Confirmada</span></td>
-                                    <td><strong style="font-size: 15px; color: var(--primary);">€1,240.00</strong></td>
-                                    <td>
-                                        <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
-                                            <i class="fa-solid fa-ellipsis"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 1rem;">
-                                            <img src="https://i.pravatar.cc/100?u=m" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
-                                            <div>
-                                                <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">Marco Jansen</div>
-                                                <div style="font-size : 11px; color: #64748b; font-weight: 600;">Huésped Nuevo</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">Loft Industrial</div>
-                                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Madrid, ES</div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 14px; font-weight: 700; color: var(--text-main);">05 May - 08 May</div>
-                                        <div style="font-size: 11px; color: #64748b; font-weight: 600;">3 noches</div>
-                                    </td>
-                                    <td><span class="status-tag" style="background: #f1f5f9; color: #64748b;">Finalizada</span></td>
-                                    <td><strong style="font-size: 15px; color: var(--text-main);">€450.00</strong></td>
-                                    <td>
-                                        <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
-                                            <i class="fa-solid fa-ellipsis"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                <?php if ($reservas->num_rows > 0): ?>
+                                    <?php while ($res = $reservas->fetch_assoc()): ?>
+                                        <?php 
+                                            $fIni = new DateTime($res['dtFechaInicio']);
+                                            $fFin = new DateTime($res['dtFechaFin']);
+                                            $hoy = new DateTime();
+                                            $status = "Confirmada";
+                                            $stBg = "#d1fae5"; $stColor = "#065f46";
+                                            if ($hoy >= $fIni && $hoy <= $fFin) {
+                                                $status = "En curso";
+                                                $stBg = "#dbeafe"; $stColor = "#1e40af";
+                                            } elseif ($hoy > $fFin) {
+                                                $status = "Finalizada";
+                                                $stBg = "#f1f5f9"; $stColor = "#64748b";
+                                            }
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                                    <img src="<?php echo !empty($res['guestFoto']) ? '../../' . $res['guestFoto'] : 'https://i.pravatar.cc/100?u=' . $res['idUsuario']; ?>" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
+                                                    <div>
+                                                        <div style="font-size: 14px; font-weight: 800; color: var(--text-main);"><?php echo htmlspecialchars($res['guestNombre'] . ' ' . $res['guestApellido']); ?></div>
+                                                        <div style="font-size: 11px; color: #64748b; font-weight: 600;">Huésped registrado</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="font-size: 14px; font-weight: 700; color: var(--text-main);"><?php echo htmlspecialchars($res['nombrePropiedad']); ?></div>
+                                            </td>
+                                            <td>
+                                                <div style="font-size: 14px; font-weight: 700; color: var(--text-main);"><?php echo $fIni->format('d M') . ' - ' . $fFin->format('d M'); ?></div>
+                                                <div style="font-size: 11px; color: #64748b; font-weight: 600;"><?php echo $fIni->diff($fFin)->days; ?> noches</div>
+                                            </td>
+                                            <td><span class="status-tag" style="background: <?php echo $stBg; ?>; color: <?php echo $stColor; ?>;"><?php echo $status; ?></span></td>
+                                            <td><strong style="font-size: 15px; color: var(--primary);">$<?php echo number_format($res['dTotalReserva'], 0); ?></strong></td>
+                                            <td>
+                                                <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
+                                                    <i class="fa-solid fa-ellipsis"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 3rem; color: #94a3b8;">No hay reservas registradas.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -153,58 +186,43 @@
                             <p style="color: #64748b; font-size: 15px; font-weight: 500; margin-top: 0.5rem;">Gestione el feedback de sus clientes y mejore su reputación.</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary); font-weight: 800; background: #f0f4ff; padding: 10px 20px; border-radius: 12px;">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <span style="font-size: 15px; margin-left: 10px;">4.9 / 5.0</span>
+                            <?php for($i=0; $i<round($promedio); $i++): ?>
+                                <i class="fa-solid fa-star"></i>
+                            <?php endfor; ?>
+                            <span style="font-size: 15px; margin-left: 10px;"><?php echo $promedio; ?> / 5.0</span>
                         </div>
                     </header>
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
-                        <div class="review-card">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                                <div style="display: flex; gap: 1rem;">
-                                    <img src="https://i.pravatar.cc/100?u=l" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
-                                    <div>
-                                        <div style="font-size: 15px; font-weight: 800; color: var(--text-main);">Lucía Méndez</div>
-                                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Villa Mediterránea • Abril 2024</div>
+                        <?php if ($comentarios->num_rows > 0): ?>
+                            <?php while ($com = $comentarios->fetch_assoc()): ?>
+                                <div class="review-card">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                                        <div style="display: flex; gap: 1rem;">
+                                            <img src="<?php echo !empty($com['guestFoto']) ? '../../' . $com['guestFoto'] : 'https://i.pravatar.cc/100?u=' . $com['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
+                                            <div>
+                                                <div style="font-size: 15px; font-weight: 800; color: var(--text-main);"><?php echo htmlspecialchars($com['guestNombre'] . ' ' . $com['guestApellido']); ?></div>
+                                                <div style="font-size: 12px; color: #94a3b8; font-weight: 600;"><?php echo htmlspecialchars($com['nombrePropiedad']); ?> • <?php echo date('M Y', strtotime($com['dtFechaRegistro'])); ?></div>
+                                            </div>
+                                        </div>
+                                        <div style="color: var(--primary); font-size: 12px; display: flex; gap: 2px;">
+                                            <?php for($i=0; $i<$com['iCalificacion']; $i++): ?>
+                                                <i class="fa-solid fa-star"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+                                    <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 2rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"<?php echo htmlspecialchars($com['vComentario']); ?>"</p>
+                                    <div style="text-align: right; border-top: 1px solid #f1f5f9; padding-top: 1.5rem;">
+                                        <a href="#" style="font-size: 13px; font-weight: 800; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">Responder comentario <i class="fa-solid fa-reply"></i></a>
                                     </div>
                                 </div>
-                                <div style="color: var(--primary); font-size: 12px; display: flex; gap: 2px;">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                                </div>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: white; border-radius: 1.5rem; color: #94a3b8;">
+                                <i class="fa-regular fa-comments" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                                Aún no has recibido comentarios en tus propiedades.
                             </div>
-                            <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 2rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"Una estancia maravillosa. La casa estaba impecable y los detalles de bienvenida fueron un toque excelente. Volveremos sin duda."</p>
-                            <div style="text-align: right; border-top: 1px solid #f1f5f9; padding-top: 1.5rem;">
-                                <a href="#" style="font-size: 13px; font-weight: 800; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">Responder comentario <i class="fa-solid fa-reply"></i></a>
-                            </div>
-                        </div>
-
-                        <div class="review-card">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                                <div style="display: flex; gap: 1rem;">
-                                    <img src="https://i.pravatar.cc/100?u=t" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
-                                    <div>
-                                        <div style="font-size: 15px; font-weight: 800; color: var(--text-main);">Thomas Müller</div>
-                                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">Loft Industrial • Marzo 2024</div>
-                                    </div>
-                                </div>
-                                <div style="color: var(--primary); font-size: 12px; display: flex; gap: 2px;">
-                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
-                                </div>
-                            </div>
-                            <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 1.5rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"El apartamento es muy céntrico y moderno. Solo tuvimos un pequeño problema con el Wi-Fi el primer día, pero el anfitrión lo resolvió rápido."</p>
-                            
-                            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid #f1f5f9;">
-                                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); margin-bottom: 0.75rem; letter-spacing: 0.5px;">Tu respuesta</div>
-                                <p style="font-size: 14px; color: #64748b; line-height: 1.6;">"Gracias Thomas, nos alegra que pudieras disfrutar del loft a pesar del contratiempo técnico."</p>
-                                <div style="text-align: right; margin-top: 1.25rem;">
-                                    <a href="#" style="font-size: 12px; font-weight: 800; color: #94a3b8; text-decoration: none;">Editar respuesta</a>
-                                </div>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </section>
             </div>

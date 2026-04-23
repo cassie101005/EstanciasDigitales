@@ -64,28 +64,21 @@ $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; 
 
         <div class="payment-layout">
             <section>
-                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem;">Elige cómo pagar</h2>
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem;">Total a pagar</h2>
                 
-                <div class="payment-option-card active" id="opt-full" onclick="selectPayment('full')">
+                            <div class="payment-option-card" id="opt-full">
                     <div style="display: flex; gap: 1.5rem;">
-                         <input type="radio" name="pay_method" checked style="margin-top: 5px; accent-color: var(--primary);">
-                         <div>
-                             <strong style="font-size: 1.1rem;">Pago total</strong>
-                             <p style="font-size: 14px; color: #64748b; margin-top: 4px;">Paga el total ahora y olvídate de cargos adicionales durante tu estancia.</p>
-                         </div>
+                        <div>
+                            <strong style="font-size: 1.1rem;">Pago total</strong>
+                            <p style="font-size: 14px; color: #64748b; margin-top: 4px;">
+                                Paga el total ahora y olvídate de cargos adicionales durante tu estancia.
+                            </p>
+                        </div>
                     </div>
-                    <strong style="font-size: 1.25rem;">$<?php echo number_format($granTotal, 2); ?></strong>
-                </div>
 
-                <div class="payment-option-card" id="opt-part" onclick="selectPayment('part')">
-                    <div style="display: flex; gap: 1.5rem;">
-                         <input type="radio" name="pay_method" style="margin-top: 5px; accent-color: var(--primary);">
-                         <div>
-                             <strong style="font-size: 1.1rem;">Anticipo + Saldo (Abonos)</strong>
-                             <p style="font-size: 14px; color: #64748b; margin-top: 4px;">Reserva con un anticipo y liquida el resto antes de tu llegada.</p>
-                         </div>
-                    </div>
-                    <strong style="font-size: 1.25rem;">$<?php echo number_format($granTotal * 0.3, 2); ?> <span style="font-size: 11px; font-weight: 400; color: #999;">hoy</span></strong>
+                    <strong style="font-size: 1.25rem;">
+                        $<?php echo number_format($granTotal, 2); ?>
+                    </strong>
                 </div>
 
                 <div class="tonal-card" style="margin-top: 3rem; background: #f8f9fa;">

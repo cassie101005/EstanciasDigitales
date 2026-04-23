@@ -154,7 +154,7 @@
                     <div class="host-card-content">
                         <div class="host-card-info-row">
                             <h3 class="host-card-title">${p.vNombre}</h3>
-                            <span class="host-card-price">€${precio}<span style="font-size:10px;font-weight:400;color:#94a3b8;">/noche</span></span>
+                            <span class="host-card-price">$${precio}<span style="font-size:10px;font-weight:400;color:#94a3b8;">/noche</span></span>
                         </div>
                         <p style="font-size:13px; color:#64748b;">
                             <i class="fa-solid fa-location-dot" style="margin-right:5px; opacity:0.5;"></i>${ubicacion}

@@ -63,11 +63,7 @@ if (!isset($_SESSION['idUsuario'])) {
                     <li class="side-nav-item active" onclick="window.location.href='calendario.php'"><i class="fa-solid fa-calendar-days"></i> Calendario</li>
                     <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
                 </nav>
-                <div style="margin-top:auto; padding-top:1rem; border-top:1px solid #F3F4F6; list-style:none; padding-left:0;">
-                    <li class="side-nav-item" style="color:#EF4444;" onclick="window.location.href='../../index.php'">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
-                    </li>
-                </div>
+                
             </div>
         </aside>
 
@@ -129,7 +125,7 @@ if (!isset($_SESSION['idUsuario'])) {
 
                             <div style="background: #eff6ff; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; position: relative;">
                                 <span style="display: block; font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 10px;">Tarifa por noche</span>
-                                <div id="detalleTarifa" style="font-size: 1.5rem; font-weight: 800; color: #000;">€—</div>
+                                <div id="detalleTarifa" style="font-size: 1.5rem; font-weight: 800; color: #000;">$—</div>
                                 <i class="fa-solid fa-pencil" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--primary); opacity: 0.5; cursor: pointer;"></i>
                             </div>
 

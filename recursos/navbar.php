@@ -59,17 +59,13 @@ if ($is_host || $is_admin) {
 
     <!-- Right Section -->
     <div class="nav-right-group">
-        <?php if ($is_host || $is_admin): ?>
-            <span class="host-mode-link" onclick="window.location.href='<?php echo $base_path; ?>presentacion/huesped/home.php'">Modo Huésped</span>
-        <?php else: ?>
-            <span class="host-mode-link" onclick="window.location.href='<?php echo ($is_root ? "presentacion/anfitrion/" : "../anfitrion/"); ?>dashboard.php'">Modo Anfitrión</span>
-        <?php endif; ?>
+        
         
         <div class="nav-icons-box">
             <i class="fa-regular fa-bell"></i>
         </div>
         <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor:pointer;">
-            <img src="https://i.pravatar.cc/100?u=<?php echo ($is_host ?? false) ? 'host' : 'huesped'; ?>" alt="Perfil">
+            <img src="<?php echo !empty($_SESSION['foto']) ? ($base_path . $_SESSION['foto']) : 'https://i.pravatar.cc/100?u=' . ($_SESSION['idUsuario'] ?? 'default'); ?>" alt="Perfil">
         </div>
     </div>
 </nav>

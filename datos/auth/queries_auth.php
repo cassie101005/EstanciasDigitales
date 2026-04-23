@@ -23,6 +23,7 @@ class QueriesAuth {
                     u.vCorreo,
                     u.vContrasenia,
                     u.bEstado,
+                    u.vFoto,
                     r.vNombreRol
                 FROM tbl_usuarios u
                 INNER JOIN tbl_roles_usuario r ON u.idRol = r.idRol
@@ -31,6 +32,24 @@ class QueriesAuth {
         
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("s", $correo);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+    
+    /**
+     * Obtener usuario por ID
+     */
+    public function obtenerUsuarioPorId($idUsuario) {
+        $sql = "SELECT 
+                    u.*,
+                    r.vNombreRol
+                FROM tbl_usuarios u
+                INNER JOIN tbl_roles_usuario r ON u.idRol = r.idRol
+                WHERE u.idUsuario = ?
+                LIMIT 1";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idUsuario);
         $stmt->execute();
         return $stmt->get_result();
     }
@@ -71,6 +90,36 @@ class QueriesAuth {
             $datos['correo'],
             $datos['telefono'],
             $datos['contrasenia']
+        );
+        
+        return $stmt->execute();
+    }
+
+    /**
+     * Actualizar perfil de usuario
+     */
+    public function actualizarPerfil($idUsuario, $datos) {
+        $sql = "UPDATE tbl_usuarios SET 
+                    vNombre = ?, 
+                    vApellido = ?, 
+                    dFechaNacimiento = ?, 
+                    vCorreo = ?, 
+                    vTelefono = ?, 
+                    vContrasenia = ?,
+                    vFoto = ?
+                WHERE idUsuario = ?";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param(
+            "sssssssi",
+            $datos['nombre'],
+            $datos['apellido'],
+            $datos['fechaNacimiento'],
+            $datos['correo'],
+            $datos['telefono'],
+            $datos['contrasenia'],
+            $datos['foto'],
+            $idUsuario
         );
         
         return $stmt->execute();

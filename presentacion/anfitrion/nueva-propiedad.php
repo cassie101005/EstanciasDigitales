@@ -41,11 +41,7 @@
                 </li>
             </nav>
 
-            <div class="sidebar-footer-nav">
-                <li class="side-nav-item side-nav-danger" onclick="window.location.href='../../index.php'">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
-                </li>
-            </div>
+            
         </aside>
 
         <!-- ═══════════ CONTENIDO PRINCIPAL ═══════════ -->
@@ -61,9 +57,6 @@
                         <h1 class="np-page-title">Registrar nueva propiedad</h1>
                         <p class="np-page-sub">Completa la información de tu estancia para publicarla</p>
                     </div>
-                </div>
-                <div class="np-topbar-right">
-                    <span class="np-step-badge"><i class="fa-solid fa-pen-to-square"></i> Borrador</span>
                 </div>
             </header>
 

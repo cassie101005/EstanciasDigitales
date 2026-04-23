@@ -87,6 +87,18 @@ $policies = [];
 while ($row = $policiesResult->fetch_assoc()) {
     $policies[] = $row['vNombrePol'];
 }
+
+// NUEVO: Consultar comentarios (máximo 3)
+$sqlComentarios = "SELECT c.*, u.vNombre, u.vApellido, u.vFoto
+                   FROM tbl_comentarios c
+                   JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
+                   WHERE c.idPropiedad = ?
+                   ORDER BY c.dtFechaRegistro DESC
+                   LIMIT 3";
+$stmtCom = $conexion->prepare($sqlComentarios);
+$stmtCom->bind_param("i", $idPropiedad);
+$stmtCom->execute();
+$comentarios = $stmtCom->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -169,6 +181,39 @@ while ($row = $policiesResult->fetch_assoc()) {
                             </div>
                         <?php endforeach; ?>
                     </div>
+                </section>
+
+                <section style="padding: 4rem 0; border-top: 1px solid #eee;">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2.5rem;">Opiniones de los huéspedes</h2>
+                    
+                    <?php if ($comentarios->num_rows > 0): ?>
+                        <div style="display: grid; gap: 2rem;">
+                            <?php while ($com = $comentarios->fetch_assoc()): ?>
+                                <div style="background: #f8fafc; padding: 2rem; border-radius: 1.5rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                        <div style="display: flex; align-items: center; gap: 1rem;">
+                                            <img src="<?php echo !empty($com['vFoto']) ? '../../' . $com['vFoto'] : 'https://i.pravatar.cc/100?u=' . $com['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                            <div>
+                                                <p style="font-weight: 800;"><?php echo htmlspecialchars($com['vNombre'] . ' ' . $com['vApellido']); ?></p>
+                                                <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($com['dtFechaRegistro'])); ?></p>
+                                            </div>
+                                        </div>
+                                        <div style="color: #fbbf24;">
+                                            <?php for($i=0; $i<$com['iCalificacion']; $i++): ?>
+                                                <i class="fa-solid fa-star"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+                                    <p style="color: #475569; line-height: 1.6; font-style: italic;">"<?php echo htmlspecialchars($com['vComentario']); ?>"</p>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="text-align: center; padding: 3rem; background: #f1f5f9; border-radius: 1.5rem; color: #64748b;">
+                            <i class="fa-regular fa-comment-dots" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                            Aún no hay opiniones para esta propiedad. ¡Sé el primero en hospedarte!
+                        </div>
+                    <?php endif; ?>
                 </section>
             </main>
 
