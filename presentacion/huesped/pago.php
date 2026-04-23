@@ -1,3 +1,45 @@
+<?php
+session_start();
+require_once '../../datos/conexion.php';
+
+// Obtener datos del POST
+$idPropiedad = isset($_POST['idPropiedad']) ? intval($_POST['idPropiedad']) : 0;
+$fechaInicio = isset($_POST['fechaInicio']) ? $_POST['fechaInicio'] : '';
+$fechaFin = isset($_POST['fechaFin']) ? $_POST['fechaFin'] : '';
+$huespedes = isset($_POST['huespedes']) ? intval($_POST['huespedes']) : 1;
+$totalBase = isset($_POST['total']) ? floatval($_POST['total']) : 0;
+$noches = isset($_POST['noches']) ? intval($_POST['noches']) : 0;
+$precioNoche = isset($_POST['precioNoche']) ? floatval($_POST['precioNoche']) : 0;
+
+if ($idPropiedad <= 0 || empty($fechaInicio) || empty($fechaFin)) {
+    header("Location: home.php");
+    exit();
+}
+
+// Consultar detalles para el resumen
+$sql = "SELECT p.*, tp.vNombreCategoria as tipo FROM tbl_propiedad p 
+        LEFT JOIN tbl_tipo_propiedad tp ON p.idTipoPropiedad = tp.idTipoPropiedad
+        WHERE idPropiedad = ?";
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("i", $idPropiedad);
+$stmt->execute();
+$prop = $stmt->get_result()->fetch_assoc();
+
+// Imagen principal
+$sqlImg = "SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = ? LIMIT 1";
+$stmtImg = $conexion->prepare($sqlImg);
+$stmtImg->bind_param("i", $idPropiedad);
+$stmtImg->execute();
+$imgRow = $stmtImg->get_result()->fetch_assoc();
+$mainImage = $imgRow ? $imgRow['vImagen'] : "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80";
+
+$tarifaLimpieza = 1200;
+$impuestos = ($precioNoche * $noches) * 0.16;
+$granTotal = $totalBase + $impuestos;
+
+// Simular usuario logueado si no hay sesión
+$idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; // ID 2 por defecto para pruebas
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,6 +51,7 @@
     <link rel="stylesheet" href="../../recursos/css/huesped/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body style="background: white;">
     <?php include '../../recursos/navbar.php'; ?>
@@ -23,7 +66,6 @@
             <section>
                 <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem;">Elige cómo pagar</h2>
                 
-                <!-- Payment Option: FULL -->
                 <div class="payment-option-card active" id="opt-full" onclick="selectPayment('full')">
                     <div style="display: flex; gap: 1.5rem;">
                          <input type="radio" name="pay_method" checked style="margin-top: 5px; accent-color: var(--primary);">
@@ -32,10 +74,9 @@
                              <p style="font-size: 14px; color: #64748b; margin-top: 4px;">Paga el total ahora y olvídate de cargos adicionales durante tu estancia.</p>
                          </div>
                     </div>
-                    <strong style="font-size: 1.25rem;">$14,500.00</strong>
+                    <strong style="font-size: 1.25rem;">$<?php echo number_format($granTotal, 2); ?></strong>
                 </div>
 
-                <!-- Payment Option: ANTICIPO (ABONOS) -->
                 <div class="payment-option-card" id="opt-part" onclick="selectPayment('part')">
                     <div style="display: flex; gap: 1.5rem;">
                          <input type="radio" name="pay_method" style="margin-top: 5px; accent-color: var(--primary);">
@@ -44,7 +85,7 @@
                              <p style="font-size: 14px; color: #64748b; margin-top: 4px;">Reserva con un anticipo y liquida el resto antes de tu llegada.</p>
                          </div>
                     </div>
-                    <strong style="font-size: 1.25rem;">$4,350.00 <span style="font-size: 11px; font-weight: 400; color: #999;">hoy</span></strong>
+                    <strong style="font-size: 1.25rem;">$<?php echo number_format($granTotal * 0.3, 2); ?> <span style="font-size: 11px; font-weight: 400; color: #999;">hoy</span></strong>
                 </div>
 
                 <div class="tonal-card" style="margin-top: 3rem; background: #f8f9fa;">
@@ -55,21 +96,23 @@
                         Al confirmar, aceptas nuestros términos de servicio y políticas de cancelación.
                     </p>
                     <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; color: #008a60; font-weight: 700; font-size: 14px;">
-                        <i class="fa-solid fa-shield-check"></i> Pago seguro y verificado por AirCover
+                        <i class="fa-solid fa-shield-check"></i> Pago seguro y verificado por Estancias Digitales
                     </div>
                 </div>
 
-                <button class="btn btn-primary" id="btn-submit-pay" style="width: 100%; justify-content: center; padding: 1.5rem; margin-top: 3rem; font-size: 1.1rem;">Confirmar y Pagar $14,500.00</button>
+                <button class="btn btn-primary" id="btn-submit-pay" onclick="procesarPago()" style="width: 100%; justify-content: center; padding: 1.5rem; margin-top: 3rem; font-size: 1.1rem; font-weight: 800;">
+                    Confirmar y Pagar $<?php echo number_format($granTotal, 2); ?>
+                </button>
             </section>
 
             <aside>
                 <div class="summary-sidebar-v2">
                     <div class="preview-box">
-                        <div class="preview-img"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80"></div>
+                        <div class="preview-img"><img src="<?php echo htmlspecialchars($mainImage); ?>"></div>
                         <div>
-                            <span style="font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase;">Villa Paraíso</span>
-                            <h3 style="font-size: 15px; font-weight: 700; margin-top: 4px;">Residencia de Élite frente al Mar</h3>
-                            <div style="font-size: 13px; margin-top: 8px;"><i class="fa-solid fa-star"></i> 4.98 <span style="color: #999;">(128 reseñas)</span></div>
+                            <span style="font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase;"><?php echo htmlspecialchars($prop['tipo']); ?></span>
+                            <h3 style="font-size: 15px; font-weight: 700; margin-top: 4px;"><?php echo htmlspecialchars($prop['vNombre']); ?></h3>
+                            <div style="font-size: 13px; margin-top: 8px;"><i class="fa-solid fa-star"></i> 4.98 <span style="color: #999;">(Exclente)</span></div>
                         </div>
                     </div>
 
@@ -78,51 +121,35 @@
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                             <div>
                                 <span style="display:block; font-size: 13px; font-weight: 700;">Fechas</span>
-                                <span style="font-size: 13px; color: #64748b;">12 Nov - 17 Nov, 2024</span>
+                                <span style="font-size: 13px; color: #64748b;"><?php echo date('d M', strtotime($fechaInicio)) . ' - ' . date('d M, Y', strtotime($fechaFin)); ?></span>
                             </div>
-                            <span style="font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer;">Editar</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <span style="display:block; font-size: 13px; font-weight: 700;">Huéspedes</span>
-                                <span style="font-size: 13px; color: #64748b;">4 adultos</span>
+                                <span style="font-size: 13px; color: #64748b;"><?php echo $huespedes; ?> huésped<?php echo $huespedes>1?'es':''; ?></span>
                             </div>
-                            <span style="font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer;">Editar</span>
                         </div>
                     </div>
 
                     <div id="summary-details">
                         <h4 style="font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 1.5rem;">Resumen de precios</h4>
-                        <div class="price-row">
-                            <span>$2,900.00 x 5 noches</span>
-                            <span>$14,500.00</span>
+                        <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <span>$<?php echo number_format($precioNoche, 2); ?> x <?php echo $noches; ?> noches</span>
+                            <span>$<?php echo number_format($precioNoche * $noches, 2); ?></span>
                         </div>
-                        <div class="price-row">
+                        <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                             <span>Tarifa de limpieza</span>
-                            <span>$1,200.00</span>
+                            <span>$<?php echo number_format($tarifaLimpieza, 2); ?></span>
                         </div>
-                        <div class="price-row">
+                        <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                             <span>Impuestos</span>
-                            <span>$2,450.00</span>
-                        </div>
-                        
-                        <div id="deposit-details" style="display: none; border-top: 1px dashed #ddd; margin-top: 1.5rem; padding-top: 1.5rem;">
-                             <div class="price-row" style="color: var(--primary); font-weight: 700;">
-                                <span>Monto de Anticipo</span>
-                                <span>$4,350.00</span>
-                            </div>
-                            <div class="price-row" style="color: #e11d48; font-weight: 700;">
-                                <span>Saldo Pendiente</span>
-                                <span>$13,800.00</span>
-                            </div>
-                            <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 0.5rem;">
-                                Fecha límite: 05 de Noviembre, 2024
-                            </div>
+                            <span>$<?php echo number_format($impuestos, 2); ?></span>
                         </div>
 
-                        <div class="price-row" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #000; font-size: 1.25rem; font-weight: 800;">
+                        <div class="price-row" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #000; font-size: 1.25rem; font-weight: 800; display: flex; justify-content: space-between;">
                             <span>Total (MXN)</span>
-                            <span id="total-amount">$18,150.00</span>
+                            <span id="total-amount">$<?php echo number_format($granTotal, 2); ?></span>
                         </div>
                     </div>
                 </div>
@@ -131,24 +158,77 @@
     </div>
 
     <script>
+        const granTotal = <?php echo $granTotal; ?>;
+        
         function selectPayment(type) {
             const optFull = document.getElementById('opt-full');
             const optPart = document.getElementById('opt-part');
-            const depositDiv = document.getElementById('deposit-details');
             const btnPay = document.getElementById('btn-submit-pay');
 
             if (type === 'full') {
                 optFull.classList.add('active');
                 optPart.classList.remove('active');
                 optFull.querySelector('input').checked = true;
-                depositDiv.style.display = 'none';
-                btnPay.innerText = 'Confirmar y Pagar $18,150.00';
+                btnPay.innerText = 'Confirmar y Pagar $' + granTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
             } else {
                 optPart.classList.add('active');
                 optFull.classList.remove('active');
                 optPart.querySelector('input').checked = true;
-                depositDiv.style.display = 'block';
-                btnPay.innerText = 'Confirmar y Pagar $4,350.00';
+                btnPay.innerText = 'Confirmar y Pagar $' + (granTotal * 0.3).toLocaleString('en-US', {minimumFractionDigits: 2});
+            }
+        }
+
+        async function procesarPago() {
+            Swal.fire({
+                title: 'Procesando pago...',
+                text: 'Por favor espera un momento',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Datos para guardar la reservación
+            const formData = new FormData();
+            formData.append('idPropiedad', '<?php echo $idPropiedad; ?>');
+            formData.append('idUsuario', '<?php echo $idUsuarioHuesped; ?>');
+            formData.append('fechaInicio', '<?php echo $fechaInicio; ?>');
+            formData.append('fechaFin', '<?php echo $fechaFin; ?>');
+            formData.append('total', '<?php echo $granTotal; ?>');
+            formData.append('huespedes', '<?php echo $huespedes; ?>');
+
+            try {
+                const response = await fetch('../../apis/huesped/guardar_reserva.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Pago Exitoso!',
+                        text: 'Tu reservación ha sido confirmada correctamente.',
+                        confirmButtonText: 'Ver mis reservas',
+                        confirmButtonColor: '#7C3AED'
+                    }).then(() => {
+                        window.location.href = 'reservas.php';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.mensaje || 'No se pudo procesar la reservación.'
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'Hubo un problema al conectar con el servidor.'
+                });
             }
         }
     </script>

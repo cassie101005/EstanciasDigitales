@@ -1,3 +1,27 @@
+<?php
+session_start();
+require_once '../../datos/conexion.php';
+
+// Simular usuario logueado si no hay sesión
+$idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; // ID 2 por defecto para pruebas
+
+// Consultar reservaciones del usuario
+$sql = "SELECT r.*, p.vNombre as nombrePropiedad, p.vDescripcion, 
+               (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as imagen,
+               ci.vNombreCiudad as ciudad, pa.vNombrePais as pais
+        FROM tbl_reserva r
+        JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+        LEFT JOIN tbl_ciudad ci ON p.idCiudad = ci.idCiudad
+        LEFT JOIN tbl_estado es ON ci.idEstado = es.idEstado
+        LEFT JOIN tbl_pais pa ON es.idPais = pa.idPais
+        WHERE r.idUsuario = ?
+        ORDER BY r.dtFechaInicio DESC";
+
+$stmt = $conexion->prepare($sql);
+$stmt->bind_param("i", $idUsuarioHuesped);
+$stmt->execute();
+$reservas = $stmt->get_result();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -28,65 +52,57 @@
 
         <div class="reservations-list">
             
-            <!-- Reservation Card: EN CURSO -->
-            <div class="res-card-v2">
-                <div class="res-img-box">
-                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80">
-                    <div class="status-badge-v2" style="background: #008a60;">EN CURSO</div>
-                </div>
-                <div class="res-content-box">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Villa Horizonte Azul</h2>
-                    <div style="font-size: 14px; color: #64748b; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i class="fa-regular fa-calendar"></i> 15 Oct - 20 Oct, 2024</span>
-                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i class="fa-solid fa-location-dot"></i> Ibiza, España</span>
+            <?php if ($reservas->num_rows > 0): ?>
+                <?php while ($res = $reservas->fetch_assoc()): ?>
+                    <?php 
+                        $fechaInicio = new DateTime($res['dtFechaInicio']);
+                        $fechaFin = new DateTime($res['dtFechaFin']);
+                        $hoy = new DateTime();
+                        
+                        $status = "CONFIRMADA";
+                        $statusColor = "var(--primary)";
+                        
+                        if ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
+                            $status = "EN CURSO";
+                            $statusColor = "#008a60";
+                        } elseif ($hoy > $fechaFin) {
+                            $status = "FINALIZADA";
+                            $statusColor = "#6c757d";
+                        }
+                    ?>
+                    <div class="res-card-v2">
+                        <div class="res-img-box">
+                            <img src="<?php echo htmlspecialchars($res['imagen'] ?? 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'); ?>">
+                            <div class="status-badge-v2" style="background: <?php echo $statusColor; ?>;"><?php echo $status; ?></div>
+                        </div>
+                        <div class="res-content-box">
+                            <h2 style="font-size: 1.5rem; font-weight: 700;"><?php echo htmlspecialchars($res['nombrePropiedad']); ?></h2>
+                            <div style="font-size: 14px; color: #64748b; display: flex; flex-direction: column; gap: 0.5rem;">
+                                <span style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fa-regular fa-calendar"></i> 
+                                    <?php echo $fechaInicio->format('d M') . ' - ' . $fechaFin->format('d M, Y'); ?>
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fa-solid fa-location-dot"></i> 
+                                    <?php echo htmlspecialchars($res['ciudad'] . ', ' . $res['pais']); ?>
+                                </span>
+                            </div>
+                            <div class="res-actions">
+                                <button class="btn btn-primary" onclick="window.location.href='detalle.php?id=<?php echo $res['idPropiedad']; ?>'">Ver detalle</button>
+                                <button class="btn btn-res-grey">Contactar anfitrión</button>
+                            </div>
+                            <div class="res-price-abs">$<?php echo number_format($res['dTotalReserva'], 0); ?> <span>total</span></div>
+                        </div>
                     </div>
-                    <div class="res-actions">
-                        <button class="btn btn-primary" onclick="window.location.href='detalle.php'">Ver detalle</button>
-                        <button class="btn btn-res-grey">Contactar anfitrión</button>
-                    </div>
-                    <div class="res-price-abs">$1,250 <span>total</span></div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <div style="text-align: center; padding: 4rem; background: white; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                    <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1.5rem;"></i>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #64748b;">No tienes reservaciones aún</h2>
+                    <p style="color: #94a3b8; margin-top: 0.5rem;">¡Explora nuestras propiedades y planea tu próximo viaje!</p>
+                    <button class="btn btn-primary" onclick="window.location.href='home.php'" style="margin-top: 2rem;">Explorar Marketplace</button>
                 </div>
-            </div>
-
-            <!-- Reservation Card: FINALIZADA -->
-            <div class="res-card-v2">
-                <div class="res-img-box">
-                    <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=600&q=80">
-                    <div class="status-badge-v2" style="background: #6c757d;">FINALIZADA</div>
-                </div>
-                <div class="res-content-box">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Loft Soho Luxury</h2>
-                    <div style="font-size: 14px; color: #64748b; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i class="fa-solid fa-rotate-left"></i> 02 Sep - 05 Sep, 2024</span>
-                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i class="fa-solid fa-location-dot"></i> Nueva York, USA</span>
-                    </div>
-                    <div class="res-actions">
-                        <button class="btn btn-res-grey">Ver factura</button>
-                        <button class="btn btn-res-outline">Volver a reservar</button>
-                    </div>
-                    <div class="res-price-abs">$840 <span>total</span></div>
-                </div>
-            </div>
-
-            <!-- Reservation Card: CONFIRMADA -->
-            <div class="res-card-v2">
-                <div class="res-img-box">
-                    <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80">
-                    <div class="status-badge-v2" style="background: var(--primary);">CONFIRMADA</div>
-                </div>
-                <div class="res-content-box">
-                    <h2 style="font-size: 1.5rem; font-weight: 700;">Refugio Maldivas</h2>
-                    <div style="font-size: 14px; color: #64748b; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i class="fa-regular fa-calendar"></i> 20 Dic - 27 Dic, 2024</span>
-                        <span style="display: flex; align-items: center; gap: 0.75rem;"><i class="fa-solid fa-location-dot"></i> Atolón Norte, Maldivas</span>
-                    </div>
-                    <div class="res-actions">
-                        <button class="btn btn-primary">Ver detalle</button>
-                        <button class="btn btn-res-grey">Gestionar reserva</button>
-                    </div>
-                    <div class="res-price-abs">$3,400 <span>total</span></div>
-                </div>
-            </div>
+            <?php endif; ?>
 
         </div>
     </div>

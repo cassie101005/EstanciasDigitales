@@ -1,3 +1,32 @@
+<?php
+session_start();
+require_once '../../datos/conexion.php';
+
+// Consultar propiedades
+$sql = "SELECT p.*, 
+               (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as imagen,
+               ci.vNombreCiudad as ciudad, pa.vNombrePais as pais
+        FROM tbl_propiedad p
+        LEFT JOIN tbl_ciudad ci ON p.idCiudad = ci.idCiudad
+        LEFT JOIN tbl_estado es ON ci.idEstado = es.idEstado
+        LEFT JOIN tbl_pais pa ON es.idPais = pa.idPais
+        ORDER BY p.dtFechaRegistro DESC";
+
+$result = $conexion->query($sql);
+$properties = [];
+while ($row = $result->fetch_assoc()) {
+    $properties[] = [
+        'id' => $row['idPropiedad'],
+        'loc' => $row['vNombre'],
+        'desc' => $row['ciudad'] . ', ' . $row['pais'],
+        'dates' => "Disponible ahora",
+        'price' => '$' . number_format($row['dPrecioNoche'], 0),
+        'rating' => "4.9",
+        'fav' => false,
+        'img' => $row['imagen'] ?? "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80"
+    ];
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -42,7 +71,28 @@
     </div>
 
     <div class="prop-grid" id="mainGrid">
-        <!-- Loaded by JS -->
+        <?php if (count($properties) > 0): ?>
+            <?php foreach ($properties as $p): ?>
+                <div class="prop-card-v2" onclick="window.location.href = 'detalle.php?id=<?php echo $p['id']; ?>'">
+                    <div class="img-container">
+                        <img src="<?php echo htmlspecialchars($p['img']); ?>" alt="<?php echo htmlspecialchars($p['loc']); ?>">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-content-top">
+                            <div class="card-title"><?php echo htmlspecialchars($p['loc']); ?></div>
+                            <div class="card-rating"><i class="fa-solid fa-star" style="font-size: 0.8rem;"></i> <?php echo $p['rating']; ?></div>
+                        </div>
+                        <div class="card-desc"><?php echo htmlspecialchars($p['desc']); ?></div>
+                        <div class="card-dates"><?php echo htmlspecialchars($p['dates']); ?></div>
+                        <div class="card-price"><strong><?php echo $p['price']; ?></strong> noche</div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                <h2 style="color: #64748b;">No hay propiedades disponibles en este momento.</h2>
+            </div>
+        <?php endif; ?>
     </div>
 
     <footer class="main-footer">
@@ -54,40 +104,5 @@
             <a href="#">Ayuda</a>
         </div>
     </footer>
-
-    <script>
-        const properties = [
-            { id: 1, loc: "Tulum, México", desc: "A 2,450 km de distancia", dates: "12-17 de oct.", price: "$4,500", rating: "4.9", fav: true, img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" },
-            { id: 2, loc: "Cancún, México", desc: "En la playa", dates: "20-25 de oct.", price: "$7,200", rating: "4.8", fav: false, img: "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80" },
-            { id: 3, loc: "Valle de Bravo, México", desc: "Vista a la montaña", dates: "1-6 de nov.", price: "$3,800", rating: "4.95", fav: true, img: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=600&q=80" },
-            { id: 4, loc: "CDMX, México", desc: "Polanco", dates: "15-20 de dic.", price: "$2,900", rating: "4.7", fav: false, img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80" },
-            { id: 5, loc: "Sayulita, México", desc: "Estilo Boho Chic", dates: "10-15 de nov.", price: "$3,200", rating: "4.88", fav: false, img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" },
-            { id: 6, loc: "Monterrey, México", desc: "Chipinque", dates: "5-10 de ene.", price: "$5,100", rating: "4.92", fav: true, img: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=600&q=80" },
-            { id: 7, loc: "Bacalar, México", desc: "Laguna de los siete colores", dates: "22-27 de nov.", price: "$6,800", rating: "4.97", fav: false, img: "https://images.unsplash.com/photo-1583037189850-1921ae7c6121?auto=format&fit=crop&w=600&q=80" },
-            { id: 8, loc: "San Miguel, México", desc: "Centro Histórico", dates: "12-18 de dic.", price: "$4,200", rating: "4.89", fav: true, img: "https://images.unsplash.com/photo-1515263487990-61b07816b324?auto=format&fit=crop&w=600&q=80" }
-        ];
-
-        const grid = document.getElementById('mainGrid');
-        properties.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'prop-card-v2';
-            card.onclick = () => window.location.href = `detalle.php?id=${p.id}`;
-            card.innerHTML = `
-                <div class="img-container">
-                    <img src="${p.img}" alt="${p.loc}">
-                </div>
-                <div class="card-content">
-                    <div class="card-content-top">
-                        <div class="card-title">${p.loc}</div>
-                        <div class="card-rating"><i class="fa-solid fa-star" style="font-size: 0.8rem;"></i> ${p.rating}</div>
-                    </div>
-                    <div class="card-desc">${p.desc}</div>
-                    <div class="card-dates">${p.dates}</div>
-                    <div class="card-price"><strong>${p.price}</strong> noche</div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    </script>
 </body>
 </html>
