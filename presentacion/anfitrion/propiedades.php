@@ -151,7 +151,7 @@ if ($stmtIng) {
     const estadoVacio = document.getElementById('estadoVacio');
 
     try {
-        const res  = await fetch('../../apis/anfitrion/propiedades.php?accion=listar');
+        const res  = await fetch(`../../apis/anfitrion/propiedades.php?accion=listar&_=${new Date().getTime()}`);
         const data = await res.json();
 
         grid.innerHTML = ''; // limpia skeletons
@@ -179,7 +179,6 @@ if ($stmtIng) {
                     <div class="card-img-wrapper">
                         <img src="${imgSrc}" alt="${p.vNombre}" loading="lazy"
                              onerror="this.src='https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'">
-                        <div class="card-badge-status status-activa">● ACTIVA</div>
                         <div class="btn-edit-float" onclick="event.stopPropagation(); window.location.href='editar-propiedad.php?id=${p.idPropiedad}'">
                             <i class="fa-solid fa-pencil"></i>
                         </div>

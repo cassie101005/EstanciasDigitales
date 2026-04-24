@@ -1,4 +1,4 @@
-<?php
+ <?php
 session_start();
 if (!isset($_SESSION['idUsuario'])) {
     header("Location: ../../index.php");
@@ -216,6 +216,20 @@ async function cargarCalendario() {
 
     document.getElementById('mesAnioLabel').innerText = `${meses[mesActual - 1]} ${anioActual}`;
 
+    // Deshabilitar botón de retroceso si es el mes actual
+    const hoy = new Date();
+    const mesHoy = hoy.getMonth() + 1;
+    const anioHoy = hoy.getFullYear();
+    const prevBtn = document.querySelector('.fa-chevron-left');
+    
+    if (anioActual <= anioHoy && mesActual <= mesHoy) {
+        prevBtn.style.opacity = '0.2';
+        prevBtn.style.cursor = 'not-allowed';
+    } else {
+        prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
+    }
+
     // 2. Fetch eventos del mes
     try {
         const res = await fetch(`../../apis/anfitrion/calendario.php?accion=obtener_eventos&idPropiedad=${idPropiedad}&mes=${mesActual}&anio=${anioActual}`);
@@ -327,9 +341,23 @@ function renderEventosList() {
 }
 
 function cambiarMes(delta) {
-    mesActual += delta;
-    if (mesActual > 12) { mesActual = 1; anioActual++; }
-    if (mesActual < 1) { mesActual = 12; anioActual--; }
+    let nuevoMes = mesActual + delta;
+    let nuevoAnio = anioActual;
+    
+    if (nuevoMes > 12) { nuevoMes = 1; nuevoAnio++; }
+    if (nuevoMes < 1) { nuevoMes = 12; nuevoAnio--; }
+
+    // No permitir ir a meses anteriores al actual
+    const hoy = new Date();
+    const mesHoy = hoy.getMonth() + 1;
+    const anioHoy = hoy.getFullYear();
+
+    if (nuevoAnio < anioHoy || (nuevoAnio === anioHoy && nuevoMes < mesHoy)) {
+        return;
+    }
+
+    mesActual = nuevoMes;
+    anioActual = nuevoAnio;
     cargarCalendario();
 }
 

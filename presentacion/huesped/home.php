@@ -308,5 +308,41 @@ while ($row = $result->fetch_assoc()) {
             <a href="#">Ayuda</a>
         </div>
     </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startInput = document.querySelector('input[name="fecha_inicio"]');
+        const endInput = document.querySelector('input[name="fecha_fin"]');
+        
+        // Obtener fecha local de hoy en formato YYYY-MM-DD
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
+
+        // Establecer mínimo para fecha de inicio
+        startInput.setAttribute('min', today);
+        
+        // Validar fecha de fin
+        const updateMinEnd = () => {
+            if (startInput.value) {
+                // Permitimos que la salida sea el mismo día que la llegada (o posterior)
+                endInput.setAttribute('min', startInput.value);
+                
+                if (endInput.value && endInput.value < startInput.value) {
+                    endInput.value = startInput.value;
+                }
+            } else {
+                endInput.setAttribute('min', today);
+            }
+        };
+
+        startInput.addEventListener('change', updateMinEnd);
+        
+        // Ejecutar al cargar por si ya hay valores
+        updateMinEnd();
+    });
+    </script>
 </body>
 </html>
