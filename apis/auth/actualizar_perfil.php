@@ -48,7 +48,7 @@ $datos = [
     'fechaNacimiento' => $_POST['fechaNacimiento'] ?? '',
     'correo' => $_POST['correo'] ?? '',
     'telefono' => $_POST['telefono'] ?? '',
-    'contrasenia' => $_POST['contrasenia'] ?? '',
+    'contrasenia' => !empty($_POST['contrasenia']) ? $_POST['contrasenia'] : $userActual['vContrasenia'],
     'foto' => $fotoPath
 ];
 

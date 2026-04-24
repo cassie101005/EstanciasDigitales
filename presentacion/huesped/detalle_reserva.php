@@ -60,7 +60,15 @@ $status = "CONFIRMADA";
 $color = "#3b82f6";
 $bgColor = "#eff6ff";
 
-if ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
+if (isset($reserva['vEstatus']) && (strtoupper($reserva['vEstatus']) === 'CANCELADA' || strtoupper($reserva['vEstatus']) === 'CANCELADO')) {
+    $status = "CANCELADA";
+    $color = "#991b1b";
+    $bgColor = "#fee2e2";
+} elseif (isset($reserva['vEstado']) && (strtoupper($reserva['vEstado']) === 'CANCELADA' || strtoupper($reserva['vEstado']) === 'CANCELADO')) {
+    $status = "CANCELADA";
+    $color = "#991b1b";
+    $bgColor = "#fee2e2";
+} elseif ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
     $status = "EN CURSO";
     $color = "#059669";
     $bgColor = "#ecfdf5";
@@ -197,6 +205,11 @@ if ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
                     <button class="btn btn-outline-primary" onclick="window.location.href='reservas.php'">
                         Volver a Reservaciones
                     </button>
+                    <?php if ($status !== 'CANCELADA' && $status !== 'FINALIZADA'): ?>
+                    <button class="btn" style="color: #ef4444; border: 1px solid #ef4444; padding: 0.8rem 1.5rem; border-radius: 12px; background: transparent; cursor: pointer; font-weight: 800;" onclick="cancelarReserva(<?php echo $idReserva; ?>, 'huesped', <?php echo $userId; ?>)">
+                        <i class="fa-solid fa-ban"></i> Cancelar Reserva
+                    </button>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -215,5 +228,33 @@ if ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
         </div>
     </div>
 
+    <script>
+    function cancelarReserva(idReserva, role, idUsuario) {
+        if (confirm("¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer.")) {
+            const formData = new FormData();
+            formData.append('idReserva', idReserva);
+            formData.append('role', role);
+            formData.append('idUsuario', idUsuario);
+
+            fetch('../../apis/cancelar_reserva.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    alert("Reserva cancelada correctamente.");
+                    window.location.reload();
+                } else {
+                    alert("Error: " + data.mensaje);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Ocurrió un error en el servidor.");
+            });
+        }
+    }
+    </script>
 </body>
 </html>

@@ -1,4 +1,38 @@
-<?php session_start(); ?>
+<?php 
+session_start();
+require_once '../../datos/conexion.php';
+$idHost = $_SESSION['idUsuario'] ?? 1;
+
+// Calcular ingresos totales omitiendo las reservas canceladas
+$sqlIngresos = "SELECT SUM(r.dTotalReserva) as totalIngresos 
+                FROM tbl_reserva r 
+                JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
+                WHERE p.idUsuario = ? 
+                AND (r.vEstatus IS NULL OR (UPPER(r.vEstatus) != 'CANCELADA' AND UPPER(r.vEstatus) != 'CANCELADO'))";
+$stmtIng = $conexion->prepare($sqlIngresos);
+if ($stmtIng) {
+    $stmtIng->bind_param("i", $idHost);
+    $stmtIng->execute();
+    $resIng = $stmtIng->get_result()->fetch_assoc();
+    $totalIngresos = $resIng['totalIngresos'] ?? 0;
+} else {
+    // Si la columna vEstatus no existe en esta db, intentamos con vEstado
+    $sqlIngresos2 = "SELECT SUM(r.dTotalReserva) as totalIngresos 
+                     FROM tbl_reserva r 
+                     JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
+                     WHERE p.idUsuario = ? 
+                     AND (r.vEstado IS NULL OR (UPPER(r.vEstado) != 'CANCELADA' AND UPPER(r.vEstado) != 'CANCELADO'))";
+    $stmtIng2 = $conexion->prepare($sqlIngresos2);
+    if ($stmtIng2) {
+        $stmtIng2->bind_param("i", $idHost);
+        $stmtIng2->execute();
+        $resIng2 = $stmtIng2->get_result()->fetch_assoc();
+        $totalIngresos = $resIng2['totalIngresos'] ?? 0;
+    } else {
+        $totalIngresos = 0;
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -51,15 +85,11 @@
                 <section class="kpi-host-grid" style="margin-top: 3rem;">
                     <div class="kpi-host-card">
                         <span class="label">Propiedades Activas</span>
-                        <div class="value">12 <span style="font-size: 11px; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 8px; margin-left: 10px;">+2 este mes</span></div>
+                        <div class="value" id="kpi-total-propiedades">0</div>
                     </div>
                     <div class="kpi-host-card">
-                        <span class="label">Ocupación Media</span>
-                        <div class="value">84% <span style="font-size: 11px; background: #f0f4ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Alto rendimiento</span></div>
-                    </div>
-                    <div class="kpi-host-card" style="grid-column: span 2;">
-                        <span class="label">Ingresos Estimados</span>
-                        <div class="value">€14.2k <span style="font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 10px;">Próximos 30 días</span></div>
+                        <span class="label">Ingresos Totales</span>
+                        <div class="value">$<?php echo number_format($totalIngresos, 2); ?> <span style="font-size: 11px; background: #f0f4ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Ganancia neta acumulada</span></div>
                     </div>
                 </section>
 
@@ -129,8 +159,11 @@
         if (!data.ok || data.propiedades.length === 0) {
             grid.style.display = 'none';
             estadoVacio.style.display = 'block';
+            document.getElementById('kpi-total-propiedades').innerHTML = '0 <span style="font-size: 11px; background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Ninguna</span>';
             return;
         }
+
+        document.getElementById('kpi-total-propiedades').innerHTML = data.propiedades.length + ' <span style="font-size: 11px; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Activas</span>';
 
         data.propiedades.forEach(p => {
             const imgSrc = p.imagenPrincipal

@@ -107,9 +107,11 @@ $totalComentarios = $avgData['total'] ?? 0;
                     <div style="padding: 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 1.5rem;">
                         <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Reservas Recientes</h3>
                         <div style="display: flex; gap: 1rem; font-size: 12px; font-weight: 800;">
-                            <span style="color: white; background: var(--primary); padding: 8px 16px; border-radius: 99px; cursor: pointer;">Todas</span>
-                            <span style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Confirmadas</span>
-                            <span style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Finalizadas</span>
+                            <span onclick="filtrarReservas('Todas', this)" class="filtro-btn" style="color: white; background: var(--primary); padding: 8px 16px; border-radius: 99px; cursor: pointer;">Todas</span>
+                            <span onclick="filtrarReservas('Confirmada', this)" class="filtro-btn" style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Confirmadas</span>
+                            <span onclick="filtrarReservas('En curso', this)" class="filtro-btn" style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">En curso</span>
+                            <span onclick="filtrarReservas('Finalizada', this)" class="filtro-btn" style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Finalizadas</span>
+                            <span onclick="filtrarReservas('Cancelada', this)" class="filtro-btn" style="color: #64748b; background: #f8fafc; padding: 8px 16px; border-radius: 99px; cursor: pointer;">Canceladas</span>
                         </div>
                     </div>
                     
@@ -134,7 +136,13 @@ $totalComentarios = $avgData['total'] ?? 0;
                                             $hoy = new DateTime();
                                             $status = "Confirmada";
                                             $stBg = "#d1fae5"; $stColor = "#065f46";
-                                            if ($hoy >= $fIni && $hoy <= $fFin) {
+                                            if (isset($res['vEstatus']) && (strtoupper($res['vEstatus']) === 'CANCELADA' || strtoupper($res['vEstatus']) === 'CANCELADO')) {
+                                                $status = "Cancelada";
+                                                $stBg = "#fee2e2"; $stColor = "#991b1b";
+                                            } elseif (isset($res['vEstado']) && (strtoupper($res['vEstado']) === 'CANCELADA' || strtoupper($res['vEstado']) === 'CANCELADO')) {
+                                                $status = "Cancelada";
+                                                $stBg = "#fee2e2"; $stColor = "#991b1b";
+                                            } elseif ($hoy >= $fIni && $hoy <= $fFin) {
                                                 $status = "En curso";
                                                 $stBg = "#dbeafe"; $stColor = "#1e40af";
                                             } elseif ($hoy > $fFin) {
@@ -142,7 +150,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                                                 $stBg = "#f1f5f9"; $stColor = "#64748b";
                                             }
                                         ?>
-                                        <tr>
+                                        <tr class="reserva-row" data-status="<?php echo $status; ?>">
                                             <td>
                                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                                     <img src="<?php echo !empty($res['guestFoto']) ? '../../' . $res['guestFoto'] : 'https://i.pravatar.cc/100?u=' . $res['idUsuario']; ?>" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
@@ -162,9 +170,16 @@ $totalComentarios = $avgData['total'] ?? 0;
                                             <td><span class="status-tag" style="background: <?php echo $stBg; ?>; color: <?php echo $stColor; ?>;"><?php echo $status; ?></span></td>
                                             <td><strong style="font-size: 15px; color: var(--primary);">$<?php echo number_format($res['dTotalReserva'], 0); ?></strong></td>
                                             <td>
-                                                <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
-                                                    <i class="fa-solid fa-ellipsis"></i>
-                                                </button>
+                                                <div style="display: flex; gap: 0.5rem;">
+                                                    <button style="border: none; background: #f1f5f9; padding: 8px; border-radius: 8px; color: #64748b; cursor: pointer;">
+                                                        <i class="fa-solid fa-ellipsis"></i>
+                                                    </button>
+                                                    <?php if ($status !== 'Cancelada' && $status !== 'Finalizada'): ?>
+                                                    <button onclick="cancelarReserva(<?php echo $res['idReserva']; ?>, 'anfitrion', <?php echo $idHost; ?>)" title="Cancelar Reserva" style="border: none; background: #fee2e2; padding: 8px; border-radius: 8px; color: #dc2626; cursor: pointer;">
+                                                        <i class="fa-solid fa-ban"></i>
+                                                    </button>
+                                                    <?php endif; ?>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -228,5 +243,54 @@ $totalComentarios = $avgData['total'] ?? 0;
             </div>
         </main>
     </div>
+    <script>
+    function filtrarReservas(estado, btn) {
+        // Actualizar estilos visuales de los botones
+        const botones = document.querySelectorAll('.filtro-btn');
+        botones.forEach(b => {
+            b.style.color = '#64748b';
+            b.style.background = '#f8fafc';
+        });
+        btn.style.color = 'white';
+        btn.style.background = 'var(--primary)';
+
+        // Mostrar/Ocultar filas
+        const filas = document.querySelectorAll('.reserva-row');
+        filas.forEach(fila => {
+            if (estado === 'Todas' || fila.getAttribute('data-status') === estado) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    function cancelarReserva(idReserva, role, idUsuario) {
+        if (confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
+            const formData = new FormData();
+            formData.append('idReserva', idReserva);
+            formData.append('role', role);
+            formData.append('idUsuario', idUsuario);
+
+            fetch('../../apis/cancelar_reserva.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    alert("Reserva cancelada exitosamente.");
+                    window.location.reload();
+                } else {
+                    alert("Error: " + data.mensaje);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Ocurrió un problema de red al intentar cancelar.");
+            });
+        }
+    }
+    </script>
 </body>
 </html>

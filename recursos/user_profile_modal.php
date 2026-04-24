@@ -30,7 +30,7 @@ if ($role_title === 'admin') $role_title = "Administrador de Sistema";
 elseif ($role_title === 'anfitrion') $role_title = "Anfitrión";
 elseif ($role_title === 'huesped') $role_title = "Viajero";
 
-$logout_url = rtrim($base_path ?? '../../', '/') . '/index.php';
+$logout_url = rtrim($base_path ?? '../../', '/') . '/negocio/auth/logout.php';
 ?>
 <!-- ========== MODAL PERFIL DE USUARIO ========== -->
 <div class="profile-modal-overlay" id="profileModal" onclick="closeProfileModal(event)">
@@ -107,7 +107,7 @@ $logout_url = rtrim($base_path ?? '../../', '/') . '/index.php';
                 <div class="form-group-modal">
                     <label>Contraseña actual</label>
                     <div class="input-icon-right">
-                        <input type="password" name="contrasenia" id="pw_current" value="<?php echo htmlspecialchars($userData['vContrasenia'] ?? ''); ?>" class="modal-input">
+                        <input type="password" name="contrasenia" id="pw_current" value="" class="modal-input" placeholder="Dejar en blanco para no cambiar">
                         <i class="fa-regular fa-eye" style="cursor:pointer;" onclick="togglePw('pw_current', this)"></i>
                     </div>
                 </div>

@@ -10,6 +10,26 @@ $hide_search = $hide_search ?? false;
 
 // Dynamic Search Placeholder (Host & Admin Mode)
 $host_placeholder = "Buscar...";
+$foto_navbar = 'https://i.pravatar.cc/100?u=' . ($_SESSION['idUsuario'] ?? 'default');
+
+if (isset($_SESSION['idUsuario'])) {
+    if (!isset($conexion)) {
+        require_once __DIR__ . '/../datos/conexion.php';
+    }
+    if (isset($conexion)) {
+        $stmtNavUser = $conexion->prepare("SELECT vFoto FROM tbl_usuarios WHERE idUsuario = ?");
+        if ($stmtNavUser) {
+            $stmtNavUser->bind_param("i", $_SESSION['idUsuario']);
+            $stmtNavUser->execute();
+            $resNavUser = $stmtNavUser->get_result();
+            if ($rowNavUser = $resNavUser->fetch_assoc()) {
+                if (!empty($rowNavUser['vFoto'])) {
+                    $foto_navbar = $base_path . $rowNavUser['vFoto'];
+                }
+            }
+        }
+    }
+}
 if ($is_host || $is_admin) {
     if ($current_page == "dashboard.php") {
         $host_placeholder = $is_admin ? "Buscar reservas, huéspedes o anfitriones..." : "Buscar reservas";
@@ -61,12 +81,18 @@ if ($is_host || $is_admin) {
     <div class="nav-right-group">
         
         
-        <div class="nav-icons-box">
+        <div class="nav-icons-box" onclick="toggleNotificationsModal()" style="cursor: pointer; position: relative;">
             <i class="fa-regular fa-bell"></i>
         </div>
-        <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor:pointer;">
-            <img src="<?php echo !empty($_SESSION['foto']) ? ($base_path . $_SESSION['foto']) : 'https://i.pravatar.cc/100?u=' . ($_SESSION['idUsuario'] ?? 'default'); ?>" alt="Perfil">
-        </div>
+        <?php if (isset($_SESSION['idUsuario'])): ?>
+            <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor:pointer;">
+                <img src="<?php echo $foto_navbar; ?>" alt="Perfil">
+            </div>
+        <?php else: ?>
+            <div class="nav-profile-avatar" onclick="window.location.href='<?php echo rtrim($base_path ?? '../../', '/'); ?>/negocio/auth/login.php'" style="cursor:pointer; display: flex; align-items: center; justify-content: center; background: var(--primary); color: white;">
+                <i class="fa-solid fa-user"></i>
+            </div>
+        <?php endif; ?>
     </div>
 </nav>
 
@@ -80,3 +106,4 @@ function toggleHostSidebar() {
 </script>
 
 <?php include __DIR__ . '/user_profile_modal.php'; ?>
+<?php include __DIR__ . '/notificaciones_modal.php'; ?>
