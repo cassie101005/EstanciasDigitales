@@ -30,17 +30,6 @@ if (isset($_SESSION['idUsuario'])) {
         }
     }
 }
-if ($is_host || $is_admin) {
-    if ($current_page == "dashboard.php") {
-        $host_placeholder = $is_admin ? "Buscar reservas, huéspedes o anfitriones..." : "Buscar reservas";
-    } elseif ($current_page == "propiedades.php") {
-        $host_placeholder = "Buscar propiedades";
-    } elseif ($current_page == "calendario.php") {
-        $host_placeholder = "Buscar reservas o propiedades";
-    } elseif ($current_page == "reservas.php") {
-        $host_placeholder = "Buscar reservas";
-    }
-}
 ?>
 <nav class="nav-huesped <?php echo ($is_host || $is_admin) ? 'nav-is-host' : ''; ?>">
     <!-- Left Section -->
@@ -50,23 +39,14 @@ if ($is_host || $is_admin) {
                 <i class="fa-solid fa-bars"></i>
             </div>
         <?php else: ?>
-            <div class="logo-branded" onclick="window.location.href='<?php echo $base_path; ?>index.php'">
+            <div class="logo-branded" onclick="window.location.href='<?php echo $base_path; ?>/../presentacion/huesped/home.php'">
                 <i class="fa-solid fa-house-laptop"></i> Estancias Digitales
             </div>
         <?php endif; ?>
         <?php if (($is_host || $is_admin) && !$hide_search): ?>
-            <!-- Search bar for Host/Admin -->
-            <div class="nav-search-pill host-search-desktop" style="width: 400px;">
-                <i class="fa-solid fa-magnifying-glass" style="opacity: 0.4;"></i>
-                <input type="text" placeholder="<?php echo $host_placeholder; ?>">
-            </div>
+            <!-- Search bar for Host/Admin removed per request -->
         <?php elseif (!$is_host && !$is_admin): ?>
             <?php if ($is_reservas): ?>
-                <!-- Search bar exclusive for Reservas Huésped -->
-                <div class="nav-search-pill">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Buscar estancias..." readonly>
-                </div>
             <?php else: ?>
                 <!-- Menu links next to logo for non-reservas guest pages -->
                 <div class="nav-links-left">

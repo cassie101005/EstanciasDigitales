@@ -13,27 +13,42 @@ if ($idReserva <= 0 || $idUsuario <= 0) {
     exit();
 }
 
-// 2. Intentar actualizar el estatus en tbl_reserva
-if ($role === 'anfitrion') {
-    $sql = "UPDATE tbl_reserva r 
-            JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
-            SET r.vEstatus = 'Cancelada' 
-            WHERE r.idReserva = ? AND p.idUsuario = ?";
-} else {
-    // Quitar el alias 'r' para evitar errores de sintaxis en UPDATE de una sola tabla en MySQL
-    $sql = "UPDATE tbl_reserva 
-            SET vEstatus = 'Cancelada' 
-            WHERE idReserva = ? AND idUsuario = ?";
+// 2. Ejecutar la acción según el rol
+if ($role === 'huesped') {
+    // El huésped solo solicita la cancelación
+    $motivo = isset($_POST['motivo']) ? trim($_POST['motivo']) : 'Sin motivo especificado';
+    $motivoFormateado = "Motivo de cancelación: " . $motivo;
+    
+    // Usamos UPDATE tbl_reserva
+    $sql = "UPDATE tbl_reserva SET vEstatus = 'Pendiente Cancelacion', vObservaciones = ? WHERE idReserva = ? AND idUsuario = ?";
+    $stmt = $conexion->prepare($sql);
+    
+    if (!$stmt) {
+        $sql = "UPDATE tbl_reserva SET vEstado = 'Pendiente Cancelacion', vObservaciones = ? WHERE idReserva = ? AND idUsuario = ?";
+        $stmt = $conexion->prepare($sql);
+    }
+    
+    if ($stmt) {
+        $stmt->bind_param("sii", $motivoFormateado, $idReserva, $idUsuario);
+        if ($stmt->execute()) {
+            echo json_encode(['ok' => true, 'mensaje' => 'Solicitud de cancelación enviada al anfitrión.']);
+        } else {
+            echo json_encode(['ok' => false, 'mensaje' => 'Error al solicitar cancelación.']);
+        }
+    } else {
+        echo json_encode(['ok' => false, 'mensaje' => 'Error en la consulta.']);
+    }
+    exit();
 }
 
+// Lógica para el anfitrión (cancela directamente)
+$sql = "UPDATE tbl_reserva r 
+        JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
+        SET r.vEstatus = 'Cancelada' 
+        WHERE r.idReserva = ? AND p.idUsuario = ?";
 $stmt = $conexion->prepare($sql);
 if (!$stmt) {
-    // Intentar con vEstado en lugar de vEstatus por compatibilidad
-    if ($role === 'anfitrion') {
-        $sql = "UPDATE tbl_reserva r JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad SET r.vEstado = 'Cancelada' WHERE r.idReserva = ? AND p.idUsuario = ?";
-    } else {
-        $sql = "UPDATE tbl_reserva SET vEstado = 'Cancelada' WHERE idReserva = ? AND idUsuario = ?";
-    }
+    $sql = "UPDATE tbl_reserva r JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad SET r.vEstado = 'Cancelada' WHERE r.idReserva = ? AND p.idUsuario = ?";
     $stmt = $conexion->prepare($sql);
 }
 
@@ -43,17 +58,15 @@ if (!$stmt) {
 }
 
 $conexion->begin_transaction();
-
 $stmt->bind_param("ii", $idReserva, $idUsuario);
 
 if ($stmt->execute()) {
-    // Aceptar >= 0 porque si ya estaba cancelada (affected_rows = 0), igual queremos intentar insertar en el historial
     if ($stmt->affected_rows >= 0) {
-        // 3. Registrar la cancelación en tbl_cancelacion con las columnas correctas
-        $sqlCancel = "INSERT INTO tbl_cancelacion (idReserva, vQuienCancelo, vMotivo) VALUES (?, ?, 'Cancelación solicitada desde panel de usuario')";
+        $motivo = isset($_POST['motivo']) ? trim($_POST['motivo']) : 'Sin motivo especificado';
+        $sqlCancel = "INSERT INTO tbl_cancelacion (idReserva, vQuienCancelo, vTipoCancelacion, vMotivo) VALUES (?, ?, 'Cancelado desde panel', ?)";
         $stmtCancel = $conexion->prepare($sqlCancel);
         if ($stmtCancel) {
-            $stmtCancel->bind_param("is", $idReserva, $role);
+            $stmtCancel->bind_param("iss", $idReserva, $role, $motivo);
             if ($stmtCancel->execute()) {
                 $conexion->commit();
                 echo json_encode(['ok' => true, 'mensaje' => 'Reserva cancelada correctamente y registrada en cancelaciones']);

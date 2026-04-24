@@ -178,10 +178,7 @@
                         style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); box-shadow: 0 8px 25px rgba(124,58,237,0.35); font-size: 15px; letter-spacing: 0.02em;">
                         Entrar al Portal
                     </button>
-                    <div class="flex justify-center items-center px-1">
-                            <a class="text-xs font-semibold text-primary hover:underline underline-offset-4"
-                                href="#">Ingresar como administrador</a>
-                        </div>
+                    
                 </form>
 
 
@@ -201,36 +198,6 @@
                 <div class="absolute inset-0"
                     style="background: linear-gradient(to top, rgba(124,58,237,0.7) 0%, rgba(30,64,175,0.2) 50%, transparent 100%);">
                 </div>
-            </div>
-
-            <!-- Floating Feature Card -->
-            <div class="absolute bottom-12 left-12 right-12 glass-panel p-8 rounded-xl border border-white/20">
-                <div class="flex items-start gap-4">
-                    <div class="p-3 bg-tertiary-fixed rounded-lg text-on-tertiary-fixed">
-                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-on-surface mb-1">Destinos que inspiran</h3>
-                        <p class="text-on-surface-variant text-sm leading-relaxed mb-4">"Nuestra estancia fue
-                            simplemente perfecta. El nivel de detalle y la facilidad de gestión a través del portal
-                            superó todas nuestras expectativas."</p>
-                        <div class="flex items-center gap-3">
-                            <img alt="Testimonial User" class="w-8 h-8 rounded-full border-2 border-white"
-                                src="https://i.pravatar.cc/100?u=elena" />
-                            <div>
-                                <p class="text-xs font-bold text-on-surface">Elena Rodriguez</p>
-                                <p class="text-[10px] text-tertiary font-semibold uppercase tracking-tighter">Viajera
-                                    Premium</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Availability Ribbon -->
-            <div
-                class="absolute top-12 -right-8 rotate-45 bg-tertiary-fixed text-on-tertiary-fixed px-12 py-2 text-xs font-bold tracking-widest uppercase shadow-lg">
-                Destinos 2024
             </div>
         </section>
     </main>

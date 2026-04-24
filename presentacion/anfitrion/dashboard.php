@@ -3,13 +3,13 @@ session_start();
 require_once '../../datos/conexion.php';
 $idHost = $_SESSION['idUsuario'] ?? 1;
 
-// Obtener las notificaciones recientes de reservas
-$sqlNotif = "SELECT r.idReserva, r.dtFechaInicio, r.dtFechaFin, r.vEstatus, u.vNombre, u.vApellido, u.vFoto, p.vNombre as propiedad
+// Obtener las reservas recientes
+$sqlNotif = "SELECT r.idReserva, r.dtFechaInicio, r.dtFechaFin, r.vEstatus, r.dTotalReserva, u.vNombre, u.vApellido, u.vFoto, p.vNombre as propiedad
              FROM tbl_reserva r 
              JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
              JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
              WHERE p.idUsuario = ? 
-             ORDER BY r.idReserva DESC LIMIT 6";
+             ORDER BY r.idReserva DESC LIMIT 5";
 $stmtNotif = $conexion->prepare($sqlNotif);
 $notificaciones = [];
 if ($stmtNotif) {
@@ -63,7 +63,28 @@ if ($stmtNotif) {
                 <section class="main-stats-section">
                     <header style="margin-bottom: 2.5rem;">
                         <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; color: var(--text-main);">Bienvenido a EstanciasDigitales</h1>
-                        <p style="color: #94a3b8; font-size: 14px; font-weight: 500;">Aquí tienes el rendimiento de tus propiedades para este mes.</p>
+                      <div style="max-width: 420px; margin-top: 10px;">
+    
+    <p style="
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.7;
+        font-weight: 400;
+        margin: 0;
+    ">
+        Optimiza tu perfil y mantén una comunicación clara con tus huéspedes.
+    </p>
+
+    <p style="
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 600;
+        margin-top: 6px;
+    ">
+        Brinda una experiencia excepcional ✨
+    </p>
+
+</div>
                     </header>
 
     
@@ -75,47 +96,42 @@ if ($stmtNotif) {
                             <a href="reservas.php" style="font-size: 13px; font-weight: 800; color: var(--primary); text-decoration: none;">Ver todas</a>
                         </div>
 
-                        <div class="reservation-list-item">
-                            <div style="display: flex; gap: 1.5rem; align-items: center;">
-                                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=60&q=80" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
-                                <div>
-                                    <div style="font-size: 15px; font-weight: 800;">Sofia Martínez</div>
-                                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Villa Marítima • 12 - 18 Oct</div>
+                        <?php if (count($notificaciones) > 0): ?>
+                            <?php foreach ($notificaciones as $notif): 
+                                $fIni = new DateTime($notif['dtFechaInicio']);
+                                $fFin = new DateTime($notif['dtFechaFin']);
+                                
+                                $status = "Confirmada";
+                                $stStyle = "font-size: 9px; padding: 4px 10px; background: #d1fae5; color: #065f46; border-radius: 99px;";
+                                if (isset($notif['vEstatus']) && strtoupper($notif['vEstatus']) === 'PENDIENTE CANCELACION') {
+                                    $status = "Pendiente";
+                                    $stStyle = "font-size: 9px; padding: 4px 10px; background: #fef08a; color: #854d0e; border-radius: 99px;";
+                                } elseif (isset($notif['vEstatus']) && strtoupper($notif['vEstatus']) === 'CANCELADA') {
+                                    $status = "Cancelada";
+                                    $stStyle = "font-size: 9px; padding: 4px 10px; background: #fee2e2; color: #991b1b; border-radius: 99px;";
+                                }
+                                $imgSrc = !empty($notif['vFoto']) ? '../../' . $notif['vFoto'] : 'https://i.pravatar.cc/100?u=' . $notif['idReserva'];
+                            ?>
+                                <div class="reservation-list-item">
+                                    <div style="display: flex; gap: 1.5rem; align-items: center;">
+                                        <img src="<?php echo htmlspecialchars($imgSrc); ?>" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
+                                        <div>
+                                            <div style="font-size: 15px; font-weight: 800;"><?php echo htmlspecialchars($notif['vNombre'] . ' ' . $notif['vApellido']); ?></div>
+                                            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;"><?php echo htmlspecialchars($notif['propiedad']); ?> • <?php echo $fIni->format('d M') . ' - ' . $fFin->format('d M'); ?></div>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <span class="status-tag" style="<?php echo $stStyle; ?>"><?php echo strtoupper($status); ?></span>
+                                        <div style="margin-top: 8px; font-size: 14px; font-weight: 800;">$<?php echo number_format($notif['dTotalReserva'], 0); ?></div>
+                                    </div>
                                 </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div style="text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: 16px;">
+                                <i class="fa-solid fa-receipt" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                                No hay reservas recientes registradas.
                             </div>
-                            <div style="text-align: right;">
-                                <span class="status-tag tag-confirmed" style="font-size: 9px; padding: 4px 10px;">CONFIRMADA</span>
-                                <div style="margin-top: 8px; font-size: 14px; font-weight: 800;">$1,240</div>
-                            </div>
-                        </div>
-
-                        <div class="reservation-list-item">
-                            <div style="display: flex; gap: 1.5rem; align-items: center;">
-                                <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=60&q=80" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
-                                <div>
-                                    <div style="font-size: 15px; font-weight: 800;">Erik Johannsen</div>
-                                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Ático Skyview • 20 - 25 Oct</div>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <span class="status-tag tag-pending" style="font-size: 9px; padding: 4px 10px; background: #fef3c7; color: #92400e;">PENDIENTE</span>
-                                <div style="margin-top: 8px; font-size: 14px; font-weight: 800;">$850</div>
-                            </div>
-                        </div>
-
-                        <div class="reservation-list-item">
-                            <div style="display: flex; gap: 1.5rem; align-items: center;">
-                                <img src="https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=60&q=80" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
-                                <div>
-                                    <div style="font-size: 15px; font-weight: 800;">Lucía Fernández</div>
-                                    <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Refugio Alpino • 02 - 05 Nov</div>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <span class="status-tag tag-confirmed" style="font-size: 9px; padding: 4px 10px;">CONFIRMADA</span>
-                                <div style="margin-top: 8px; font-size: 14px; font-weight: 800;">€420</div>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </section>
 

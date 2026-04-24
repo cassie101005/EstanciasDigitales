@@ -47,7 +47,12 @@ $images = [];
 while ($row = $imagesResult->fetch_assoc()) {
     $images[] = $row['vImagen'];
 }
-$mainImage = !empty($images) ? $images[0] : "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
+$mainImage = !empty($images) ? $images[0] : "";
+if ($mainImage && strpos($mainImage, 'http') === false) {
+    $mainImage = "../../" . $mainImage;
+} elseif (!$mainImage) {
+    $mainImage = "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
+}
 
 // 3. Formatear fechas y calcular estado
 $fechaInicio = new DateTime($reserva['dtFechaInicio']);
@@ -228,32 +233,110 @@ if (isset($reserva['vEstatus']) && (strtoupper($reserva['vEstatus']) === 'CANCEL
         </div>
     </div>
 
-    <script>
-    function cancelarReserva(idReserva, role, idUsuario) {
-        if (confirm("¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer.")) {
-            const formData = new FormData();
-            formData.append('idReserva', idReserva);
-            formData.append('role', role);
-            formData.append('idUsuario', idUsuario);
+    <!-- Cancelation Modal -->
+    <div id="modalCancelacion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 20px; width: 90%; max-width: 450px; padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); position: relative;">
+            <div style="position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; color: #94a3b8; font-size: 1.2rem;" onclick="cerrarModalCancelacion()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">Cancelar Reserva</h3>
+                    <p style="font-size: 13px; color: #64748b; margin: 0; margin-top: 4px;">Por favor indícanos el motivo de la cancelación</p>
+                </div>
+            </div>
 
-            fetch('../../apis/cancelar_reserva.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    alert("Reserva cancelada correctamente.");
-                    window.location.reload();
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 0.5rem;">Motivo de cancelación</label>
+                <textarea id="motivoCancelacion" rows="4" style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 14px; resize: none; background: #f8fafc;" placeholder="Escribe el motivo detallado de por qué necesitas cancelar esta reserva..."></textarea>
+            </div>
+
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h4 style="font-size: 12px; font-weight: 800; color: #475569; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Política de Cancelación</h4>
+                <?php
+                $sqlPol = "SELECT vNombreOpcion, vDescripcion FROM tbl_politicas_reservas";
+                $stmtPol = $conexion->query($sqlPol);
+                if ($stmtPol && $stmtPol->num_rows > 0) {
+                    while($rowPol = $stmtPol->fetch_assoc()) {
+                        echo '<div style="margin-bottom: 0.5rem;">';
+                        echo '<strong style="font-size: 12px; color: #475569;">' . htmlspecialchars($rowPol['vNombreOpcion']) . '</strong><br>';
+                        echo '<span style="font-size: 12px; color: #64748b;">' . htmlspecialchars($rowPol['vDescripcion']) . '</span>';
+                        echo '</div>';
+                    }
                 } else {
-                    alert("Error: " + data.mensaje);
+                    echo '<p style="font-size: 12px; color: #64748b; margin: 0;">No hay políticas de cancelación definidas.</p>';
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Ocurrió un error en el servidor.");
-            });
+                ?>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="cerrarModalCancelacion()" style="flex: 1; padding: 0.875rem; border: 1px solid #cbd5e1; background: white; color: #475569; border-radius: 12px; font-weight: 700; cursor: pointer;">Volver</button>
+                <button onclick="confirmarCancelacion()" style="flex: 1; padding: 0.875rem; border: none; background: #dc2626; color: white; border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);">Confirmar la cancelación</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let cancelacionPendiente = null;
+
+    function cancelarReserva(idReserva, role, idUsuario) {
+        cancelacionPendiente = { idReserva, role, idUsuario };
+        document.getElementById('motivoCancelacion').value = '';
+        document.getElementById('modalCancelacion').style.display = 'flex';
+    }
+
+    function cerrarModalCancelacion() {
+        document.getElementById('modalCancelacion').style.display = 'none';
+        cancelacionPendiente = null;
+    }
+
+    function confirmarCancelacion() {
+        if (!cancelacionPendiente) return;
+        
+        const motivo = document.getElementById('motivoCancelacion').value.trim();
+        if (!motivo) {
+            alert('Por favor, ingresa el motivo de la cancelación.');
+            return;
         }
+
+        const { idReserva, role, idUsuario } = cancelacionPendiente;
+        
+        const formData = new FormData();
+        formData.append('idReserva', idReserva);
+        formData.append('role', role);
+        formData.append('idUsuario', idUsuario);
+        formData.append('motivo', motivo);
+
+        const btnConf = event.target;
+        const textoOriginal = btnConf.innerHTML;
+        btnConf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cancelando...';
+        btnConf.disabled = true;
+
+        fetch('../../apis/cancelar_reserva.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                alert("Reserva cancelada correctamente.");
+                window.location.reload();
+            } else {
+                alert("Error: " + data.mensaje);
+                btnConf.innerHTML = textoOriginal;
+                btnConf.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Ocurrió un error en el servidor.");
+            btnConf.innerHTML = textoOriginal;
+            btnConf.disabled = false;
+        });
     }
     </script>
 </body>

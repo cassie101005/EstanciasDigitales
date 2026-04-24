@@ -196,12 +196,6 @@
                             <textarea id="descripcion" name="descripcion" class="np-textarea" rows="5"
                                 placeholder="Describe la experiencia que ofrecerás: ambiente, entorno, comodidades destacadas..."></textarea>
                         </div>
-
-                        <div class="np-form-group np-span-full">
-                            <label class="np-label" for="especificaciones">Especificaciones adicionales</label>
-                            <textarea id="especificaciones" name="especificaciones" class="np-textarea" rows="4"
-                                placeholder="Detalles técnicos, accesibilidad, estacionamiento, notas especiales..."></textarea>
-                        </div>
                     </div>
 
                     <!-- ── SECCIÓN 4: IMÁGENES ── -->

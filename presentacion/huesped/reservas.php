@@ -64,10 +64,18 @@ $reservas = $stmt->get_result();
                             $status = "FINALIZADA";
                             $statusColor = "#6c757d";
                         }
+
+                        // Corregir ruta de imagen si es relativa
+                        $rutaImagen = $res['imagen'];
+                        if ($rutaImagen && strpos($rutaImagen, 'http') === false) {
+                            $rutaImagen = '../../' . $rutaImagen;
+                        } else if (!$rutaImagen) {
+                            $rutaImagen = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
+                        }
                     ?>
                     <div class="res-card-v2">
                         <div class="res-img-box">
-                            <img src="<?php echo htmlspecialchars($res['imagen'] ?? 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80'); ?>">
+                            <img src="<?php echo htmlspecialchars($rutaImagen); ?>">
                             <div class="status-badge-v2" style="background: <?php echo $statusColor; ?>;"><?php echo $status; ?></div>
                         </div>
                         <div class="res-content-box">
