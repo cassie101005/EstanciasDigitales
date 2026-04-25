@@ -246,7 +246,7 @@ while ($row = $result->fetch_assoc()) {
             <div class="search-input-box">
                 <label>Huéspedes</label>
                 <select name="huespedes">
-                    <option value="">Añadir huéspedes</option>
+                    <option value="" disabled selected hidden>Huéspedes</option>
                     <?php for($i=1; $i<=10; $i++): ?>
                         <option value="<?php echo $i; ?>" <?php echo $huespedes == $i ? 'selected' : ''; ?>><?php echo $i; ?> huésped<?php echo $i>1?'es':''; ?></option>
                     <?php endfor; ?>
