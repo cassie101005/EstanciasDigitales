@@ -81,7 +81,8 @@ class QueriesCalendario {
     public function validarSolapamientoReservas($idPropiedad, $fechaInicio, $fechaFin) {
         $sql = "SELECT idReserva FROM tbl_reserva 
                 WHERE idPropiedad = ? 
-                AND dtFechaInicio <= ? AND dtFechaFin >= ?";
+                AND dtFechaInicio <= ? AND dtFechaFin >= ?
+                AND vEstatus NOT IN ('Cancelada', 'CANCELADA', 'Cancelado', 'CANCELADO')";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
         $stmt->execute();

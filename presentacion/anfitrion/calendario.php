@@ -457,6 +457,18 @@ async function guardarBloqueo(e) {
     const fechaFin = document.getElementById('blqFin').value;
     const motivo = document.getElementById('blqMotivo').value;
 
+    // Validación extra en el cliente
+    const hayReserva = eventosMes.some(ev => {
+        if (ev.tipo !== 'reserva') return false;
+        // Solapamiento: (A.inicio <= B.fin) && (A.fin >= B.inicio)
+        return (fechaInicio <= ev.fin && fechaFin >= ev.inicio);
+    });
+
+    if (hayReserva) {
+        alert('No puedes bloquear fechas que ya tienen una reserva de un huésped.');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('accion', 'bloquear_fechas');
     formData.append('idPropiedad', idPropiedad);

@@ -20,14 +20,14 @@ $stmtRes->execute();
 $reservas = $stmtRes->get_result();
 
 // 2. Consultar comentarios de las propiedades del anfitrión (Unificado de tbl_comentarios y tbl_resenia)
-$sqlCom = "SELECT vComentario, iCalificacion, fecha, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario FROM (
-                SELECT c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario
+$sqlCom = "SELECT id, tipo, vComentario, iCalificacion, fecha, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario, vRespuesta FROM (
+                SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario, c.vRespuesta
                 FROM tbl_comentarios c
                 JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
                 JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
                 WHERE p.idUsuario = ?
                 UNION ALL
-                SELECT r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, r.idUsuario
+                SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, r.idUsuario, r.vRespuesta
                 FROM tbl_resenia r
                 JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
                 JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
@@ -262,9 +262,21 @@ $totalComentarios = $avgData['total'] ?? 0;
                                             <?php endfor; ?>
                                         </div>
                                     </div>
-                                    <p style="font-style: italic; color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 2rem; background: #fcfdfe; padding: 1rem; border-radius: 12px;">"<?php echo htmlspecialchars($com['vComentario']); ?>"</p>
+                                    <div id="respContainer_<?php echo $com['tipo']; ?>_<?php echo $com['id']; ?>">
+                                        <?php if (!empty($com['vRespuesta'])): ?>
+                                            <div style="background: #f1f5f9; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                                                <div style="font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+                                                    <i class="fa-solid fa-reply-all"></i> Tu Respuesta
+                                                </div>
+                                                <p style="font-size: 14px; color: #475569; line-height: 1.5; margin: 0;"><?php echo htmlspecialchars($com['vRespuesta']); ?></p>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                     <div style="text-align: right; border-top: 1px solid #f1f5f9; padding-top: 1.5rem;">
-                                        <a href="#" style="font-size: 13px; font-weight: 800; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">Responder comentario <i class="fa-solid fa-reply"></i></a>
+                                        <a href="javascript:void(0)" onclick="abrirModalRespuesta('<?php echo $com['tipo']; ?>', <?php echo $com['id']; ?>, '<?php echo addslashes(htmlspecialchars($com['guestNombre'])); ?>')" style="font-size: 13px; font-weight: 800; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                                            <?php echo empty($com['vRespuesta']) ? 'Responder comentario' : 'Editar respuesta'; ?> 
+                                            <i class="fa-solid fa-reply"></i>
+                                        </a>
                                     </div>
                                 </div>
                             <?php endwhile; ?>
@@ -512,6 +524,81 @@ $totalComentarios = $avgData['total'] ?? 0;
             btnConf.disabled = false;
         });
     }
+
+    let respuestaPendiente = null;
+
+    function abrirModalRespuesta(tipo, id, nombre) {
+        respuestaPendiente = { tipo, id };
+        document.getElementById('respGuestName').innerText = nombre;
+        document.getElementById('txtRespuesta').value = '';
+        document.getElementById('modalRespuesta').style.display = 'flex';
+    }
+
+    function cerrarModalRespuesta() {
+        document.getElementById('modalRespuesta').style.display = 'none';
+        respuestaPendiente = null;
+    }
+
+    function enviarRespuesta() {
+        if (!respuestaPendiente) return;
+        const respuesta = document.getElementById('txtRespuesta').value.trim();
+        if (!respuesta) {
+            alert('Escribe una respuesta antes de enviar.');
+            return;
+        }
+
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerText = 'Enviando...';
+
+        const fd = new FormData();
+        fd.append('tipo', respuestaPendiente.tipo);
+        fd.append('id', respuestaPendiente.id);
+        fd.append('respuesta', respuesta);
+
+        fetch('../../apis/anfitrion/responder_comentario.php', {
+            method: 'POST',
+            body: fd
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + data.error);
+                btn.disabled = false;
+                btn.innerText = 'Enviar Respuesta';
+            }
+        })
+        .catch(e => {
+            console.error(e);
+            alert('Error de red al enviar la respuesta.');
+            btn.disabled = false;
+            btn.innerText = 'Enviar Respuesta';
+        });
+    }
     </script>
+
+    <!-- Modal Respuesta -->
+    <div id="modalRespuesta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; padding: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                <div style="width: 54px; height: 54px; border-radius: 14px; background: #f0f4ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    <i class="fa-solid fa-reply"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">Responder a <span id="respGuestName"></span></h3>
+                    <p style="font-size: 14px; color: #64748b; margin: 0.25rem 0 0 0;">Mantén una actitud cordial y profesional.</p>
+                </div>
+            </div>
+
+            <textarea id="txtRespuesta" style="width: 100%; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; font-family: inherit; font-size: 15px; resize: vertical; min-height: 150px; outline: none; background: #f8fafc; transition: all 0.2s;" placeholder="Escribe tu respuesta aquí..."></textarea>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button onclick="cerrarModalRespuesta()" style="flex: 1; padding: 0.875rem; border: 1px solid #e2e8f0; background: white; color: #475569; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">Cancelar</button>
+                <button onclick="enviarRespuesta()" style="flex: 1; padding: 0.875rem; border: none; background: var(--primary); color: white; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); transition: all 0.2s;">Enviar Respuesta</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
