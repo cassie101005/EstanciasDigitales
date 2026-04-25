@@ -1,17 +1,8 @@
 <?php
-session_start();
 header('Content-Type: application/json');
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesionAPI('anfitrion');
 require_once '../../datos/conexion.php';
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
-    exit;
-}
-
-if (!isset($_SESSION['idUsuario'])) {
-    echo json_encode(['ok' => false, 'error' => 'Sesión no iniciada']);
-    exit;
-}
 
 $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
 $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : '';

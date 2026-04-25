@@ -1,7 +1,7 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 header('Content-Type: application/json');
+require_once '../negocio/auth/verificar_sesion.php';
+validarSesionAPI(['huesped', 'anfitrion']);
 require_once '../datos/conexion.php';
 
 $idReserva = isset($_POST['idReserva']) ? intval($_POST['idReserva']) : 0;

@@ -1,3 +1,17 @@
+<?php
+session_start();
+if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
+    $rol = strtolower($_SESSION['rol']);
+    if ($rol === 'admin') {
+        header("Location: presentacion/admin/dashboard.php");
+    } elseif ($rol === 'anfitrion') {
+        header("Location: presentacion/anfitrion/dashboard.php");
+    } else {
+        header("Location: presentacion/huesped/home.php");
+    }
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

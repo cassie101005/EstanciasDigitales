@@ -1,9 +1,7 @@
 <?php
-session_start();
-if (!isset($_SESSION['idUsuario'])) {
-    header('Location: ../../index.php');
-    exit;
-}
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('anfitrion', '../../');
+require_once '../../datos/conexion.php';
 $idPropiedad = intval($_GET['id'] ?? 0);
 if ($idPropiedad <= 0) {
     header('Location: propiedades.php');

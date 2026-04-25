@@ -1,4 +1,8 @@
-<?php ?>
+<?php
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('anfitrion', '../../');
+require_once '../../datos/conexion.php';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

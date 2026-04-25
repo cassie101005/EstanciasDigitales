@@ -1,12 +1,7 @@
 <?php
-session_start();
-header("Content-Type: application/json");
-
-if (!isset($_SESSION['idUsuario'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
+header('Content-Type: application/json');
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesionAPI('anfitrion');
 
 $idUsuario = intval($_SESSION['idUsuario']);
 $accion = $_REQUEST['accion'] ?? '';

@@ -1,17 +1,9 @@
 <?php
-session_start();
 header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Evitar que errores PHP se filtren en la salida JSON
-
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesionAPI('huesped');
 require_once '../../datos/conexion.php';
 require_once '../../negocio/huesped/resenia.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_SESSION['idUsuario'])) {
-        echo json_encode(['ok' => false, 'error' => 'Debes iniciar sesión para comentar.']);
-        exit;
-    }
 
     $idPropiedad = intval($_POST['idPropiedad'] ?? 0);
     $comentario = trim($_POST['vComentario'] ?? '');

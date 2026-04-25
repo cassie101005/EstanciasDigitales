@@ -1,9 +1,7 @@
- <?php
-session_start();
-if (!isset($_SESSION['idUsuario'])) {
-    header("Location: ../../index.php");
-    exit;
-}
+<?php
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('anfitrion', '../../');
+require_once '../../datos/conexion.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -187,6 +185,7 @@ let fechaActual = new Date();
 let mesActual = fechaActual.getMonth() + 1;
 let anioActual = fechaActual.getFullYear();
 let eventosMes = [];
+let propiedadesUsuario = []; // Nueva variable para almacenar propiedades
 let rangoSeleccionado = { inicio: null, fin: null };
 let bloqueoSeleccionadoId = null;
 
@@ -199,6 +198,7 @@ async function init() {
         const data = await res.json();
         const select = document.getElementById('propiedadSelect');
         if (data.ok && data.propiedades.length > 0) {
+            propiedadesUsuario = data.propiedades; // Guardamos la lista completa
             select.innerHTML = data.propiedades.map(p => `<option value="${p.idPropiedad}">${p.vNombre}</option>`).join('');
             cargarCalendario();
         } else {
@@ -210,9 +210,34 @@ async function init() {
     }
 }
 
+// Helper para obtener la propiedad seleccionada
+function getPropiedadActual() {
+    const select = document.getElementById('propiedadSelect');
+    if (!select || !select.value) return null;
+    return propiedadesUsuario.find(p => String(p.idPropiedad) === String(select.value));
+}
+
 async function cargarCalendario() {
     const idPropiedad = document.getElementById('propiedadSelect').value;
     if (!idPropiedad) return;
+
+    // Reiniciar selección y panel de detalles al cambiar de propiedad
+    rangoSeleccionado = { inicio: null, fin: null };
+    document.getElementById('detalleFechaLabel').innerText = 'Selecciona un día';
+    document.getElementById('detalleEstado').innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span> Selecciona un día';
+    document.getElementById('detalleEstado').style.color = '#065f46';
+    
+    // Mostrar tarifa de la propiedad seleccionada inmediatamente
+    const prop = getPropiedadActual();
+    const detalleTarifa = document.getElementById('detalleTarifa');
+    if (prop && prop.dPrecioNoche) {
+        const precioVal = parseFloat(prop.dPrecioNoche);
+        detalleTarifa.innerText = `$${precioVal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    } else {
+        detalleTarifa.innerText = '$—';
+    }
+
+    document.getElementById('detalleDesbloquearBtn').style.display = 'none';
 
     document.getElementById('mesAnioLabel').innerText = `${meses[mesActual - 1]} ${anioActual}`;
 
@@ -268,11 +293,15 @@ function renderGrid() {
     }
 
     // Días del mes actual
+    // Obtener precio de la propiedad seleccionada una sola vez para el grid
+    const prop = getPropiedadActual();
+    const precioBase = (prop && prop.dPrecioNoche) ? `$${parseFloat(prop.dPrecioNoche).toLocaleString('es-MX', { minimumFractionDigits: 0 })}` : '';
+
     for (let d = 1; d <= ultimoDiaMes.getDate(); d++) {
         const fechaStr = `${anioActual}-${String(mesActual).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         
         let clase = '';
-        let info = 'Disponible';
+        let info = precioBase || 'Disponible';
         let resId = null;
         let blqId = null;
 
@@ -392,11 +421,14 @@ function seleccionarDia(fecha, clase, info, blqId) {
     const detalleTarifa = document.getElementById('detalleTarifa');
     bloqueoSeleccionadoId = blqId;
 
+    const prop = getPropiedadActual();
+    const precio = (prop && prop.dPrecioNoche) ? `$${parseFloat(prop.dPrecioNoche).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '$—';
+
     if (clase === 'reserved') {
         estadoDiv.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></span> ${info}`;
         estadoDiv.style.color = '#1e3a8a';
         desbloquearBtn.style.display = 'none';
-        detalleTarifa.innerText = 'Reservado';
+        detalleTarifa.innerText = precio;
     } else if (clase === 'blocked') {
         estadoDiv.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #94a3b8;"></span> ${info}`;
         estadoDiv.style.color = '#475569';
@@ -407,7 +439,7 @@ function seleccionarDia(fecha, clase, info, blqId) {
         estadoDiv.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span> ${txtEstado}`;
         estadoDiv.style.color = '#065f46';
         desbloquearBtn.style.display = 'none';
-        detalleTarifa.innerText = '—';
+        detalleTarifa.innerText = precio;
     }
 }
 

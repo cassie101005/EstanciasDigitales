@@ -1,5 +1,7 @@
 <?php
 header('Content-Type: application/json');
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesionAPI('huesped');
 require_once '../../datos/conexion.php';
 
 $idPropiedad = isset($_POST['idPropiedad']) ? intval($_POST['idPropiedad']) : 0;

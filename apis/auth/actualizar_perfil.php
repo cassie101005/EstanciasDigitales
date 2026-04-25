@@ -1,13 +1,9 @@
 <?php
-session_start();
 header('Content-Type: application/json');
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesionAPI(); // Cualquier usuario autenticado
 require_once '../../datos/conexion.php';
 require_once '../../datos/auth/queries_auth.php';
-
-if (!isset($_SESSION['idUsuario'])) {
-    echo json_encode(['ok' => false, 'mensaje' => 'Sesión no iniciada']);
-    exit;
-}
 
 $idUsuario = $_SESSION['idUsuario'];
 $queriesAuth = new QueriesAuth($conexion);

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('anfitrion', '../../');
 require_once '../../datos/conexion.php';
 
 $idHost = $_SESSION['idUsuario'] ?? 1; // 1 por defecto para pruebas

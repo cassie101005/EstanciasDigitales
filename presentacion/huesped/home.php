@@ -1,6 +1,8 @@
 <?php
-session_start();
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('huesped', '../../');
 require_once '../../datos/conexion.php';
+
 
 // Obtener parámetros de búsqueda y filtrado
 $ubicacion = isset($_GET['ubicacion']) ? trim($_GET['ubicacion']) : '';

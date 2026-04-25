@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('huesped', '../../');
 require_once '../../datos/conexion.php';
 
 // Simular usuario logueado si no hay sesión

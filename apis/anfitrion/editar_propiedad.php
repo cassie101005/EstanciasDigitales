@@ -4,17 +4,8 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-session_start();
-if (!isset($_SESSION['idUsuario'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'No autorizado.']);
-    exit;
-}
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesionAPI('anfitrion');
 
 $idUsuario = intval($_SESSION['idUsuario']);
 $accion = $_REQUEST['accion'] ?? 'obtener';

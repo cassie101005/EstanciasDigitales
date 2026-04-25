@@ -1,3 +1,8 @@
+<?php
+require_once '../../negocio/auth/verificar_sesion.php';
+validarSesion('admin', '../../');
+require_once '../../datos/conexion.php';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
