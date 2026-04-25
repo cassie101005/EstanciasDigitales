@@ -43,7 +43,7 @@ if ($role === 'huesped') {
 
 // Lógica para el anfitrión (cancela directamente)
 // 1. Obtener detalles de la reserva para calcular el reembolso
-$sqlInfo = "SELECT dtFechaRegistro, dTotalReserva FROM tbl_reserva WHERE idReserva = ?";
+$sqlInfo = "SELECT dtFechaInicio, dTotalReserva FROM tbl_reserva WHERE idReserva = ?";
 $stmtInfo = $conexion->prepare($sqlInfo);
 $stmtInfo->bind_param("i", $idReserva);
 $stmtInfo->execute();
@@ -54,17 +54,19 @@ if (!$resInfo) {
     exit();
 }
 
-$fechaRegistro = $resInfo['dtFechaRegistro'];
+$fechaInicio = $resInfo['dtFechaInicio'];
 $total = floatval($resInfo['dTotalReserva']);
+// Calcular cuántas horas faltan para el check-in (asumiendo las 3:00 PM / 15:00)
+$inicioTimestamp = strtotime($fechaInicio . ' 15:00:00');
 $ahora = time();
-$registroTimestamp = strtotime($fechaRegistro);
-$horasPasadas = ($ahora - $registroTimestamp) / 3600;
+$horasParaInicio = ($inicioTimestamp - $ahora) / 3600;
 
 $penalizacion = 0;
 $reembolso = $total;
 $tipoCancelacion = 'Reembolso Completo';
 
-if ($horasPasadas >= 24) {
+if ($horasParaInicio < 24) {
+    // Si falta menos de 24 horas para el check-in o ya pasó
     $penalizacion = $total * 0.10;
     $reembolso = $total * 0.90;
     $tipoCancelacion = 'Con Penalización (10%)';
@@ -98,7 +100,7 @@ if ($stmt->execute()) {
             if ($stmtCancel->execute()) {
                 $conexion->commit();
                 $msg = "Reserva cancelada correctamente. ";
-                $msg .= ($horasPasadas < 24) ? "Reembolso total de $" . number_format($reembolso, 2) : "Reembolso de $" . number_format($reembolso, 2) . " (Comisión del 10% aplicada)";
+                $msg .= ($horasParaInicio >= 24) ? "Se procesará un reembolso total de $" . number_format($reembolso, 2) : "Se aplicó una penalización del 10%. Reembolso de $" . number_format($reembolso, 2) . " (La comisión de $" . number_format($penalizacion, 2) . " se reflejará al anfitrión)";
                 echo json_encode(['ok' => true, 'mensaje' => $msg]);
             } else {
                 $conexion->rollback();

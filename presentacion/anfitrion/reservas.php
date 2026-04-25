@@ -207,7 +207,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                                             </td>
                                             <td>
                                                 <?php if ($status === 'Pendiente Cancelación'): ?>
-                                                    <button onclick="verSolicitudCancelacion(<?php echo $res['idReserva']; ?>, '<?php echo $jsObs; ?>', <?php echo $idHost; ?>)" style="background: #fef08a; border: 1px solid #eab308; color: #854d0e; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                                                    <button onclick="verSolicitudCancelacion(<?php echo $res['idReserva']; ?>, '<?php echo $jsObs; ?>', <?php echo $idHost; ?>, '<?php echo $res['dtFechaInicio']; ?>', <?php echo $res['dTotalReserva']; ?>)" style="background: #fef08a; border: 1px solid #eab308; color: #854d0e; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
                                                         <i class="fa-solid fa-envelope-open-text"></i> Ver Solicitud
                                                     </button>
                                                 <?php else: ?>
@@ -364,6 +364,28 @@ $totalComentarios = $avgData['total'] ?? 0;
                 <div id="motivoSolicitud" style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 14px; background: #f8fafc; color: #475569; min-height: 80px;"></div>
             </div>
 
+            <div id="hostSettlementBox" style="background: #f1f5f9; padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0; display: none;">
+                <h4 style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-scale-balanced" style="color: var(--primary);"></i> Política y Liquidación
+                </h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="padding: 0.75rem; border-radius: 8px; background: white; border-left: 4px solid #64748b;" id="hostSettlementIndicator">
+                        <p style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;" id="hostSettlementStatus">Calculando...</p>
+                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;" id="hostSettlementDetail">Políticas de cancelación de Estancias Digitales.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; padding: 0 4px;">
+                        <span>Reembolso al huésped:</span>
+                        <span style="font-weight: 700; color: #0f172a;" id="guestRefundTextHost">$0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #0f172a; padding: 8px 4px 0 4px; border-top: 1px dashed #cbd5e1;">
+                        <span style="font-weight: 800;">Tu ganancia (10%):</span>
+                        <span style="font-weight: 800; color: #10b981;" id="hostEarningsText">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
             <div style="display: flex; gap: 1rem;">
                 <button onclick="cerrarModalAprobar()" style="flex: 1; padding: 0.875rem; border: 1px solid #cbd5e1; background: white; color: #475569; border-radius: 12px; font-weight: 700; cursor: pointer;">Cerrar</button>
                 <button id="btnAprobarCancelacionHost" onclick="aprobarCancelacion()" style="flex: 1; padding: 0.875rem; border: none; background: #dc2626; color: white; border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);">Confirmar Cancelación</button>
@@ -415,7 +437,7 @@ $totalComentarios = $avgData['total'] ?? 0;
         document.getElementById('modalAprobarCancelacion').style.display = 'flex';
     }
 
-    function verSolicitudCancelacion(idReserva, motivo, idUsuario) {
+    function verSolicitudCancelacion(idReserva, motivo, idUsuario, fechaInicioStr, total) {
         aprobacionPendiente = { idReserva, idUsuario };
         motivoAprobacion = motivo;
         
@@ -426,7 +448,41 @@ $totalComentarios = $avgData['total'] ?? 0;
         document.getElementById('modalIconContainer').style.background = '#fef08a';
         document.getElementById('modalIconContainer').style.color = '#854d0e';
         
-        document.getElementById('motivoSolicitud').innerText = motivo || 'Sin motivo especificado';
+        document.getElementById('motivoSolicitud').innerText = motivo || 'Sin motivo especificado.';
+        
+        // Calcular penalización y ganancias para el anfitrión
+        const fechaInicio = new Date(fechaInicioStr + 'T15:00:00');
+        const ahora = new Date();
+        const diffHoras = (fechaInicio - ahora) / (1000 * 60 * 60);
+        
+        const settlementBox = document.getElementById('hostSettlementBox');
+        const settlementIndicator = document.getElementById('hostSettlementIndicator');
+        const settlementStatus = document.getElementById('hostSettlementStatus');
+        const settlementDetail = document.getElementById('hostSettlementDetail');
+        const guestRefundText = document.getElementById('guestRefundTextHost');
+        const hostEarningsText = document.getElementById('hostEarningsText');
+        
+        settlementBox.style.display = 'block';
+        if (diffHoras >= 24) {
+            settlementIndicator.style.borderLeftColor = '#64748b';
+            settlementStatus.innerText = 'Reembolso Total (Sin Ganancia)';
+            settlementStatus.style.color = '#64748b';
+            settlementDetail.innerText = 'Cancelación solicitada con >24h de antelación. El huésped recibe el 100%.';
+            guestRefundText.innerText = '$' + parseFloat(total).toLocaleString(undefined, {minimumFractionDigits: 2});
+            hostEarningsText.innerText = '$0.00';
+            hostEarningsText.style.color = '#64748b';
+        } else {
+            const penalizacion = total * 0.10;
+            const reembolso = total * 0.90;
+            
+            settlementIndicator.style.borderLeftColor = '#10b981';
+            settlementStatus.innerText = 'Penalización Aplicable (10%)';
+            settlementStatus.style.color = '#10b981';
+            settlementDetail.innerText = 'Faltan menos de 24h. Recibirás el 10% del total como compensación.';
+            guestRefundText.innerText = '$' + reembolso.toLocaleString(undefined, {minimumFractionDigits: 2});
+            hostEarningsText.innerText = '$' + penalizacion.toLocaleString(undefined, {minimumFractionDigits: 2});
+            hostEarningsText.style.color = '#10b981';
+        }
         
         document.getElementById('btnAprobarCancelacionHost').style.display = 'block';
         document.getElementById('modalAprobarCancelacion').style.display = 'flex';

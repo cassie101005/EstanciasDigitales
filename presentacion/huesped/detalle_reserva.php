@@ -258,22 +258,30 @@ if (isset($reserva['vEstatus']) && (strtoupper($reserva['vEstatus']) === 'CANCEL
                 <textarea id="motivoCancelacion" rows="4" style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid #cbd5e1; font-family: inherit; font-size: 14px; resize: none; background: #f8fafc;" placeholder="Escribe el motivo detallado de por qué necesitas cancelar esta reserva..."></textarea>
             </div>
 
-            <div style="background: #f1f5f9; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
-                <h4 style="font-size: 12px; font-weight: 800; color: #475569; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Política de Cancelación</h4>
-                <?php
-                $sqlPol = "SELECT vNombreOpcion, vDescripcion FROM tbl_politicas_reservas";
-                $stmtPol = $conexion->query($sqlPol);
-                if ($stmtPol && $stmtPol->num_rows > 0) {
-                    while($rowPol = $stmtPol->fetch_assoc()) {
-                        echo '<div style="margin-bottom: 0.5rem;">';
-                        echo '<strong style="font-size: 12px; color: #475569;">' . htmlspecialchars($rowPol['vNombreOpcion']) . '</strong><br>';
-                        echo '<span style="font-size: 12px; color: #64748b;">' . htmlspecialchars($rowPol['vDescripcion']) . '</span>';
-                        echo '</div>';
-                    }
-                } else {
-                    echo '<p style="font-size: 12px; color: #64748b; margin: 0;">No hay políticas de cancelación definidas.</p>';
-                }
-                ?>
+            <div style="background: #f1f5f9; padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                <h4 style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Política de Reembolso
+                </h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div id="refundInfoBox" style="padding: 0.75rem; border-radius: 8px; background: white; border-left: 4px solid #10b981;">
+                        <p style="margin: 0; font-size: 13px; font-weight: 700; color: #0f172a;" id="refundStatusText">Calculando reembolso...</p>
+                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;" id="refundPolicyDetail">Si cancelas con más de 24 horas de anticipación, recibirás un reembolso total.</p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; padding: 0 4px;">
+                        <span>Total de la reserva:</span>
+                        <span style="font-weight: 700; color: #0f172a;">$<?php echo number_format($reserva['dTotalReserva'], 2); ?></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; padding: 0 4px;">
+                        <span>Cargo por cancelación:</span>
+                        <span style="font-weight: 700; color: #ef4444;" id="cancelChargeText">$0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #0f172a; padding: 8px 4px 0 4px; border-top: 1px dashed #cbd5e1;">
+                        <span style="font-weight: 800;">Monto a devolver:</span>
+                        <span style="font-weight: 800; color: #10b981;" id="refundAmountText">$0.00</span>
+                    </div>
+                </div>
             </div>
 
             <div style="display: flex; gap: 1rem;">
@@ -289,6 +297,40 @@ if (isset($reserva['vEstatus']) && (strtoupper($reserva['vEstatus']) === 'CANCEL
     function cancelarReserva(idReserva, role, idUsuario) {
         cancelacionPendiente = { idReserva, role, idUsuario };
         document.getElementById('motivoCancelacion').value = '';
+        
+        // Calcular reembolso en tiempo real
+        const fechaInicioStr = "<?php echo $reserva['dtFechaInicio']; ?>";
+        const totalReserva = <?php echo $reserva['dTotalReserva']; ?>;
+        
+        const fechaInicio = new Date(fechaInicioStr + ' 15:00:00'); // Asumiendo check-in a las 3pm
+        const ahora = new Date();
+        const diffHoras = (fechaInicio - ahora) / (1000 * 60 * 60);
+        
+        const infoBox = document.getElementById('refundInfoBox');
+        const statusText = document.getElementById('refundStatusText');
+        const policyDetail = document.getElementById('refundPolicyDetail');
+        const chargeText = document.getElementById('cancelChargeText');
+        const amountText = document.getElementById('refundAmountText');
+        
+        if (diffHoras >= 24) {
+            infoBox.style.borderLeftColor = '#10b981';
+            statusText.innerText = '¡Reembolso Total Disponible!';
+            statusText.style.color = '#10b981';
+            policyDetail.innerText = 'Faltan más de 24 horas para el check-in. No se aplicarán cargos.';
+            chargeText.innerText = '$0.00';
+            amountText.innerText = '$' + totalReserva.toLocaleString(undefined, {minimumFractionDigits: 2});
+        } else {
+            const penalizacion = totalReserva * 0.10;
+            const reembolso = totalReserva * 0.90;
+            
+            infoBox.style.borderLeftColor = '#ef4444';
+            statusText.innerText = 'Se aplicará cargo del 10%';
+            statusText.style.color = '#ef4444';
+            policyDetail.innerText = 'Faltan menos de 24 horas para el check-in. Se retendrá una comisión.';
+            chargeText.innerText = '$' + penalizacion.toLocaleString(undefined, {minimumFractionDigits: 2});
+            amountText.innerText = '$' + reembolso.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
         document.getElementById('modalCancelacion').style.display = 'flex';
     }
 
