@@ -89,9 +89,13 @@ while ($row = $policiesResult->fetch_assoc()) {
 }
 
 // NUEVO: Consultar reseñas (máximo 5)
-$sqlResenias = "SELECT r.*, u.vNombre, u.vApellido, u.vFoto
+$sqlResenias = "SELECT r.*, u.vNombre, u.vApellido, u.vFoto,
+                       r.vRespuesta, r.dtFechaRespuesta,
+                       CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
                 FROM tbl_resenia r
                 JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
+                JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                JOIN tbl_usuarios h ON p.idUsuario = h.idUsuario
                 WHERE r.idPropiedad = ?
                 ORDER BY r.dtFechaResenia DESC
                 LIMIT 5";
@@ -267,6 +271,31 @@ if (isset($_SESSION['idUsuario'])) {
                                         </div>
                                     </div>
                                     <p style="color: #475569; line-height: 1.6; font-style: italic;">"<?php echo htmlspecialchars($res['vComentario']); ?>"</p>
+
+                                    <?php if (!empty($res['vRespuesta'])): ?>
+                                        <div style="margin-top: 1.25rem; background: white; border-left: 3px solid var(--primary); border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start;">
+                                            <div style="flex-shrink: 0; width: 36px; height: 36px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                <?php 
+                                                    $hostImg = !empty($res['hostFoto']) ? '../../' . $res['hostFoto'] : '';
+                                                ?>
+                                                <?php if ($hostImg): ?>
+                                                    <img src="<?php echo htmlspecialchars($hostImg); ?>" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                                                <?php else: ?>
+                                                    <i class="fa-solid fa-house-laptop" style="color: white; font-size: 14px;"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div>
+                                                <p style="font-size: 12px; font-weight: 800; color: var(--primary); margin: 0 0 4px 0;">
+                                                    <i class="fa-solid fa-reply" style="margin-right: 4px;"></i>
+                                                    Respuesta del anfitrión
+                                                    <?php if (!empty($res['dtFechaRespuesta'])): ?>
+                                                        <span style="font-weight: 400; color: #94a3b8; margin-left: 8px;"><?php echo date('d M, Y', strtotime($res['dtFechaRespuesta'])); ?></span>
+                                                    <?php endif; ?>
+                                                </p>
+                                                <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;"><?php echo htmlspecialchars($res['vRespuesta']); ?></p>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             <?php endwhile; ?>
                         </div>
