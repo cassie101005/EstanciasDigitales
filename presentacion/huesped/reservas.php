@@ -143,15 +143,6 @@ $reservas = $stmt->get_result();
         </div>
     </div>
 
-    <footer class="main-footer" style="padding: 4rem 10%; margin-top: 6rem; background: white;">
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div>Estancias Digitales © 2024. Tus viajes, simplificados.</div>
-            <div class="footer-links">
-                <a href="#">Privacidad</a>
-                <a href="#">Ayuda</a>
-            </div>
-        </div>
-    </footer>
     <!-- Modal de Comentarios -->
     <div id="commentModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
         <div class="modal-content" style="background:white; padding:2.5rem; border-radius:2rem; width:100%; max-width:500px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">

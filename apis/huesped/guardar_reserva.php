@@ -14,6 +14,21 @@ if ($idPropiedad == 0 || $idUsuario == 0 || empty($fechaInicio) || empty($fechaF
     exit();
 }
 
+// NUEVO: Validar solapamiento en el backend para seguridad
+$sqlCheck = "SELECT idReserva FROM tbl_reserva 
+             WHERE idPropiedad = ? 
+             AND vEstatus NOT IN ('Cancelada')
+             AND (
+                 (dtFechaInicio < ? AND dtFechaFin > ?)
+             )";
+$stmtCheck = $conexion->prepare($sqlCheck);
+$stmtCheck->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
+$stmtCheck->execute();
+if ($stmtCheck->get_result()->num_rows > 0) {
+    echo json_encode(['ok' => false, 'mensaje' => 'Lo sentimos, estas fechas ya no están disponibles.']);
+    exit();
+}
+
 // Insertar en tbl_reserva
 // Nota: Ajustar los nombres de las columnas según la estructura real de la tabla
 $sql = "INSERT INTO tbl_reserva (idUsuario, idPropiedad, dtFechaInicio, dtFechaFin, dTotalReserva) 

@@ -29,10 +29,7 @@ class ReseniaNegocio {
         $stmt->bind_param("iiis", $idPropiedad, $idUsuario, $califFinal, $comentario);
 
         if ($stmt->execute()) {
-            $msg = ($califFinal === null && $calificacion > 0) 
-                ? 'Comentario guardado. La calificación no se aplicó porque ya habías calificado esta propiedad.'
-                : 'Comentario guardado correctamente.';
-            return ['ok' => true, 'mensaje' => $msg];
+            return ['ok' => true, 'mensaje' => 'Comentario guardado correctamente.'];
         }
 
         return ['ok' => false, 'error' => 'Error al guardar el comentario: ' . $this->conexion->error];

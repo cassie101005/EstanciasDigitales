@@ -243,7 +243,7 @@ while ($row = $result->fetch_assoc()) {
             <div class="search-input-box">
                 <label>Huéspedes</label>
                 <select name="huespedes">
-                    <option value="">¿Cuántos?</option>
+                    <option value="">Añadir huéspedes</option>
                     <?php for($i=1; $i<=10; $i++): ?>
                         <option value="<?php echo $i; ?>" <?php echo $huespedes == $i ? 'selected' : ''; ?>><?php echo $i; ?> huésped<?php echo $i>1?'es':''; ?></option>
                     <?php endfor; ?>
@@ -301,13 +301,6 @@ while ($row = $result->fetch_assoc()) {
     </div>
 
     <footer class="main-footer">
-        <div>Estancias Digitales © 2024 ESTANCIAS DIGITALES. TODOS LOS DERECHOS RESERVADOS.</div>
-        <div class="footer-links">
-            <a href="#">Términos</a>
-            <a href="#">Privacidad</a>
-            <a href="#">Carreras</a>
-            <a href="#">Ayuda</a>
-        </div>
     </footer>
 
     <script>

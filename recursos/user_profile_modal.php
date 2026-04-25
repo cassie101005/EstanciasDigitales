@@ -147,21 +147,96 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+let initialProfileData = null;
+
+function getProfileFormData() {
+    const form = document.getElementById('profileForm');
+    const formData = new FormData(form);
+    const data = {};
+    // Capturamos solo los campos de texto/fecha para comparar cambios simples
+    formData.forEach((value, key) => {
+        if (key !== 'contrasenia') data[key] = value;
+    });
+    return JSON.stringify(data);
+}
+
 function openProfileModal() {
     var modal = document.getElementById('profileModal');
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        // Capturar estado inicial
+        initialProfileData = getProfileFormData();
     }
 }
 
-function closeProfileModal(e) {
-    if (e && e.target !== e.currentTarget && e.target.id !== 'profileModal') return;
+async function closeProfileModal(e) {
+    // Si el clic fue dentro del contenido y no fue el botón de cerrar, ignorar
+    if (e && e.target !== e.currentTarget && e.target.id !== 'profileModal' && !e.target.closest('.btn-close-modal')) return;
+    
     var modal = document.getElementById('profileModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+    if (!modal || !modal.classList.contains('active')) return;
+
+    // Forzar que SweetAlert esté siempre al frente
+    const styleNotif = document.getElementById('swal-zindex-fix') || document.createElement('style');
+    styleNotif.id = 'swal-zindex-fix';
+    styleNotif.innerHTML = '.swal2-container { z-index: 999999 !important; }';
+    if (!styleNotif.parentNode) document.head.appendChild(styleNotif);
+
+    const currentData = getProfileFormData();
+    
+    if (initialProfileData !== null && currentData !== initialProfileData) {
+        const result = await Swal.fire({
+            title: '¿Deseas guardar los cambios?',
+            text: "Has realizado modificaciones en tu perfil que no se han guardado.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--primary)',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'No, descartar',
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
+            // Validar que no haya campos vacíos (excepto contraseña)
+            const form = document.getElementById('profileForm');
+            const requiredFields = ['nombre', 'apellido', 'fechaNacimiento', 'correo', 'telefono'];
+            let hasEmpty = false;
+            
+            requiredFields.forEach(fieldName => {
+                const input = form.querySelector(`[name="${fieldName}"]`);
+                if (input && input.value.trim() === '') {
+                    hasEmpty = true;
+                    input.style.borderColor = 'red';
+                } else if (input) {
+                    input.style.borderColor = '';
+                }
+            });
+
+            if (hasEmpty) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campos incompletos',
+                    text: 'Los campos de perfil no se pueden quedar vacíos.'
+                });
+                return;
+            }
+
+            await guardarCambiosPerfil();
+            return;
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Descartar: recargar para limpiar cambios visuales
+            location.reload();
+            return;
+        } else {
+            // Si solo cerró el SweetAlert sin elegir, no cerramos el modal
+            return;
+        }
     }
+
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function togglePw(inputId, icon) {
@@ -217,6 +292,11 @@ async function guardarCambiosPerfil() {
     btn.disabled = true;
 
     try {
+        // Forzar que SweetAlert esté siempre al frente con un z-index superior
+        const style = document.createElement('style');
+        style.innerHTML = '.swal2-container { z-index: 999999 !important; }';
+        document.head.appendChild(style);
+
         const response = await fetch('<?php echo $base_path; ?>apis/auth/actualizar_perfil.php', {
             method: 'POST',
             body: formData

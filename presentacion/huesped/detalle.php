@@ -100,6 +100,20 @@ $stmtRes->bind_param("i", $idPropiedad);
 $stmtRes->execute();
 $resenias = $stmtRes->get_result();
 
+// NUEVO: Consultar fechas ya reservadas para bloquearlas
+$sqlReserved = "SELECT dtFechaInicio, dtFechaFin FROM tbl_reserva WHERE idPropiedad = ? AND vEstatus NOT IN ('Cancelada')";
+$stmtReserved = $conexion->prepare($sqlReserved);
+$stmtReserved->bind_param("i", $idPropiedad);
+$stmtReserved->execute();
+$resReserved = $stmtReserved->get_result();
+$reservedDates = [];
+while ($row = $resReserved->fetch_assoc()) {
+    $reservedDates[] = [
+        'start' => $row['dtFechaInicio'],
+        'end' => $row['dtFechaFin']
+    ];
+}
+
 // Verificar si el usuario actual ya calificó
 $yaCalifico = false;
 $miCalificacion = 0;
@@ -203,9 +217,9 @@ if (isset($_SESSION['idUsuario'])) {
                     
                     <?php if (isset($_SESSION['idUsuario'])): ?>
                     <!-- Formulario de Reseña -->
-                    <div id="formReseniaBox" style="background: white; border: 1px solid #eee; padding: 2rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                    <div id="formReseniaBox" style="position: relative; z-index: 5; background: white; border: 1px solid #eee; padding: 2rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
                         <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">Deja tu opinión</h3>
-                        <form id="formResenia">
+                        <form id="formResenia" style="position: relative; z-index: 10;">
                             <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
                             
                             <div style="margin-bottom: 1.5rem;">
@@ -221,7 +235,7 @@ if (isset($_SESSION['idUsuario'])) {
 
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #64748b;">Comentario</label>
-                                <textarea name="vComentario" style="width: 100%; border: 1px solid #eee; border-radius: 1rem; padding: 1rem; font-family: inherit; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s;" placeholder="Cuéntanos tu experiencia..." required></textarea>
+                                <textarea name="vComentario" style="width: 100%; border: 1px solid #eee; border-radius: 1rem; padding: 1rem; font-family: inherit; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s; position: relative; z-index: 11; cursor: text;" placeholder="Cuéntanos tu experiencia..." required></textarea>
                             </div>
 
                             <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 800;">Enviar Reseña</button>
@@ -274,7 +288,7 @@ if (isset($_SESSION['idUsuario'])) {
                     <div class="tonal-card reservation-sidebar" style="width: 100%; position: sticky; top: 2rem;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2rem;">
                             <span style="font-size: 1.75rem; font-weight: 800;">$<?php echo number_format($prop['dPrecioNoche'], 0); ?> <span style="font-size: 0.9rem; font-weight: 400; color: #6d7083;">MXN / noche</span></span>
-                            <span style="font-weight: 700; font-size: 14px;"><i class="fa-solid fa-star" style="color: var(--primary);"></i> 4.98</span>
+
                         </div>
 
                         <div style="border: 1px solid #ddd; border-radius: 0.75rem; overflow: hidden; margin-bottom: 1.5rem;">
@@ -324,6 +338,24 @@ if (isset($_SESSION['idUsuario'])) {
         const precioNoche = <?php echo $prop['dPrecioNoche']; ?>;
         const tarifaLimpieza = 1200;
 
+        const reservedRanges = <?php echo json_encode($reservedDates); ?>;
+
+        function checkOverlap(startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            
+            for (let range of reservedRanges) {
+                const rStart = new Date(range.start);
+                const rEnd = new Date(range.end);
+                
+                // Si hay solapamiento
+                if (start < rEnd && end > rStart) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         function updateReservationSummary() {
             const fechaInicio = document.getElementById('fechaInicio').value;
             const fechaFin = document.getElementById('fechaFin').value;
@@ -334,6 +366,15 @@ if (isset($_SESSION['idUsuario'])) {
                 const end = new Date(fechaFin);
                 
                 if (end > start) {
+                    // Validar solapamiento con reservas existentes
+                    if (checkOverlap(fechaInicio, fechaFin)) {
+                        alert("Lo sentimos, algunas de las fechas seleccionadas ya están reservadas. Por favor elige otro rango.");
+                        document.getElementById('fechaInicio').value = '';
+                        document.getElementById('fechaFin').value = '';
+                        summaryList.style.display = 'none';
+                        return;
+                    }
+
                     const diffTime = Math.abs(end - start);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
@@ -400,10 +441,9 @@ if (isset($_SESSION['idUsuario'])) {
                     const data = await res.json();
 
                     if (data.ok) {
-                        alert(data.mensaje);
                         location.reload(); // Recargar para ver el comentario
                     } else {
-                        alert(data.error);
+                        console.error(data.error);
                     }
                 } catch (err) {
                     console.error(err);

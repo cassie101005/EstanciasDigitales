@@ -1,5 +1,9 @@
 <?php
 session_start();
+header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Evitar que errores PHP se filtren en la salida JSON
+
 require_once '../../datos/conexion.php';
 require_once '../../negocio/huesped/resenia.php';
 

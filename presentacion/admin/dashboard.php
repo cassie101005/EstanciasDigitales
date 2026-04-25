@@ -195,7 +195,7 @@
                                 <img src="https://i.pravatar.cc/100?u=javier" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
                                 <div>
                                     <div style="font-size: 13px; font-weight: 800;">Javier Jiménez</div>
-                                    <div style="font-size: 11px; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.98 Rating</div>
+
                                 </div>
                             </div>
                             <div style="text-align: right;">
@@ -209,7 +209,6 @@
                                 <img src="https://i.pravatar.cc/100?u=marta" style="width: 40px; height: 40px; border-radius: 12px; object-fit: cover;">
                                 <div>
                                     <div style="font-size: 13px; font-weight: 800;">Marta Domínguez</div>
-                                    <div style="font-size: 11px; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.92 Rating</div>
                                 </div>
                             </div>
                             <div style="text-align: right;">

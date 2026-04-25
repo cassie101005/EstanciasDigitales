@@ -31,14 +31,23 @@ if (isset($conexion)) {
             }
         }
     } else {
-        // Notificaciones para huéspedes: Nuevas propiedades registradas
-        $sqlNotifNav = "SELECT p.idPropiedad, p.vNombre as propiedad, t.vNombreCategoria as categoria, p.dtFechaRegistro, 
-                               (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as vFoto
+        // Notificaciones para huéspedes: Nuevas propiedades y actualizaciones de sus propias reservas
+        $sqlNotifNav = "(SELECT p.idPropiedad as id, p.vNombre as propiedad, t.vNombreCategoria as categoria, p.dtFechaRegistro as fecha, 
+                               (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as vFoto,
+                               'propiedad' as tipo, NULL as vEstatus
                         FROM tbl_propiedad p
-                        JOIN tbl_tipo_propiedad t ON p.idTipoPropiedad = t.idTipoPropiedad
-                        ORDER BY p.idPropiedad DESC LIMIT 6";
+                        JOIN tbl_tipo_propiedad t ON p.idTipoPropiedad = t.idTipoPropiedad)
+                        UNION ALL
+                        (SELECT r.idReserva as id, p.vNombre as propiedad, 'Actualización de Reserva' as categoria, r.dtFechaRegistro as fecha,
+                               (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as vFoto,
+                               'reserva' as tipo, r.vEstatus
+                        FROM tbl_reserva r
+                        JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                        WHERE r.idUsuario = ? AND (r.vEstatus = 'Cancelada' OR r.vEstatus = 'Confirmada' OR r.vEstatus = 'Pendiente Cancelacion'))
+                        ORDER BY fecha DESC LIMIT 6";
         $stmtNotifNav = $conexion->prepare($sqlNotifNav);
         if ($stmtNotifNav) {
+            $stmtNotifNav->bind_param("i", $idUsuarioNotif);
             $stmtNotifNav->execute();
             $resNotifNav = $stmtNotifNav->get_result();
             while ($row = $resNotifNav->fetch_assoc()) {
@@ -97,19 +106,37 @@ if (isset($conexion)) {
                     </div>
                 <?php else: ?>
                     <?php 
-                        $foto_prop = !empty($n['vFoto']) ? $base_path . $n['vFoto'] : 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=100&q=80';
-                        $fecha_prop = !empty($n['dtFechaRegistro']) ? date('d M Y', strtotime($n['dtFechaRegistro'])) : 'Recientemente';
+                        $tipo = $n['tipo'] ?? 'propiedad';
+                        $foto_item = !empty($n['vFoto']) ? $base_path . $n['vFoto'] : ($tipo == 'reserva' ? 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=100&q=80' : 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=100&q=80');
+                        $fecha_item = !empty($n['fecha']) ? date('d M Y', strtotime($n['fecha'])) : 'Recientemente';
+                        $estatus = strtolower($n['vEstatus'] ?? '');
+                        $color_borde = "var(--primary)";
+                        
+                        if ($tipo == 'reserva') {
+                            if ($estatus == 'cancelada') {
+                                $msg_huesped = "Tu reservación en <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> ha sido <strong style='color: #ef4444;'>cancelada</strong>.";
+                                $color_borde = "#ef4444";
+                            } else if ($estatus == 'confirmada') {
+                                $msg_huesped = "¡Tu reservación en <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> ha sido <strong style='color: #10b981;'>confirmada</strong>!";
+                                $color_borde = "#10b981";
+                            } else {
+                                $msg_huesped = "Tu solicitud de reserva en <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> está siendo procesada.";
+                                $color_borde = "#f59e0b";
+                            }
+                        } else {
+                            $msg_huesped = "¡Nueva propiedad descubierta! <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> en la categoría <strong style='color: #0f172a;'>" . htmlspecialchars($n['categoria']) . "</strong>.";
+                        }
                     ?>
                     <div style="display: flex; gap: 1rem; align-items: center;">
-                        <div class="nav-profile-avatar" style="width: 45px; height: 45px; flex-shrink: 0; cursor: pointer; border: 2px solid var(--primary); background: white; border-radius: 10px; overflow: hidden;">
-                            <img src="<?php echo $foto_prop; ?>" alt="Propiedad" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div class="nav-profile-avatar" style="width: 45px; height: 45px; flex-shrink: 0; cursor: pointer; border: 2px solid <?php echo $color_borde; ?>; background: white; border-radius: 10px; overflow: hidden;">
+                            <img src="<?php echo $foto_item; ?>" alt="Item" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <div>
                             <p style="font-size: 13px; color: #475569; margin: 0; line-height: 1.4;">
-                                ¡Nueva propiedad descubierta! <strong style="color: var(--primary);"><?php echo htmlspecialchars($n['propiedad']); ?></strong> en la categoría <strong style="color: #0f172a;"><?php echo htmlspecialchars($n['categoria']); ?></strong>.
+                                <?php echo $msg_huesped; ?>
                             </p>
                             <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 4px;">
-                                <i class="fa-regular fa-star" style="margin-right: 4px;"></i> Agregada el <?php echo $fecha_prop; ?>
+                                <i class="fa-regular <?php echo $tipo == 'reserva' ? 'fa-calendar-check' : 'fa-star'; ?>" style="margin-right: 4px;"></i> <?php echo $fecha_item; ?>
                             </span>
                         </div>
                     </div>
