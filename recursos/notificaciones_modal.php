@@ -20,7 +20,7 @@ if (isset($conexion)) {
                         JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
                         JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
                         WHERE p.idUsuario = ? 
-                        ORDER BY r.dtFechaRegistro DESC LIMIT 6";
+                        ORDER BY r.dtFechaRegistro DESC LIMIT 4";
         $stmtNotifNav = $conexion->prepare($sqlNotifNav);
         if ($stmtNotifNav) {
             $stmtNotifNav->bind_param("i", $idUsuarioNotif);
@@ -46,7 +46,7 @@ if (isset($conexion)) {
                         LEFT JOIN tbl_cancelacion c ON r.idReserva = c.idReserva
                         WHERE r.idUsuario = ? AND (r.vEstatus = 'Cancelada' OR r.vEstatus = 'Confirmada' OR r.vEstatus = 'Pendiente Cancelacion'))
 
-                        ORDER BY fecha DESC LIMIT 6";
+                        ORDER BY fecha DESC LIMIT 4";
         $stmtNotifNav = $conexion->prepare($sqlNotifNav);
         if ($stmtNotifNav) {
             $stmtNotifNav->bind_param("i", $idUsuarioNotif);
