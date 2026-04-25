@@ -97,35 +97,41 @@ if ($stmtNotif) {
                         </div>
 
                         <?php if (count($notificaciones) > 0): ?>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1rem;">
                             <?php foreach ($notificaciones as $notif): 
                                 $fIni = new DateTime($notif['dtFechaInicio']);
                                 $fFin = new DateTime($notif['dtFechaFin']);
                                 
                                 $status = "Confirmada";
-                                $stStyle = "font-size: 9px; padding: 4px 10px; background: #d1fae5; color: #065f46; border-radius: 99px;";
+                                $stStyle = "font-size: 10px; padding: 5px 12px; background: #d1fae5; color: #065f46; border-radius: 99px; font-weight: 800;";
                                 if (isset($notif['vEstatus']) && strtoupper($notif['vEstatus']) === 'PENDIENTE CANCELACION') {
                                     $status = "Pendiente";
-                                    $stStyle = "font-size: 9px; padding: 4px 10px; background: #fef08a; color: #854d0e; border-radius: 99px;";
+                                    $stStyle = "font-size: 10px; padding: 5px 12px; background: #fef08a; color: #854d0e; border-radius: 99px; font-weight: 800;";
                                 } elseif (isset($notif['vEstatus']) && strtoupper($notif['vEstatus']) === 'CANCELADA') {
                                     $status = "Cancelada";
-                                    $stStyle = "font-size: 9px; padding: 4px 10px; background: #fee2e2; color: #991b1b; border-radius: 99px;";
+                                    $stStyle = "font-size: 10px; padding: 5px 12px; background: #fee2e2; color: #991b1b; border-radius: 99px; font-weight: 800;";
                                 }
                                 $imgSrc = !empty($notif['vFoto']) ? '../../' . $notif['vFoto'] : 'https://i.pravatar.cc/100?u=' . $notif['idReserva'];
                             ?>
                                 <div class="reservation-list-item">
                                     <div style="display: flex; gap: 1.5rem; align-items: center;">
-                                        <img src="<?php echo htmlspecialchars($imgSrc); ?>" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover;">
+                                        <img src="<?php echo htmlspecialchars($imgSrc); ?>" style="width: 85px; height: 85px; border-radius: 16px; object-fit: cover; flex-shrink: 0;">
                                         <div>
-                                            <div style="font-size: 15px; font-weight: 800;"><?php echo htmlspecialchars($notif['vNombre'] . ' ' . $notif['vApellido']); ?></div>
-                                            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;"><?php echo htmlspecialchars($notif['propiedad']); ?> • <?php echo $fIni->format('d M') . ' - ' . $fFin->format('d M'); ?></div>
+                                            <div style="font-size: 16px; font-weight: 800; color: #0f172a;"><?php echo htmlspecialchars($notif['vNombre'] . ' ' . $notif['vApellido']); ?></div>
+                                            <div style="font-size: 13px; color: #64748b; margin-top: 4px; font-weight: 600;"><?php echo htmlspecialchars($notif['propiedad']); ?></div>
+                                            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                                                <i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>
+                                                <?php echo $fIni->format('d M') . ' - ' . $fFin->format('d M'); ?>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div style="text-align: right;">
+                                    <div style="text-align: right; flex-shrink: 0;">
                                         <span class="status-tag" style="<?php echo $stStyle; ?>"><?php echo strtoupper($status); ?></span>
-                                        <div style="margin-top: 8px; font-size: 14px; font-weight: 800;">$<?php echo number_format($notif['dTotalReserva'], 0); ?></div>
+                                        <div style="margin-top: 10px; font-size: 1.1rem; font-weight: 800; color: #0f172a;">$<?php echo number_format($notif['dTotalReserva'], 0); ?></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
+                            </div>
                         <?php else: ?>
                             <div style="text-align: center; padding: 3rem; color: #94a3b8; background: white; border-radius: 16px;">
                                 <i class="fa-solid fa-receipt" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
@@ -135,9 +141,6 @@ if ($stmtNotif) {
                     </div>
                 </section>
 
-                <aside>
-                    <!-- Las notificaciones ahora se muestran al dar clic en la campana (navbar.php -> notificaciones_modal.php) -->
-                </aside>
             </div>
         </div>
     </div>
