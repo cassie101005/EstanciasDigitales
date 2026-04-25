@@ -151,79 +151,17 @@ $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; 
     </div>
 
     <script>
-        const granTotal = <?php echo $granTotal; ?>;
-        
-        function selectPayment(type) {
-            const optFull = document.getElementById('opt-full');
-            const optPart = document.getElementById('opt-part');
-            const btnPay = document.getElementById('btn-submit-pay');
-
-            if (type === 'full') {
-                optFull.classList.add('active');
-                optPart.classList.remove('active');
-                optFull.querySelector('input').checked = true;
-                btnPay.innerText = 'Confirmar y Pagar $' + granTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
-            } else {
-                optPart.classList.add('active');
-                optFull.classList.remove('active');
-                optPart.querySelector('input').checked = true;
-                btnPay.innerText = 'Confirmar y Pagar $' + (granTotal * 0.3).toLocaleString('en-US', {minimumFractionDigits: 2});
-            }
-        }
-
-        async function procesarPago() {
-            Swal.fire({
-                title: 'Procesando pago...',
-                text: 'Por favor espera un momento',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Datos para guardar la reservación
-            const formData = new FormData();
-            formData.append('idPropiedad', '<?php echo $idPropiedad; ?>');
-            formData.append('idUsuario', '<?php echo $idUsuarioHuesped; ?>');
-            formData.append('fechaInicio', '<?php echo $fechaInicio; ?>');
-            formData.append('fechaFin', '<?php echo $fechaFin; ?>');
-            formData.append('total', '<?php echo $granTotal; ?>');
-            formData.append('huespedes', '<?php echo $huespedes; ?>');
-
-            try {
-                const response = await fetch('../../apis/huesped/guardar_reserva.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (result.ok) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Pago Exitoso!',
-                        text: 'Tu reservación ha sido confirmada correctamente.',
-                        confirmButtonText: 'Ver mis reservas',
-                        confirmButtonColor: '#7C3AED'
-                    }).then(() => {
-                        window.location.href = 'reservas.php';
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: result.mensaje || 'No se pudo procesar la reservación.'
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de conexión',
-                    text: 'Hubo un problema al conectar con el servidor.'
-                });
-            }
-        }
+        // Variables del servidor — inyectadas para uso en pago.js
+        window.PAGO_DATA = {
+            granTotal:   <?php echo $granTotal; ?>,
+            idPropiedad: '<?php echo $idPropiedad; ?>',
+            idUsuario:   '<?php echo $idUsuarioHuesped; ?>',
+            fechaInicio: '<?php echo $fechaInicio; ?>',
+            fechaFin:    '<?php echo $fechaFin; ?>',
+            huespedes:   '<?php echo $huespedes; ?>'
+        };
     </script>
+    <script src="../../recursos/js/huesped/pago.js"></script>
+
 </body>
 </html>

@@ -2,10 +2,17 @@
 require_once '../../datos/conexion.php';
 require_once '../../datos/auth/queries_auth.php';
 
+// Protección: este archivo solo debe ejecutarse desde apis/auth/login.php
+if (!isset($correo) || !isset($contrasenia) || !isset($rol)) {
+    $resultado = ['error' => 'Acceso no permitido.'];
+    return;
+}
+
 $queriesAuth = new QueriesAuth($conexion);
 
 // 1. Buscar el usuario por correo
 $resultadoQuery = $queriesAuth->buscarUsuarioPorCorreo($correo);
+
 
 // 2. Validar si existe el usuario
 if ($resultadoQuery->num_rows === 0) {

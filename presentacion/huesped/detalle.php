@@ -88,21 +88,35 @@ while ($row = $policiesResult->fetch_assoc()) {
     $policies[] = $row['vNombrePol'];
 }
 
-// NUEVO: Consultar reseñas (máximo 5)
-$sqlResenias = "SELECT r.*, u.vNombre, u.vApellido, u.vFoto,
-                       r.vRespuesta, r.dtFechaRespuesta,
-                       CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
-                FROM tbl_resenia r
-                JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
-                JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
-                JOIN tbl_usuarios h ON p.idUsuario = h.idUsuario
-                WHERE r.idPropiedad = ?
-                ORDER BY r.dtFechaResenia DESC
-                LIMIT 5";
+// NUEVO: Consultar reseñas y comentarios (máximo 10, unificado)
+$sqlResenias = "SELECT * FROM (
+                    SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha,
+                           u.vNombre, u.vApellido, u.vFoto, u.idUsuario,
+                           r.vRespuesta, r.dtFechaRespuesta,
+                           CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
+                    FROM tbl_resenia r
+                    JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
+                    JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                    JOIN tbl_usuarios h ON p.idUsuario = h.idUsuario
+                    WHERE r.idPropiedad = ?
+                    UNION ALL
+                    SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha,
+                           u.vNombre, u.vApellido, u.vFoto, u.idUsuario,
+                           c.vRespuesta, NULL as dtFechaRespuesta,
+                           CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
+                    FROM tbl_comentarios c
+                    JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
+                    JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
+                    JOIN tbl_usuarios h ON p.idUsuario = h.idUsuario
+                    WHERE c.idPropiedad = ?
+                ) as t
+                ORDER BY fecha DESC
+                LIMIT 10";
 $stmtRes = $conexion->prepare($sqlResenias);
-$stmtRes->bind_param("i", $idPropiedad);
+$stmtRes->bind_param("ii", $idPropiedad, $idPropiedad);
 $stmtRes->execute();
 $resenias = $stmtRes->get_result();
+
 
 // NUEVO: Consultar fechas ya reservadas para bloquearlas
 $sqlReserved = "SELECT dtFechaInicio, dtFechaFin FROM tbl_reserva WHERE idPropiedad = ? AND vEstatus NOT IN ('Cancelada')";
@@ -261,7 +275,7 @@ if (isset($_SESSION['idUsuario'])) {
                                             <img src="<?php echo !empty($res['vFoto']) ? '../../' . $res['vFoto'] : 'https://i.pravatar.cc/100?u=' . $res['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
                                             <div>
                                                 <p style="font-weight: 800;"><?php echo htmlspecialchars($res['vNombre'] . ' ' . $res['vApellido']); ?></p>
-                                                <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($res['dtFechaResenia'])); ?></p>
+                                                <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($res['fecha'])); ?></p>
                                             </div>
                                         </div>
                                         <div style="color: #fbbf24;">
@@ -365,125 +379,13 @@ if (isset($_SESSION['idUsuario'])) {
     </div>
 
     <script>
-        const precioNoche = <?php echo $prop['dPrecioNoche']; ?>;
-        const tarifaLimpieza = 1200;
-
-        const reservedRanges = <?php echo json_encode($reservedDates); ?>;
-
-        function checkOverlap(startStr, endStr) {
-            const start = new Date(startStr);
-            const end = new Date(endStr);
-            
-            for (let range of reservedRanges) {
-                const rStart = new Date(range.start);
-                const rEnd = new Date(range.end);
-                
-                // Si hay solapamiento
-                if (start < rEnd && end > rStart) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function updateReservationSummary() {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            const summaryList = document.getElementById('summaryList');
-
-            if (fechaInicio && fechaFin) {
-                const start = new Date(fechaInicio);
-                const end = new Date(fechaFin);
-                
-                if (end > start) {
-                    // Validar solapamiento con reservas existentes
-                    if (checkOverlap(fechaInicio, fechaFin)) {
-                        alert("Lo sentimos, algunas de las fechas seleccionadas ya están reservadas. Por favor elige otro rango.");
-                        document.getElementById('fechaInicio').value = '';
-                        document.getElementById('fechaFin').value = '';
-                        summaryList.style.display = 'none';
-                        return;
-                    }
-
-                    const diffTime = Math.abs(end - start);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
-                    const basePrice = diffDays * precioNoche;
-                    const total = basePrice + tarifaLimpieza;
-                    
-                    document.getElementById('summaryNights').innerText = diffDays;
-                    document.getElementById('summaryBasePrice').innerText = '$' + basePrice.toLocaleString() + ' MXN';
-                    document.getElementById('summaryTotal').innerText = '$' + total.toLocaleString() + ' MXN';
-                    
-                    document.getElementById('nochesInput').value = diffDays;
-                    document.getElementById('totalInput').value = total;
-                    
-                    summaryList.style.display = 'block';
-                } else {
-                    summaryList.style.display = 'none';
-                }
-            }
-        }
-
-        // Establecer fecha mínima como mañana
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('fechaInicio').min = tomorrow.toISOString().split('T')[0];
-        
-        document.getElementById('fechaInicio').addEventListener('change', () => {
-            const nextDay = new Date(document.getElementById('fechaInicio').value);
-            nextDay.setDate(nextDay.getDate() + 1);
-            document.getElementById('fechaFin').min = nextDay.toISOString().split('T')[0];
-        });
-        // Lógica de Reseñas
-        document.querySelectorAll('.star-btn').forEach(star => {
-            star.onclick = function() {
-                const val = this.getAttribute('data-value');
-                document.getElementById('inputCalificacion').value = val;
-                
-                // Actualizar visual de estrellas
-                document.querySelectorAll('.star-btn').forEach(s => {
-                    if (s.getAttribute('data-value') <= val) {
-                        s.style.color = '#fbbf24';
-                    } else {
-                        s.style.color = '#cbd5e1';
-                    }
-                });
-            }
-        });
-
-        const formResenia = document.getElementById('formResenia');
-        if (formResenia) {
-            formResenia.onsubmit = async (e) => {
-                e.preventDefault();
-                
-                const fd = new FormData(formResenia);
-                const btn = formResenia.querySelector('button');
-                btn.disabled = true;
-                btn.innerText = 'Enviando...';
-
-                try {
-                    const res = await fetch('../../apis/huesped/resenia.php', {
-                        method: 'POST',
-                        body: fd
-                    });
-                    const data = await res.json();
-
-                    if (data.ok) {
-                        location.reload(); // Recargar para ver el comentario
-                    } else {
-                        console.error(data.error);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Error de conexión al enviar la reseña.');
-                } finally {
-                    btn.disabled = false;
-                    btn.innerText = 'Enviar Reseña';
-                }
-            };
-        }
+        // Variables del servidor — inyectadas para uso en detalle.js
+        window.DETALLE_DATA = {
+            precioNoche:    <?php echo $prop['dPrecioNoche']; ?>,
+            reservedRanges: <?php echo json_encode($reservedDates); ?>
+        };
     </script>
+    <script src="../../recursos/js/huesped/detalle.js"></script>
+
 </body>
 </html>

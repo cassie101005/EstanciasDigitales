@@ -266,6 +266,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                                             <?php endfor; ?>
                                         </div>
                                     </div>
+                                    <p style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 1.5rem 0; font-style: italic;">"<?php echo htmlspecialchars($com['vComentario']); ?>"</p>
                                     <div id="respContainer_<?php echo $com['tipo']; ?>_<?php echo $com['id']; ?>">
                                         <?php if (!empty($com['vRespuesta'])): ?>
                                             <div style="background: #f1f5f9; padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
