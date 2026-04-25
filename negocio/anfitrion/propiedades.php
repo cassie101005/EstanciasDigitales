@@ -57,6 +57,13 @@ else if ($accion === 'detalle') {
         $politicas[] = $p['vNombrePol'];
     }
 
+    // Reseñas
+    $resultadoResenias = $queriesPropiedades->obtenerReseniasPropiedad($idPropiedad);
+    $resenias = [];
+    while ($res = $resultadoResenias->fetch_assoc()) {
+        $resenias[] = $res;
+    }
+
     $resultado = [
         'ok'        => true,
         'propiedad' => $propiedad,
@@ -64,6 +71,7 @@ else if ($accion === 'detalle') {
         'servicios' => $servicios,
         'reglas'    => $reglas,
         'politicas' => $politicas,
+        'resenias'  => $resenias,
     ];
 }
 

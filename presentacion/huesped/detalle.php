@@ -41,7 +41,7 @@ $stmtImages->execute();
 $imagesResult = $stmtImages->get_result();
 $images = [];
 while ($row = $imagesResult->fetch_assoc()) {
-    $images[] = $row['vImagen'];
+    $images[] = "../../" . str_replace(' ', '%20', $row['vImagen']);
 }
 $mainImage = !empty($images) ? $images[0] : "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
 $secondaryImages = array_slice($images, 1, 2);
@@ -88,17 +88,32 @@ while ($row = $policiesResult->fetch_assoc()) {
     $policies[] = $row['vNombrePol'];
 }
 
-// NUEVO: Consultar comentarios (máximo 3)
-$sqlComentarios = "SELECT c.*, u.vNombre, u.vApellido, u.vFoto
-                   FROM tbl_comentarios c
-                   JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
-                   WHERE c.idPropiedad = ?
-                   ORDER BY c.dtFechaRegistro DESC
-                   LIMIT 3";
-$stmtCom = $conexion->prepare($sqlComentarios);
-$stmtCom->bind_param("i", $idPropiedad);
-$stmtCom->execute();
-$comentarios = $stmtCom->get_result();
+// NUEVO: Consultar reseñas (máximo 5)
+$sqlResenias = "SELECT r.*, u.vNombre, u.vApellido, u.vFoto
+                FROM tbl_resenia r
+                JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
+                WHERE r.idPropiedad = ?
+                ORDER BY r.dtFechaResenia DESC
+                LIMIT 5";
+$stmtRes = $conexion->prepare($sqlResenias);
+$stmtRes->bind_param("i", $idPropiedad);
+$stmtRes->execute();
+$resenias = $stmtRes->get_result();
+
+// Verificar si el usuario actual ya calificó
+$yaCalifico = false;
+$miCalificacion = 0;
+if (isset($_SESSION['idUsuario'])) {
+    $sqlCheck = "SELECT iCalificacion FROM tbl_resenia WHERE idPropiedad = ? AND idUsuario = ? AND iCalificacion > 0";
+    $stmtCheck = $conexion->prepare($sqlCheck);
+    $stmtCheck->bind_param("ii", $idPropiedad, $_SESSION['idUsuario']);
+    $stmtCheck->execute();
+    $resCheck = $stmtCheck->get_result();
+    if ($rowCheck = $resCheck->fetch_assoc()) {
+        $yaCalifico = true;
+        $miCalificacion = $rowCheck['iCalificacion'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -186,25 +201,57 @@ $comentarios = $stmtCom->get_result();
                 <section style="padding: 4rem 0; border-top: 1px solid #eee;">
                     <h2 style="font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2.5rem;">Opiniones de los huéspedes</h2>
                     
-                    <?php if ($comentarios->num_rows > 0): ?>
+                    <?php if (isset($_SESSION['idUsuario'])): ?>
+                    <!-- Formulario de Reseña -->
+                    <div id="formReseniaBox" style="background: white; border: 1px solid #eee; padding: 2rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">Deja tu opinión</h3>
+                        <form id="formResenia">
+                            <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #64748b;">Calificación (Opcional)</label>
+                                <div class="star-rating" style="display: flex; gap: 0.5rem; font-size: 1.5rem; color: #cbd5e1; <?php echo $yaCalifico ? 'pointer-events: none; opacity: 0.8;' : ''; ?>">
+                                    <?php for($i=1; $i<=5; $i++): ?>
+                                        <i class="fa-solid fa-star star-btn" data-value="<?php echo $i; ?>" 
+                                           style="cursor: pointer; <?php echo ($yaCalifico && $i <= $miCalificacion) ? 'color: #fbbf24;' : ''; ?>"></i>
+                                    <?php endfor; ?>
+                                    <input type="hidden" name="iCalificacion" id="inputCalificacion" value="<?php echo $miCalificacion; ?>">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #64748b;">Comentario</label>
+                                <textarea name="vComentario" style="width: 100%; border: 1px solid #eee; border-radius: 1rem; padding: 1rem; font-family: inherit; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s;" placeholder="Cuéntanos tu experiencia..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 800;">Enviar Reseña</button>
+                        </form>
+                    </div>
+                    <?php else: ?>
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 1rem; margin-bottom: 3rem; text-align: center; color: #64748b;">
+                        Para dejar una reseña, por favor <a href="../../negocio/auth/login.php" style="color: var(--primary); font-weight: 700;">inicia sesión</a>.
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ($resenias->num_rows > 0): ?>
                         <div style="display: grid; gap: 2rem;">
-                            <?php while ($com = $comentarios->fetch_assoc()): ?>
+                            <?php while ($res = $resenias->fetch_assoc()): ?>
                                 <div style="background: #f8fafc; padding: 2rem; border-radius: 1.5rem;">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                                         <div style="display: flex; align-items: center; gap: 1rem;">
-                                            <img src="<?php echo !empty($com['vFoto']) ? '../../' . $com['vFoto'] : 'https://i.pravatar.cc/100?u=' . $com['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                            <img src="<?php echo !empty($res['vFoto']) ? '../../' . $res['vFoto'] : 'https://i.pravatar.cc/100?u=' . $res['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
                                             <div>
-                                                <p style="font-weight: 800;"><?php echo htmlspecialchars($com['vNombre'] . ' ' . $com['vApellido']); ?></p>
-                                                <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($com['dtFechaRegistro'])); ?></p>
+                                                <p style="font-weight: 800;"><?php echo htmlspecialchars($res['vNombre'] . ' ' . $res['vApellido']); ?></p>
+                                                <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($res['dtFechaResenia'])); ?></p>
                                             </div>
                                         </div>
                                         <div style="color: #fbbf24;">
-                                            <?php for($i=0; $i<$com['iCalificacion']; $i++): ?>
+                                            <?php for($i=0; $i<$res['iCalificacion']; $i++): ?>
                                                 <i class="fa-solid fa-star"></i>
                                             <?php endfor; ?>
                                         </div>
                                     </div>
-                                    <p style="color: #475569; line-height: 1.6; font-style: italic;">"<?php echo htmlspecialchars($com['vComentario']); ?>"</p>
+                                    <p style="color: #475569; line-height: 1.6; font-style: italic;">"<?php echo htmlspecialchars($res['vComentario']); ?>"</p>
                                 </div>
                             <?php endwhile; ?>
                         </div>
@@ -318,6 +365,55 @@ $comentarios = $stmtCom->get_result();
             nextDay.setDate(nextDay.getDate() + 1);
             document.getElementById('fechaFin').min = nextDay.toISOString().split('T')[0];
         });
+        // Lógica de Reseñas
+        document.querySelectorAll('.star-btn').forEach(star => {
+            star.onclick = function() {
+                const val = this.getAttribute('data-value');
+                document.getElementById('inputCalificacion').value = val;
+                
+                // Actualizar visual de estrellas
+                document.querySelectorAll('.star-btn').forEach(s => {
+                    if (s.getAttribute('data-value') <= val) {
+                        s.style.color = '#fbbf24';
+                    } else {
+                        s.style.color = '#cbd5e1';
+                    }
+                });
+            }
+        });
+
+        const formResenia = document.getElementById('formResenia');
+        if (formResenia) {
+            formResenia.onsubmit = async (e) => {
+                e.preventDefault();
+                
+                const fd = new FormData(formResenia);
+                const btn = formResenia.querySelector('button');
+                btn.disabled = true;
+                btn.innerText = 'Enviando...';
+
+                try {
+                    const res = await fetch('../../apis/huesped/resenia.php', {
+                        method: 'POST',
+                        body: fd
+                    });
+                    const data = await res.json();
+
+                    if (data.ok) {
+                        alert(data.mensaje);
+                        location.reload(); // Recargar para ver el comentario
+                    } else {
+                        alert(data.error);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de conexión al enviar la reseña.');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = 'Enviar Reseña';
+                }
+            };
+        }
     </script>
 </body>
 </html>

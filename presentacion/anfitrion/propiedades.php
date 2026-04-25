@@ -167,7 +167,7 @@ if ($stmtIng) {
 
         data.propiedades.forEach(p => {
             const imgSrc = p.imagenPrincipal
-                ? `../../${p.imagenPrincipal}`
+                ? `../../${p.imagenPrincipal.replace(/ /g, '%20')}`
                 : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
 
             const ubicacion = [p.ciudad, p.estado].filter(Boolean).join(', ') || 'Sin ubicación';

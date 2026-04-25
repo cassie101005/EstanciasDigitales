@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const div = document.createElement('div');
             div.className = 'img-edit-card';
             div.innerHTML = `
-                <img src="../../${img.vImagen}">
+                <img src="../../${img.vImagen.replace(/ /g, '%20')}">
                 <button type="button" class="btn-delete-img" onclick="eliminarImagen(${img.idImagen}, this)">
                     <i class="fa-solid fa-trash"></i>
                 </button>

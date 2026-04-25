@@ -19,22 +19,34 @@ $stmtRes->bind_param("i", $idHost);
 $stmtRes->execute();
 $reservas = $stmtRes->get_result();
 
-// 2. Consultar comentarios de las propiedades del anfitrión
-$sqlCom = "SELECT c.*, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto
-           FROM tbl_comentarios c
-           JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
-           JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
-           WHERE p.idUsuario = ?
-           ORDER BY c.dtFechaRegistro DESC";
+// 2. Consultar comentarios de las propiedades del anfitrión (Unificado de tbl_comentarios y tbl_resenia)
+$sqlCom = "SELECT vComentario, iCalificacion, fecha, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario FROM (
+                SELECT c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario
+                FROM tbl_comentarios c
+                JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
+                JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
+                WHERE p.idUsuario = ?
+                UNION ALL
+                SELECT r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, r.idUsuario
+                FROM tbl_resenia r
+                JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
+                WHERE p.idUsuario = ?
+           ) as t
+           ORDER BY fecha DESC";
 $stmtCom = $conexion->prepare($sqlCom);
-$stmtCom->bind_param("i", $idHost);
+$stmtCom->bind_param("ii", $idHost, $idHost);
 $stmtCom->execute();
 $comentarios = $stmtCom->get_result();
 
-// 3. Calcular promedio (opcional pero bueno para los KPI)
-$sqlAvg = "SELECT AVG(iCalificacion) as promedio, COUNT(*) as total FROM tbl_comentarios c JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad WHERE p.idUsuario = ?";
+// 3. Calcular promedio y total unificado
+$sqlAvg = "SELECT AVG(calif) as promedio, COUNT(*) as total FROM (
+                SELECT iCalificacion as calif FROM tbl_comentarios c JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad WHERE p.idUsuario = ? AND iCalificacion > 0
+                UNION ALL
+                SELECT iCalificacion as calif FROM tbl_resenia r JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad WHERE p.idUsuario = ? AND iCalificacion > 0
+           ) as t_avg";
 $stmtAvg = $conexion->prepare($sqlAvg);
-$stmtAvg->bind_param("i", $idHost);
+$stmtAvg->bind_param("ii", $idHost, $idHost);
 $stmtAvg->execute();
 $avgData = $stmtAvg->get_result()->fetch_assoc();
 $promedio = round($avgData['promedio'] ?? 5.0, 1);
@@ -236,12 +248,17 @@ $totalComentarios = $avgData['total'] ?? 0;
                                             <img src="<?php echo !empty($com['guestFoto']) ? '../../' . $com['guestFoto'] : 'https://i.pravatar.cc/100?u=' . $com['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 14px; object-fit: cover;">
                                             <div>
                                                 <div style="font-size: 15px; font-weight: 800; color: var(--text-main);"><?php echo htmlspecialchars($com['guestNombre'] . ' ' . $com['guestApellido']); ?></div>
-                                                <div style="font-size: 12px; color: #94a3b8; font-weight: 600;"><?php echo htmlspecialchars($com['nombrePropiedad']); ?> • <?php echo date('M Y', strtotime($com['dtFechaRegistro'])); ?></div>
+                                                <div style="font-size: 12px; color: #94a3b8; font-weight: 600;"><?php echo htmlspecialchars($com['nombrePropiedad']); ?> • <?php echo date('M Y', strtotime($com['fecha'])); ?></div>
                                             </div>
                                         </div>
                                         <div style="color: var(--primary); font-size: 12px; display: flex; gap: 2px;">
-                                            <?php for($i=0; $i<$com['iCalificacion']; $i++): ?>
+                                            <?php 
+                                            $calif = intval($com['iCalificacion']);
+                                            for($i=0; $i<$calif; $i++): ?>
                                                 <i class="fa-solid fa-star"></i>
+                                            <?php endfor; 
+                                            for($i=$calif; $i<5; $i++): ?>
+                                                <i class="fa-regular fa-star" style="opacity: 0.3;"></i>
                                             <?php endfor; ?>
                                         </div>
                                     </div>

@@ -5,6 +5,28 @@ require_once '../../datos/conexion.php';
 // Simular usuario logueado si no hay sesión
 $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; // ID 2 por defecto para pruebas
 
+// --- ACTUALIZACIÓN DINÁMICA DE ESTADOS BASADA EN LA FECHA ---
+$hoy_str = date('Y-m-d');
+
+// 1. FINALIZADA (id 3): Si la fecha fin ya pasó y no está cancelada
+$conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 3 
+                  WHERE idUsuario = $idUsuarioHuesped 
+                  AND idEstadoReserva != 4 
+                  AND dtFechaFin < '$hoy_str'");
+
+// 2. EN CURSO (id 2): Si hoy está entre inicio y fin y no está cancelada
+$conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 2 
+                  WHERE idUsuario = $idUsuarioHuesped 
+                  AND idEstadoReserva != 4 
+                  AND '$hoy_str' BETWEEN dtFechaInicio AND dtFechaFin");
+
+// 3. CONFIRMADA (id 1): Si aún no ha empezado y no tiene otro estado especial
+$conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 1 
+                  WHERE idUsuario = $idUsuarioHuesped 
+                  AND idEstadoReserva NOT IN (2, 3, 4) 
+                  AND dtFechaInicio > '$hoy_str'");
+// -----------------------------------------------------------
+
 // Consultar reservaciones del usuario
 $sql = "SELECT r.*, p.vNombre as nombrePropiedad, p.vDescripcion, 
                (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as imagen,
@@ -38,7 +60,10 @@ $reservas = $stmt->get_result();
     <?php include '../../recursos/navbar.php'; ?>
 
     <div class="reservation-container">
-        <header>
+        <header style="margin-bottom: 3rem;">
+            <a href="home.php" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #64748b; text-decoration: none; font-weight: 700; margin-bottom: 1.5rem; font-size: 0.9rem; transition: all 0.2s;" onmouseover="this.style.color='var(--primary)'; this.style.transform='translateX(-5px)'" onmouseout="this.style.color='#64748b'; this.style.transform='translateX(0)'">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Marketplace
+            </a>
             <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Mis Reservaciones</h1>
             <p style="color: #64748b; font-size: 1.1rem;">Gestiona tus estancias actuales y revisa tus experiencias pasadas.</p>
         </header>
@@ -54,15 +79,19 @@ $reservas = $stmt->get_result();
                         $fechaFin = new DateTime($res['dtFechaFin']);
                         $hoy = new DateTime();
                         
+                        $statusId = $res['idEstadoReserva'];
                         $status = "CONFIRMADA";
                         $statusColor = "var(--primary)";
                         
-                        if ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
+                        if ($statusId == 2) {
                             $status = "EN CURSO";
                             $statusColor = "#008a60";
-                        } elseif ($hoy > $fechaFin) {
+                        } elseif ($statusId == 3) {
                             $status = "FINALIZADA";
                             $statusColor = "#6c757d";
+                        } elseif ($statusId == 4) {
+                            $status = "CANCELADA";
+                            $statusColor = "#dc3545";
                         }
 
                         // Corregir ruta de imagen si es relativa
@@ -133,17 +162,7 @@ $reservas = $stmt->get_result();
                 <input type="hidden" name="idReserva" id="modalIdReserva">
                 <input type="hidden" name="idPropiedad" id="modalIdPropiedad">
                 
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block; font-weight:700; margin-bottom:0.5rem;">Calificación</label>
-                    <div class="star-rating" style="display:flex; gap:0.5rem; font-size:1.5rem; color:#fbbf24; cursor:pointer;">
-                        <i class="fa-solid fa-star" onclick="setRating(1)"></i>
-                        <i class="fa-solid fa-star" onclick="setRating(2)"></i>
-                        <i class="fa-solid fa-star" onclick="setRating(3)"></i>
-                        <i class="fa-solid fa-star" onclick="setRating(4)"></i>
-                        <i class="fa-solid fa-star" onclick="setRating(5)"></i>
-                    </div>
-                    <input type="hidden" name="calificacion" id="modalRating" value="5">
-                </div>
+
 
                 <div style="margin-bottom:2rem;">
                     <label style="display:block; font-weight:700; margin-bottom:0.5rem;">Tu comentario</label>
@@ -165,7 +184,7 @@ $reservas = $stmt->get_result();
             document.getElementById('modalIdPropiedad').value = idProp;
             document.getElementById('modalPropTitle').innerText = 'Opinión sobre ' + title;
             document.getElementById('commentModal').style.display = 'flex';
-            setRating(5);
+
         }
 
         function closeCommentModal() {
@@ -173,17 +192,7 @@ $reservas = $stmt->get_result();
             document.getElementById('commentForm').reset();
         }
 
-        function setRating(n) {
-            document.getElementById('modalRating').value = n;
-            const stars = document.querySelectorAll('.star-rating i');
-            stars.forEach((s, idx) => {
-                if (idx < n) {
-                    s.classList.replace('fa-regular', 'fa-solid');
-                } else {
-                    s.classList.replace('fa-solid', 'fa-regular');
-                }
-            });
-        }
+
 
         async function saveComment() {
             const formData = new FormData(document.getElementById('commentForm'));

@@ -120,5 +120,19 @@ class QueriesPropiedades {
         $stmt->execute();
         return $stmt->get_result();
     }
+    /**
+     * Obtener reseñas de una propiedad
+     */
+    public function obtenerReseniasPropiedad($idPropiedad) {
+        $sql = "SELECT r.*, u.vNombre, u.vApellido, u.vFoto
+                FROM tbl_resenia r
+                JOIN tbl_usuarios u ON u.idUsuario = r.idUsuario
+                WHERE r.idPropiedad = ?
+                ORDER BY r.dtFechaResenia DESC";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idPropiedad);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
 }
 ?>

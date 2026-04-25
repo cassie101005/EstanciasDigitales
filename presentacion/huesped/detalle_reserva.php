@@ -142,15 +142,18 @@ if (isset($reserva['vEstatus']) && (strtoupper($reserva['vEstatus']) === 'CANCEL
 
     <div class="container" style="max-width: 1200px; margin: 4rem auto; padding: 0 2rem;">
         
-        <div class="reserva-detail-header">
-            <div>
+        <div class="reserva-detail-header" style="flex-direction: column; align-items: flex-start; gap: 1rem;">
+            <a href="reservas.php" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #64748b; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: all 0.2s;" onmouseover="this.style.color='var(--primary)'; this.style.transform='translateX(-5px)'" onmouseout="this.style.color='#64748b'; this.style.transform='translateX(0)'">
+                <i class="fa-solid fa-arrow-left"></i> Volver a mis reservaciones
+            </a>
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                 <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem;">Confirmación #RES-<?php echo $idReserva; ?></h1>
-            </div>
-            <div>
-                <span class="status-pill" style="background: <?php echo $bgColor; ?>; color: <?php echo $color; ?>;">
-                    <i class="fa-solid fa-circle" style="font-size: 8px; margin-right: 8px;"></i>
-                    <?php echo $status; ?>
-                </span>
+                <div>
+                    <span class="status-pill" style="background: <?php echo $bgColor; ?>; color: <?php echo $color; ?>;">
+                        <i class="fa-solid fa-circle" style="font-size: 8px; margin-right: 8px;"></i>
+                        <?php echo $status; ?>
+                    </span>
+                </div>
             </div>
         </div>
 

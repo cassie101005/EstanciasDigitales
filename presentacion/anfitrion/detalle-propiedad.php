@@ -161,9 +161,9 @@ const ID_PROPIEDAD = <?= $idPropiedad ?>;
         const BASE_IMG  = '../../';
 
         // ── Galería ──
-        const imgPrincipal = imagenes[0] ? `${BASE_IMG}${imagenes[0]}` : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80';
-        const img2 = imagenes[1] ? `${BASE_IMG}${imagenes[1]}` : null;
-        const img3 = imagenes[2] ? `${BASE_IMG}${imagenes[2]}` : null;
+        const imgPrincipal = imagenes[0] ? `${BASE_IMG}${imagenes[0].replace(/ /g, '%20')}` : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80';
+        const img2 = imagenes[1] ? `${BASE_IMG}${imagenes[1].replace(/ /g, '%20')}` : null;
+        const img3 = imagenes[2] ? `${BASE_IMG}${imagenes[2].replace(/ /g, '%20')}` : null;
 
         const sideSlot = (src) => src
             ? `<img src="${src}" onerror="this.parentNode.innerHTML='<div class=dp-gallery-placeholder><i class=\\'fa-solid fa-image\\'></i></div>'">`
@@ -244,13 +244,40 @@ const ID_PROPIEDAD = <?= $idPropiedad ?>;
             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:1rem;">
                 ${imagenes.map(img => `
                     <div style="aspect-ratio:1; border-radius:12px; overflow:hidden; border:1px solid #E5E7EB;">
-                        <img src="${BASE_IMG}${img}" style="width:100%;height:100%;object-fit:cover;"
+                        <img src="${BASE_IMG}${img.replace(/ /g, '%20')}" style="width:100%;height:100%;object-fit:cover;"
                              onerror="this.parentNode.style.background='#F3F4F6'">
                     </div>`).join('')}
             </div>
         </div>` : '';
 
-        body.innerHTML = galeriaHTML + infoHTML + statsHTML + descHTML + servHTML + regHTML + polHTML + allImgsHTML;
+        // ── Reseñas ──
+        const resHTML = `
+        <div class="dp-section">
+            <h2 class="dp-section-title"><i class="fa-solid fa-comments"></i> Reseñas de huéspedes (${data.resenias.length})</h2>
+            ${data.resenias.length ? `
+                <div style="display:grid; gap:1.5rem;">
+                    ${data.resenias.map(r => `
+                        <div style="padding:1.25rem; background:#F9FAFB; border-radius:14px; border:1px solid #F3F4F6;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <img src="${r.vFoto ? '../../'+r.vFoto : 'https://i.pravatar.cc/100?u='+r.idUsuario}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                                    <div>
+                                        <p style="font-size:13px;font-weight:700;margin:0;">${r.vNombre} ${r.vApellido}</p>
+                                        <p style="font-size:11px;color:#9CA3AF;margin:0;">${new Date(r.dtFechaResenia).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <div style="color:#FBBF24; font-size:12px;">
+                                    ${'<i class="fa-solid fa-star"></i>'.repeat(r.iCalificacion)}
+                                </div>
+                            </div>
+                            <p style="font-size:13px; color:#475569; margin:0; line-height:1.5; font-style:italic;">"${r.vComentario}"</p>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p style="color:#9CA3AF;font-size:13px;">No hay reseñas aún.</p>'}
+        </div>`;
+
+        body.innerHTML = galeriaHTML + infoHTML + statsHTML + descHTML + servHTML + regHTML + polHTML + allImgsHTML + resHTML;
 
     } catch (err) {
         console.error(err);
