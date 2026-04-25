@@ -39,8 +39,9 @@ if (isset($_SESSION['idUsuario'])) {
                 <i class="fa-solid fa-bars"></i>
             </div>
         <?php else: ?>
-            <div class="logo-branded" onclick="window.location.href='<?php echo $base_path; ?>/../presentacion/huesped/home.php'">
-                <i class="fa-solid fa-house-laptop"></i> Estancias Digitales
+            <div class="logo-branded" onclick="window.location.href='<?php echo $base_path; ?>/../presentacion/huesped/home.php'" style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-house-laptop text-2xl text-primary"></i>
+                <span class="text-xl font-black text-primary uppercase tracking-widest">Estancias Digitales</span>
             </div>
         <?php endif; ?>
         <?php if (($is_host || $is_admin) && !$hide_search): ?>

@@ -124,5 +124,16 @@ class QueriesAuth {
         
         return $stmt->execute();
     }
+
+    /**
+     * Actualizar solo la contraseña por correo
+     */
+    public function actualizarContrasenia($correo, $nuevaContrasenia) {
+        $sql = "UPDATE tbl_usuarios SET vContrasenia = ? WHERE vCorreo = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("ss", $nuevaContrasenia, $correo);
+        return $stmt->execute();
+    }
 }
+
 ?>

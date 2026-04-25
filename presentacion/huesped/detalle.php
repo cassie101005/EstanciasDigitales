@@ -134,6 +134,7 @@ if (isset($_SESSION['idUsuario'])) {
 <head>
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($prop['vNombre']); ?> | Estancias Digitales</title>
+    <link rel="icon" type="image/png" href="../../recursos/img/logo.png">
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/main.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">

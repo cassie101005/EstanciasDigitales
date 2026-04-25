@@ -110,6 +110,7 @@ while ($row = $result->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <title>Marketplace | Estancias Digitales</title>
+    <link rel="icon" type="image/png" href="../../recursos/img/logo.png">
     <link rel="stylesheet" href="../../recursos/css/main.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
     <link rel="stylesheet" href="../../recursos/css/huesped/main.css">

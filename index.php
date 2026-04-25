@@ -5,73 +5,10 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Login | Estancias Digitales</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        /* ── Paleta Ventanas ── */
-                        "primary": "#7C3AED",
-                        "primary-container": "#6D28D9",
-                        "on-primary": "#ffffff",
-                        "secondary": "#1E40AF",
-                        "accent": "#F59E0B",
-                        /* ── Fondos ── */
-                        "background": "#F9FAFB",
-                        "surface": "#FFFFFF",
-                        "surface-bright": "#F9FAFB",
-                        "surface-container-lowest": "#FFFFFF",
-                        "surface-container-low": "#F9FAFB",
-                        "surface-container": "#F3F4F6",
-                        "surface-container-high": "#E5E7EB",
-                        "surface-container-highest": "#D1D5DB",
-                        "surface-variant": "#F3F4F6",
-                        /* ── Texto ── */
-                        "on-surface": "#111827",
-                        "on-background": "#111827",
-                        "on-surface-variant": "#6B7280",
-                        /* ── Bordes ── */
-                        "outline": "#9CA3AF",
-                        "outline-variant": "#E5E7EB",
-                        /* ── Estados ── */
-                        "error": "#DC2626",
-                        "error-container": "#FEE2E2",
-                        /* ── Tertiary (acento ámbar) ── */
-                        "tertiary": "#F59E0B",
-                        "tertiary-container": "#D97706",
-                        "tertiary-fixed": "#FEF3C7",
-                        "on-tertiary": "#FFFFFF",
-                        "on-tertiary-fixed": "#78350F",
-                        "on-tertiary-container": "#92400E",
-                        /* ── Misc ── */
-                        "inverse-surface": "#111827",
-                        "inverse-on-surface": "#F9FAFB",
-                        "inverse-primary": "#C4B5FD",
-                        "surface-tint": "#7C3AED",
-                        "surface-dim": "#E5E7EB"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.75rem",
-                        "lg": "0.75rem",
-                        "xl": "1.5rem",
-                        "full": "9999px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Inter", "sans-serif"],
-                        "body": ["Inter", "sans-serif"],
-                        "label": ["Inter", "sans-serif"]
-                    }
-                },
-            },
-        }
-    </script>
+    <link rel="icon" type="image/png" href="recursos/img/logo_final.png?v=1">
+    <link rel="stylesheet" href="recursos/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -108,7 +45,8 @@
         <section class="flex flex-col p-8 md:p-16 lg:p-20 justify-center">
             <div class="max-w-md w-full mx-auto">
                 <!-- Brand Anchor -->
-                <div class="mb-12">
+                <div class="mb-12 flex items-center gap-3">
+                    <i class="fa-solid fa-house-laptop text-4xl text-primary"></i>
                     <span class="text-xl font-black text-primary uppercase tracking-widest">Estancias Digitales</span>
                 </div>
 
@@ -128,13 +66,13 @@
                 </div>
 
                 <!-- Login Form -->
-                <form class="space-y-6" onsubmit="handleLogin(event)">
+                <form class="space-y-6" onsubmit="handleLogin(event)" autocomplete="off">
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-on-surface-variant ml-1">Correo electrónico</label>
                         <div class="relative">
                             <input id="email"
                                 class="w-full px-4 py-3.5 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all outline-none text-on-surface"
-                                placeholder="nombre@ejemplo.com" required type="email" />
+                                required type="email" autocomplete="off" />
                             <span
                                 class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline text-sm">alternate_email</span>
                         </div>
@@ -144,12 +82,12 @@
                         <div class="flex justify-between items-center px-1">
                             <label class="text-sm font-medium text-on-surface-variant">Contraseña</label>
                             <a class="text-xs font-semibold text-primary hover:underline underline-offset-4"
-                                href="#">¿Olvidaste tu contraseña?</a>
+                                href="javascript:void(0)" onclick="abrirModalReset()">¿Olvidaste tu contraseña?</a>
                         </div>
                         <div class="relative">
                             <input id="password"
                                 class="w-full px-4 py-3.5 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all outline-none text-on-surface"
-                                placeholder="••••••••" required type="password" />
+                                required type="password" autocomplete="new-password" />
                             <span
                                 class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline text-sm">lock</span>
                         </div>
@@ -184,7 +122,7 @@
 
                 <footer class="mt-12 text-center">
                     <p class="text-xs text-on-surface-variant tracking-widest uppercase">
-                        © 2024 Estancias Digitales. <br />
+                        © 2026 Estancias Digitales. <br />
                         <span class="mt-1 block opacity-60">Excelencia en gestión de propiedades.</span>
                     </p>
                 </footer>
@@ -211,32 +149,61 @@
             <h2 class="text-2xl font-bold text-on-surface mb-2">Crear nueva cuenta</h2>
             <p class="text-sm text-on-surface-variant mb-6">Regístrate como <span id="txtRolSeleccionado" class="font-bold text-primary capitalize"></span> para continuar.</p>
             
-            <form onsubmit="handleRegistro(event)" class="space-y-4">
+            <form onsubmit="handleRegistro(event)" class="space-y-4" autocomplete="off">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label class="text-xs font-medium text-on-surface-variant">Nombre</label>
-                        <input id="regNombre" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="Juan" />
+                        <input id="regNombre" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" autocomplete="off" />
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-medium text-on-surface-variant">Apellido</label>
-                        <input id="regApellido" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="Pérez" />
+                        <input id="regApellido" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" autocomplete="off" />
                     </div>
                 </div>
                 
                 <div class="space-y-1">
                     <label class="text-xs font-medium text-on-surface-variant">Correo electrónico</label>
-                    <input id="regCorreo" type="email" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="nombre@ejemplo.com" />
+                    <input id="regCorreo" type="email" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" autocomplete="off" />
                 </div>
                 
                 <div class="space-y-1">
                     <label class="text-xs font-medium text-on-surface-variant">Contraseña</label>
-                    <input id="regPassword" type="password" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" placeholder="••••••••" />
+                    <input id="regPassword" type="password" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" autocomplete="new-password" />
                 </div>
 
                 <div id="regAlert" class="hidden text-xs text-error mt-2"></div>
 
                 <button type="submit" class="w-full mt-6 py-3 text-on-primary font-bold rounded-lg transition-all active:scale-[0.98]" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
                     Registrarme
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Restablecer Contraseña -->
+    <div id="modalReset" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+        <div class="bg-surface w-full max-w-md rounded-xl shadow-2xl p-8 relative transform scale-95 transition-transform duration-300">
+            <button type="button" onclick="cerrarModalReset()" class="absolute top-4 right-4 text-on-surface-variant hover:text-error transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 class="text-2xl font-bold text-on-surface mb-2">Restablecer contraseña</h2>
+            <p class="text-sm text-on-surface-variant mb-6">Ingresa tu correo y tu nueva contraseña para actualizarla.</p>
+            
+            <form onsubmit="handleResetPassword(event)" class="space-y-4" autocomplete="off">
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-on-surface-variant">Correo electrónico</label>
+                    <input id="resetCorreo" type="email" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" autocomplete="off" />
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-medium text-on-surface-variant">Nueva contraseña</label>
+                    <input id="resetPassword" type="password" required class="w-full px-3 py-2 bg-surface-container rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm" autocomplete="new-password" />
+                </div>
+
+                <div id="resetAlert" class="hidden text-xs text-error mt-2"></div>
+
+                <button type="submit" class="w-full mt-6 py-3 text-on-primary font-bold rounded-lg transition-all active:scale-[0.98]" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);">
+                    Actualizar Contraseña
                 </button>
             </form>
         </div>
@@ -260,6 +227,13 @@
         }
 
         function abrirModalRegistro() {
+            // Limpiar antes de abrir
+            document.getElementById('regNombre').value = '';
+            document.getElementById('regApellido').value = '';
+            document.getElementById('regCorreo').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regAlert').classList.add('hidden');
+
             const role = document.getElementById('role_input').value;
             const roleNameDisplay = role === 'huesped' ? 'Viajero' : role === 'anfitrion' ? 'Anfitrión' : role;
             document.getElementById('txtRolSeleccionado').innerText = roleNameDisplay;
@@ -326,7 +300,95 @@
                 btn.disabled = false;
             }
         }
+
+        function abrirModalReset() {
+            // Limpiar antes de abrir
+            document.getElementById('resetCorreo').value = '';
+            document.getElementById('resetPassword').value = '';
+            document.getElementById('resetAlert').classList.add('hidden');
+
+            const modal = document.getElementById('modalReset');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function cerrarModalReset() {
+            const modal = document.getElementById('modalReset');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        async function handleResetPassword(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Actualizando...';
+            btn.disabled = true;
+
+            const payload = {
+                correo: document.getElementById('resetCorreo').value,
+                nuevaContrasenia: document.getElementById('resetPassword').value
+            };
+
+            try {
+                const res = await fetch('./apis/auth/reset_password.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if (data.ok) {
+                    cerrarModalReset();
+                    alert('Contraseña restablecida con éxito. Ya puedes iniciar sesión.');
+                    event.target.reset();
+                } else {
+                    const resetAlert = document.getElementById('resetAlert');
+                    resetAlert.innerText = data.mensaje || data.error || 'Error al restablecer';
+                    resetAlert.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                const resetAlert = document.getElementById('resetAlert');
+                resetAlert.innerText = 'Error de conexión';
+                resetAlert.classList.remove('hidden');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Limpiar campos de forma agresiva para evitar el autocompletado del navegador
+        function limpiarCamposLogin() {
+            const ids = [
+                'email', 'password', 
+                'resetCorreo', 'resetPassword',
+                'regNombre', 'regApellido', 'regCorreo', 'regPassword'
+            ];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
+            
+            // Reintentar tras un breve delay por si el navegador autocompleta después de la carga
+            setTimeout(() => {
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.value = '';
+                });
+            }, 100);
+        }
+
+        window.addEventListener('load', limpiarCamposLogin);
+        window.addEventListener('pageshow', limpiarCamposLogin); // Maneja navegación atrás/adelante (bfcache)
     </script>
+
     <script src="./recursos/js/auth/auth.js"></script>
 </body>
 

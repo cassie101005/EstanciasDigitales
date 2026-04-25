@@ -10,7 +10,12 @@ async function handleLogin(event) {
     const password = document.getElementById('password').value;
     const role = document.getElementById('role_input').value;
 
+    // Limpiar campos después de capturar los valores
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+
     const formData = new FormData();
+
     formData.append('correo', email);
     formData.append('contrasenia', password);
     formData.append('rol', role);

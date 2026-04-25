@@ -6,7 +6,10 @@ $idHost = $_SESSION['idUsuario'] ?? 1; // 1 por defecto para pruebas
 
 // 1. Consultar reservaciones de las propiedades del anfitrión
 $sqlRes = "SELECT r.*, p.vNombre as nombrePropiedad, p.idPropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto,
-                  MAX(c.vMotivo) as motivoCancelacionReal
+                  MAX(c.vMotivo) as motivoCancelacionReal,
+                  MAX(c.dPenalizacion) as penalizacion,
+                  MAX(c.dReembolso) as reembolso,
+                  MAX(c.vTipoCancelacion) as tipoCancelacion
            FROM tbl_reserva r
            JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
            JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
@@ -56,6 +59,7 @@ $totalComentarios = $avgData['total'] ?? 0;
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Reservas | Modo Anfitrión</title>
+    <link rel="icon" type="image/png" href="../../recursos/img/logo.png">
     <link rel="stylesheet" href="../../recursos/css/variables.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
@@ -207,7 +211,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                                                         <i class="fa-solid fa-envelope-open-text"></i> Ver Solicitud
                                                     </button>
                                                 <?php else: ?>
-                                                    <button onclick="verDetallesGenerales(<?php echo $res['idReserva']; ?>, '<?php echo $status; ?>', '<?php echo $jsObs; ?>')" style="background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                                                    <button onclick="verDetallesGenerales(<?php echo $res['idReserva']; ?>, '<?php echo $status; ?>', '<?php echo $jsObs; ?>', <?php echo htmlspecialchars(json_encode(['reembolso' => $res['reembolso'] ?? 0, 'penalizacion' => $res['penalizacion'] ?? 0, 'tipo' => $res['tipoCancelacion'] ?? '']), ENT_QUOTES); ?>)" style="background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
                                                         <i class="fa-solid fa-circle-info"></i> Ver Detalles
                                                     </button>
                                                 <?php endif; ?>
@@ -372,7 +376,7 @@ $totalComentarios = $avgData['total'] ?? 0;
     let aprobacionPendiente = null;
     let motivoAprobacion = '';
 
-    function verDetallesGenerales(idReserva, status, obs) {
+    function verDetallesGenerales(idReserva, status, obs, cancelInfo = null) {
         document.getElementById('modalDetallesTitle').innerText = 'Detalles de la Reserva';
         document.getElementById('modalDetallesSubtitle').innerText = 'Información general de esta reserva';
         document.getElementById('modalDetallesLabel').innerText = 'Observaciones adicionales';
@@ -380,9 +384,31 @@ $totalComentarios = $avgData['total'] ?? 0;
         document.getElementById('modalIconContainer').style.background = '#f8fafc';
         document.getElementById('modalIconContainer').style.color = '#475569';
         
+        let cancelHtml = '';
+        if (status === 'Cancelada' && cancelInfo && cancelInfo.reembolso > 0) {
+            cancelHtml = `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
+                    <div style="font-size: 12px; font-weight: 800; color: #dc2626; margin-bottom: 8px; text-transform: uppercase;">Información de Liquidación</div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-size: 13px; color: #64748b;">Tipo:</span>
+                        <span style="font-size: 13px; font-weight: 700; color: #0f172a;">${cancelInfo.tipo}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-size: 13px; color: #64748b;">Penalización:</span>
+                        <span style="font-size: 13px; font-weight: 700; color: #dc2626;">$${parseFloat(cancelInfo.penalizacion).toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 13px; color: #64748b;">Reembolso al Huésped:</span>
+                        <span style="font-size: 14px; font-weight: 800; color: #10b981;">$${parseFloat(cancelInfo.reembolso).toLocaleString()}</span>
+                    </div>
+                </div>
+            `;
+        }
+
         document.getElementById('motivoSolicitud').innerHTML = `
             <div style="margin-bottom: 8px;"><strong>Estado Actual:</strong> <span style="color:var(--primary); font-weight:800;">${status}</span></div>
             <div><strong>Notas:</strong> ${obs || 'Sin notas u observaciones especiales'}</div>
+            ${cancelHtml}
         `;
         
         document.getElementById('btnAprobarCancelacionHost').style.display = 'none';
@@ -432,7 +458,7 @@ $totalComentarios = $avgData['total'] ?? 0;
         .then(res => res.json())
         .then(data => {
             if (data.ok) {
-                alert("Reserva cancelada correctamente.");
+                alert(data.mensaje);
                 window.location.reload();
             } else {
                 alert("Error: " + data.mensaje);

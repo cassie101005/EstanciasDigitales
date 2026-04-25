@@ -42,6 +42,34 @@ if ($role === 'huesped') {
 }
 
 // Lógica para el anfitrión (cancela directamente)
+// 1. Obtener detalles de la reserva para calcular el reembolso
+$sqlInfo = "SELECT dtFechaRegistro, dTotalReserva FROM tbl_reserva WHERE idReserva = ?";
+$stmtInfo = $conexion->prepare($sqlInfo);
+$stmtInfo->bind_param("i", $idReserva);
+$stmtInfo->execute();
+$resInfo = $stmtInfo->get_result()->fetch_assoc();
+
+if (!$resInfo) {
+    echo json_encode(['ok' => false, 'mensaje' => 'No se encontró la información de la reserva']);
+    exit();
+}
+
+$fechaRegistro = $resInfo['dtFechaRegistro'];
+$total = floatval($resInfo['dTotalReserva']);
+$ahora = time();
+$registroTimestamp = strtotime($fechaRegistro);
+$horasPasadas = ($ahora - $registroTimestamp) / 3600;
+
+$penalizacion = 0;
+$reembolso = $total;
+$tipoCancelacion = 'Reembolso Completo';
+
+if ($horasPasadas >= 24) {
+    $penalizacion = $total * 0.10;
+    $reembolso = $total * 0.90;
+    $tipoCancelacion = 'Con Penalización (10%)';
+}
+
 $sql = "UPDATE tbl_reserva r 
         JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
         SET r.vEstatus = 'Cancelada' 
@@ -63,13 +91,15 @@ $stmt->bind_param("ii", $idReserva, $idUsuario);
 if ($stmt->execute()) {
     if ($stmt->affected_rows >= 0) {
         $motivo = isset($_POST['motivo']) ? trim($_POST['motivo']) : 'Sin motivo especificado';
-        $sqlCancel = "INSERT INTO tbl_cancelacion (idReserva, vQuienCancelo, vTipoCancelacion, vMotivo) VALUES (?, ?, 'Cancelado desde panel', ?)";
+        $sqlCancel = "INSERT INTO tbl_cancelacion (idReserva, vQuienCancelo, vTipoCancelacion, vMotivo, dPenalizacion, dReembolso) VALUES (?, ?, ?, ?, ?, ?)";
         $stmtCancel = $conexion->prepare($sqlCancel);
         if ($stmtCancel) {
-            $stmtCancel->bind_param("iss", $idReserva, $role, $motivo);
+            $stmtCancel->bind_param("isssdd", $idReserva, $role, $tipoCancelacion, $motivo, $penalizacion, $reembolso);
             if ($stmtCancel->execute()) {
                 $conexion->commit();
-                echo json_encode(['ok' => true, 'mensaje' => 'Reserva cancelada correctamente y registrada en cancelaciones']);
+                $msg = "Reserva cancelada correctamente. ";
+                $msg .= ($horasPasadas < 24) ? "Reembolso total de $" . number_format($reembolso, 2) : "Reembolso de $" . number_format($reembolso, 2) . " (Comisión del 10% aplicada)";
+                echo json_encode(['ok' => true, 'mensaje' => $msg]);
             } else {
                 $conexion->rollback();
                 echo json_encode(['ok' => false, 'mensaje' => 'No se pudo registrar la cancelación en el historial.']);
@@ -86,4 +116,5 @@ if ($stmt->execute()) {
     $conexion->rollback();
     echo json_encode(['ok' => false, 'mensaje' => 'Error al ejecutar la cancelación en la base de datos']);
 }
+
 ?>

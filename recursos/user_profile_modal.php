@@ -79,7 +79,7 @@ $logout_url = rtrim($base_path ?? '../../', '/') . '/negocio/auth/logout.php';
                 <div class="form-group-modal">
                     <label>Fecha de nacimiento</label>
                     <div class="input-icon-right">
-                        <input type="date" name="fechaNacimiento" value="<?php echo $userData['dFechaNacimiento'] ?? ''; ?>" class="modal-input">
+                        <input type="date" name="fechaNacimiento" value="<?php echo (isset($userData['dFechaNacimiento']) && $userData['dFechaNacimiento'] !== '0000-00-00') ? $userData['dFechaNacimiento'] : ''; ?>" class="modal-input">
                         <i class="fa-regular fa-calendar"></i>
                     </div>
                 </div>

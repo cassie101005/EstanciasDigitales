@@ -34,16 +34,18 @@ if (isset($conexion)) {
         // Notificaciones para huéspedes: Nuevas propiedades y actualizaciones de sus propias reservas
         $sqlNotifNav = "(SELECT p.idPropiedad as id, p.vNombre as propiedad, t.vNombreCategoria as categoria, p.dtFechaRegistro as fecha, 
                                (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as vFoto,
-                               'propiedad' as tipo, NULL as vEstatus
+                               'propiedad' as tipo, NULL as vEstatus, NULL as dReembolso
                         FROM tbl_propiedad p
                         JOIN tbl_tipo_propiedad t ON p.idTipoPropiedad = t.idTipoPropiedad)
                         UNION ALL
                         (SELECT r.idReserva as id, p.vNombre as propiedad, 'Actualización de Reserva' as categoria, r.dtFechaRegistro as fecha,
                                (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as vFoto,
-                               'reserva' as tipo, r.vEstatus
+                               'reserva' as tipo, r.vEstatus, c.dReembolso
                         FROM tbl_reserva r
                         JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                        LEFT JOIN tbl_cancelacion c ON r.idReserva = c.idReserva
                         WHERE r.idUsuario = ? AND (r.vEstatus = 'Cancelada' OR r.vEstatus = 'Confirmada' OR r.vEstatus = 'Pendiente Cancelacion'))
+
                         ORDER BY fecha DESC LIMIT 6";
         $stmtNotifNav = $conexion->prepare($sqlNotifNav);
         if ($stmtNotifNav) {
@@ -114,9 +116,11 @@ if (isset($conexion)) {
                         
                         if ($tipo == 'reserva') {
                             if ($estatus == 'cancelada') {
-                                $msg_huesped = "Tu reservación en <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> ha sido <strong style='color: #ef4444;'>cancelada</strong>.";
+                                $reembolso = isset($n['dReembolso']) ? " con un reembolso de <strong>$" . number_format($n['dReembolso'], 2) . "</strong>" : "";
+                                $msg_huesped = "Tu reservación en <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> ha sido <strong style='color: #ef4444;'>cancelada</strong>" . $reembolso . ".";
                                 $color_borde = "#ef4444";
                             } else if ($estatus == 'confirmada') {
+
                                 $msg_huesped = "¡Tu reservación en <strong style='color: var(--primary);'>" . htmlspecialchars($n['propiedad']) . "</strong> ha sido <strong style='color: #10b981;'>confirmada</strong>!";
                                 $color_borde = "#10b981";
                             } else {
