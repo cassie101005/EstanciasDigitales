@@ -7,24 +7,10 @@ header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 1. Obtener datos (JSON)
-    $input = file_get_contents("php://input");
-    $data = json_decode($input, true);
+    // 1. Extraer y validar datos
+    require_once '../../datos/auth/registro.php';
 
-    $idRol = intval($data['idRol'] ?? 0);
-    $nombre = $data['nombre'] ?? '';
-    $apellido = $data['apellido'] ?? '';
-    $correo = $data['correo'] ?? '';
-    $contrasenia = $data['contrasenia'] ?? '';
-
-    // 2. Validaciones básicas
-    if ($idRol <= 0 || empty($nombre) || empty($apellido) || empty($correo) || empty($contrasenia)) {
-        echo json_encode(['error' => 'Completa todos los campos']);
-        http_response_code(400);
-        exit;
-    }
-
-    // 3. Lógica
+    // 2. Ejecutar lógica de negocio
     require_once '../../negocio/auth/registro.php';
 
     // 4. Respuesta

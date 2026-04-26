@@ -1,0 +1,26 @@
+.modal-bloqueo { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+.modal-bloqueo.active { display: flex; }
+.modal-bloqueo-content { background: white; padding: 2rem; border-radius: 16px; width: 400px; max-width: 90%; }
+.modal-bloqueo-content h3 { margin-top: 0; margin-bottom: 1.5rem; font-size: 1.25rem; font-weight: 800; }
+.form-group-modal { margin-bottom: 1rem; }
+.form-group-modal label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #475569; }
+.modal-input { width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; }
+.modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+.btn-bloquear { flex: 1; background: #e11d48; color: white; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.btn-cancelar { flex: 1; background: #f1f5f9; color: #475569; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+.calendar-days-grid { gap: 0; border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 1rem; }
+.cal-day-label { background: white; padding: 1rem 0; margin-bottom: 0 !important; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
+.cal-day-label:last-child { border-right: none; }
+.cal-day-box { cursor: pointer; transition: all 0.2s; position: relative; border: none !important; border-right: 1px solid #e2e8f0 !important; border-bottom: 1px solid #e2e8f0 !important; }
+.cal-day-box:nth-child(7n) { border-right: none !important; }
+.cal-day-box:hover { background: #f8fafc; }
+.cal-day-box.not-current { background: #f8fafc; color: #94a3b8 !important; }
+.cal-day-box.selected { border: 2px solid var(--primary) !important; background: #f0f4ff; z-index: 10; }
+.cal-day-box.reserved { background: #eff6ff !important; color: var(--primary); }
+.cal-day-box.blocked { background: #f1f5f9 !important; color: #94a3b8; }
+.cal-day-box.blocked .price { color: #94a3b8; }
+.cal-day-box.reserved .price { font-weight: 700; }
+
+.price { display: block; font-size: 10px; margin-top: 5px; color: #64748b; }
+
+#propiedadSelect { border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--primary); outline: none; cursor: pointer; }

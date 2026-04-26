@@ -6,16 +6,7 @@ validarSesionAPI('anfitrion');
 $idUsuario = intval($_SESSION['idUsuario']);
 $accion    = $_GET['accion'] ?? 'listar';
 
-if ($accion === 'detalle') {
-    $idPropiedad = intval($_GET['id'] ?? 0);
-    if ($idPropiedad <= 0) {
-        echo json_encode(['error' => 'ID inválido.']);
-        exit;
-    }
-} else if ($accion !== 'listar') {
-    echo json_encode(['error' => 'Acción no reconocida.']);
-    exit;
-}
+require_once '../../datos/anfitrion/propiedades.php';
 
 require_once '../../negocio/anfitrion/propiedades.php';
 

@@ -15,44 +15,7 @@ $idPropiedad = intval($_GET['id'] ?? 0);
     <link rel="stylesheet" href="../../recursos/css/anfitrion/nueva-propiedad.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        .current-images-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .img-edit-card {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            aspect-ratio: 1;
-            border: 1px solid #e2e8f0;
-        }
-        .img-edit-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .btn-delete-img {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            transition: transform 0.2s;
-        }
-        .btn-delete-img:hover { transform: scale(1.1); }
-    </style>
+    <link rel="stylesheet" href="../../recursos/css/anfitrion/editar_propiedad.css">
 </head>
 <body class="host-body">
 

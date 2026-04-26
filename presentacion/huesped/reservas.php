@@ -6,44 +6,13 @@ require_once '../../datos/conexion.php';
 // Simular usuario logueado si no hay sesión
 $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; // ID 2 por defecto para pruebas
 
-// --- ACTUALIZACIÓN DINÁMICA DE ESTADOS BASADA EN LA FECHA ---
-$hoy_str = date('Y-m-d');
+require_once '../../negocio/huesped/reservas_view.php';
 
-// 1. FINALIZADA (id 3): Si la fecha fin ya pasó y no está cancelada
-$conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 3 
-                  WHERE idUsuario = $idUsuarioHuesped 
-                  AND idEstadoReserva != 4 
-                  AND dtFechaFin < '$hoy_str'");
+// 1. Actualizar estados dinámicamente
+updateReservaStates($idUsuarioHuesped, $conexion);
 
-// 2. EN CURSO (id 2): Si hoy está entre inicio y fin y no está cancelada
-$conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 2 
-                  WHERE idUsuario = $idUsuarioHuesped 
-                  AND idEstadoReserva != 4 
-                  AND '$hoy_str' BETWEEN dtFechaInicio AND dtFechaFin");
-
-// 3. CONFIRMADA (id 1): Si aún no ha empezado y no tiene otro estado especial
-$conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 1 
-                  WHERE idUsuario = $idUsuarioHuesped 
-                  AND idEstadoReserva NOT IN (2, 3, 4) 
-                  AND dtFechaInicio > '$hoy_str'");
-// -----------------------------------------------------------
-
-// Consultar reservaciones del usuario
-$sql = "SELECT r.*, p.vNombre as nombrePropiedad, p.vDescripcion, 
-               (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as imagen,
-               ci.vNombreCiudad as ciudad, pa.vNombrePais as pais
-        FROM tbl_reserva r
-        JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
-        LEFT JOIN tbl_ciudad ci ON p.idCiudad = ci.idCiudad
-        LEFT JOIN tbl_estado es ON ci.idEstado = es.idEstado
-        LEFT JOIN tbl_pais pa ON es.idPais = pa.idPais
-        WHERE r.idUsuario = ?
-        ORDER BY r.dtFechaInicio DESC";
-
-$stmt = $conexion->prepare($sql);
-$stmt->bind_param("i", $idUsuarioHuesped);
-$stmt->execute();
-$reservas = $stmt->get_result();
+// 2. Consultar reservaciones
+$reservas = getGuestReservas($idUsuarioHuesped, $conexion);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -73,8 +42,8 @@ $reservas = $stmt->get_result();
 
         <div class="reservations-list">
             
-            <?php if ($reservas->num_rows > 0): ?>
-                <?php while ($res = $reservas->fetch_assoc()): ?>
+            <?php if (count($reservas) > 0): ?>
+                <?php foreach ($reservas as $res): ?>
                     <?php 
                         $fechaInicio = new DateTime($res['dtFechaInicio']);
                         $fechaFin = new DateTime($res['dtFechaFin']);
@@ -131,7 +100,7 @@ $reservas = $stmt->get_result();
                             <div class="res-price-abs">$<?php echo number_format($res['dTotalReserva'], 0); ?> <span>total</span></div>
                         </div>
                     </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             <?php else: ?>
                 <div style="text-align: center; padding: 4rem; background: white; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
                     <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1.5rem;"></i>

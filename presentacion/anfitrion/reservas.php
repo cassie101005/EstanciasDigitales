@@ -5,56 +5,14 @@ require_once '../../datos/conexion.php';
 
 $idHost = $_SESSION['idUsuario'] ?? 1; // 1 por defecto para pruebas
 
-// 1. Consultar reservaciones de las propiedades del anfitrión
-$sqlRes = "SELECT r.*, p.vNombre as nombrePropiedad, p.idPropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto,
-                  MAX(c.vMotivo) as motivoCancelacionReal,
-                  MAX(c.dPenalizacion) as penalizacion,
-                  MAX(c.dReembolso) as reembolso,
-                  MAX(c.vTipoCancelacion) as tipoCancelacion
-           FROM tbl_reserva r
-           JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
-           JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
-           LEFT JOIN tbl_cancelacion c ON r.idReserva = c.idReserva
-           WHERE p.idUsuario = ?
-           GROUP BY r.idReserva
-           ORDER BY r.dtFechaInicio DESC";
-$stmtRes = $conexion->prepare($sqlRes);
-$stmtRes->bind_param("i", $idHost);
-$stmtRes->execute();
-$reservas = $stmtRes->get_result();
+require_once '../../negocio/anfitrion/reservas_view.php';
 
-// 2. Consultar comentarios de las propiedades del anfitrión (Unificado de tbl_comentarios y tbl_resenia)
-$sqlCom = "SELECT id, tipo, vComentario, iCalificacion, fecha, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario, vRespuesta FROM (
-                SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario, c.vRespuesta
-                FROM tbl_comentarios c
-                JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
-                JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
-                WHERE p.idUsuario = ?
-                UNION ALL
-                SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, r.idUsuario, r.vRespuesta
-                FROM tbl_resenia r
-                JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
-                JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
-                WHERE p.idUsuario = ?
-           ) as t
-           ORDER BY fecha DESC";
-$stmtCom = $conexion->prepare($sqlCom);
-$stmtCom->bind_param("ii", $idHost, $idHost);
-$stmtCom->execute();
-$comentarios = $stmtCom->get_result();
+$reservas = getHostReservas($idHost, $conexion);
+$comentarios = getHostComentarios($idHost, $conexion);
+$stats = getHostStats($idHost, $conexion);
 
-// 3. Calcular promedio y total unificado
-$sqlAvg = "SELECT AVG(calif) as promedio, COUNT(*) as total FROM (
-                SELECT iCalificacion as calif FROM tbl_comentarios c JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad WHERE p.idUsuario = ? AND iCalificacion > 0
-                UNION ALL
-                SELECT iCalificacion as calif FROM tbl_resenia r JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad WHERE p.idUsuario = ? AND iCalificacion > 0
-           ) as t_avg";
-$stmtAvg = $conexion->prepare($sqlAvg);
-$stmtAvg->bind_param("ii", $idHost, $idHost);
-$stmtAvg->execute();
-$avgData = $stmtAvg->get_result()->fetch_assoc();
-$promedio = round($avgData['promedio'] ?? 5.0, 1);
-$totalComentarios = $avgData['total'] ?? 0;
+$promedio = $stats['promedio'];
+$totalComentarios = $stats['total'];
 ?>
 <html lang="es">
 <head>
@@ -107,7 +65,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                 <section class="kpi-host-grid">
                     <div class="kpi-host-card">
                         <span class="label">Total Reservas</span>
-                        <div class="value"><?php echo $reservas->num_rows; ?></div>
+                        <div class="value"><?php echo count($reservas); ?></div>
                     </div>
                     <div class="kpi-host-card">
                         <span class="label">Calificación Media</span>
@@ -142,8 +100,8 @@ $totalComentarios = $avgData['total'] ?? 0;
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if ($reservas->num_rows > 0): ?>
-                                    <?php while ($res = $reservas->fetch_assoc()): ?>
+                                <?php if (count($reservas) > 0): ?>
+                                    <?php foreach ($reservas as $res): ?>
                                         <?php 
                                             $fIni = new DateTime($res['dtFechaInicio']);
                                             $fFin = new DateTime($res['dtFechaFin']);
@@ -218,7 +176,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">No hay reservas registradas.</td>
@@ -244,9 +202,9 @@ $totalComentarios = $avgData['total'] ?? 0;
                         </div>
                     </header>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
-                        <?php if ($comentarios->num_rows > 0): ?>
-                            <?php while ($com = $comentarios->fetch_assoc()): ?>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
+                        <?php if (count($comentarios) > 0): ?>
+                            <?php foreach ($comentarios as $com): ?>
                                 <div class="review-card">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
                                         <div style="display: flex; gap: 1rem;">
@@ -285,7 +243,7 @@ $totalComentarios = $avgData['total'] ?? 0;
                                         </a>
                                     </div>
                                 </div>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         <?php else: ?>
                             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: white; border-radius: 1.5rem; color: #94a3b8;">
                                 <i class="fa-regular fa-comments" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
@@ -322,10 +280,9 @@ $totalComentarios = $avgData['total'] ?? 0;
             <div style="background: #f1f5f9; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
                 <h4 style="font-size: 12px; font-weight: 800; color: #475569; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Política de Cancelación</h4>
                 <?php
-                $sqlPol = "SELECT vNombreOpcion, vDescripcion FROM tbl_politicas_reservas";
-                $stmtPol = $conexion->query($sqlPol);
-                if ($stmtPol && $stmtPol->num_rows > 0) {
-                    while($rowPol = $stmtPol->fetch_assoc()) {
+                $politicas = getPoliticasCancelacion($conexion);
+                if (count($politicas) > 0) {
+                    foreach($politicas as $rowPol) {
                         echo '<div style="margin-bottom: 0.5rem;">';
                         echo '<strong style="font-size: 12px; color: #475569;">' . htmlspecialchars($rowPol['vNombreOpcion']) . '</strong><br>';
                         echo '<span style="font-size: 12px; color: #64748b;">' . htmlspecialchars($rowPol['vDescripcion']) . '</span>';
@@ -395,273 +352,7 @@ $totalComentarios = $avgData['total'] ?? 0;
         </div>
     </div>
 
-    <script>
-    let cancelacionPendiente = null;
-    let aprobacionPendiente = null;
-    let motivoAprobacion = '';
-
-    function verDetallesGenerales(idReserva, status, obs, cancelInfo = null) {
-        document.getElementById('modalDetallesTitle').innerText = 'Detalles de la Reserva';
-        document.getElementById('modalDetallesSubtitle').innerText = 'Información general de esta reserva';
-        document.getElementById('modalDetallesLabel').innerText = 'Observaciones adicionales';
-        document.getElementById('modalIcon').className = 'fa-solid fa-circle-info';
-        document.getElementById('modalIconContainer').style.background = '#f8fafc';
-        document.getElementById('modalIconContainer').style.color = '#475569';
-        
-        let cancelHtml = '';
-        if (status === 'Cancelada' && cancelInfo && cancelInfo.reembolso > 0) {
-            cancelHtml = `
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
-                    <div style="font-size: 12px; font-weight: 800; color: #dc2626; margin-bottom: 8px; text-transform: uppercase;">Información de Liquidación</div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span style="font-size: 13px; color: #64748b;">Tipo:</span>
-                        <span style="font-size: 13px; font-weight: 700; color: #0f172a;">${cancelInfo.tipo}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <span style="font-size: 13px; color: #64748b;">Penalización:</span>
-                        <span style="font-size: 13px; font-weight: 700; color: #dc2626;">$${parseFloat(cancelInfo.penalizacion).toLocaleString()}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="font-size: 13px; color: #64748b;">Reembolso al Huésped:</span>
-                        <span style="font-size: 14px; font-weight: 800; color: #10b981;">$${parseFloat(cancelInfo.reembolso).toLocaleString()}</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        document.getElementById('motivoSolicitud').innerHTML = `
-            <div style="margin-bottom: 8px;"><strong>Estado Actual:</strong> <span style="color:var(--primary); font-weight:800;">${status}</span></div>
-            <div><strong>Notas:</strong> ${obs || 'Sin notas u observaciones especiales'}</div>
-            ${cancelHtml}
-        `;
-        
-        document.getElementById('btnAprobarCancelacionHost').style.display = 'none';
-        document.getElementById('modalAprobarCancelacion').style.display = 'flex';
-    }
-
-    function verSolicitudCancelacion(idReserva, motivo, idUsuario, fechaInicioStr, total) {
-        aprobacionPendiente = { idReserva, idUsuario };
-        motivoAprobacion = motivo;
-        
-        document.getElementById('modalDetallesTitle').innerText = 'Solicitud de Cancelación';
-        document.getElementById('modalDetallesSubtitle').innerText = 'El huésped desea cancelar su reserva';
-        document.getElementById('modalDetallesLabel').innerText = 'Motivo reportado por el huésped';
-        document.getElementById('modalIcon').className = 'fa-solid fa-envelope-open-text';
-        document.getElementById('modalIconContainer').style.background = '#fef08a';
-        document.getElementById('modalIconContainer').style.color = '#854d0e';
-        
-        document.getElementById('motivoSolicitud').innerText = motivo || 'Sin motivo especificado.';
-        
-        // Calcular penalización y ganancias para el anfitrión
-        const fechaInicio = new Date(fechaInicioStr + 'T15:00:00');
-        const ahora = new Date();
-        const diffHoras = (fechaInicio - ahora) / (1000 * 60 * 60);
-        
-        const settlementBox = document.getElementById('hostSettlementBox');
-        const settlementIndicator = document.getElementById('hostSettlementIndicator');
-        const settlementStatus = document.getElementById('hostSettlementStatus');
-        const settlementDetail = document.getElementById('hostSettlementDetail');
-        const guestRefundText = document.getElementById('guestRefundTextHost');
-        const hostEarningsText = document.getElementById('hostEarningsText');
-        
-        settlementBox.style.display = 'block';
-        if (diffHoras >= 24) {
-            settlementIndicator.style.borderLeftColor = '#64748b';
-            settlementStatus.innerText = 'Reembolso Total (Sin Ganancia)';
-            settlementStatus.style.color = '#64748b';
-            settlementDetail.innerText = 'Cancelación solicitada con >24h de antelación. El huésped recibe el 100%.';
-            guestRefundText.innerText = '$' + parseFloat(total).toLocaleString(undefined, {minimumFractionDigits: 2});
-            hostEarningsText.innerText = '$0.00';
-            hostEarningsText.style.color = '#64748b';
-        } else {
-            const penalizacion = total * 0.10;
-            const reembolso = total * 0.90;
-            
-            settlementIndicator.style.borderLeftColor = '#10b981';
-            settlementStatus.innerText = 'Penalización Aplicable (10%)';
-            settlementStatus.style.color = '#10b981';
-            settlementDetail.innerText = 'Faltan menos de 24h. Recibirás el 10% del total como compensación.';
-            guestRefundText.innerText = '$' + reembolso.toLocaleString(undefined, {minimumFractionDigits: 2});
-            hostEarningsText.innerText = '$' + penalizacion.toLocaleString(undefined, {minimumFractionDigits: 2});
-            hostEarningsText.style.color = '#10b981';
-        }
-        
-        document.getElementById('btnAprobarCancelacionHost').style.display = 'block';
-        document.getElementById('modalAprobarCancelacion').style.display = 'flex';
-    }
-
-    function cerrarModalAprobar() {
-        document.getElementById('modalAprobarCancelacion').style.display = 'none';
-        aprobacionPendiente = null;
-    }
-
-    function aprobarCancelacion() {
-        if (!aprobacionPendiente) return;
-        
-        const formData = new FormData();
-        formData.append('idReserva', aprobacionPendiente.idReserva);
-        formData.append('role', 'anfitrion');
-        formData.append('idUsuario', aprobacionPendiente.idUsuario);
-        formData.append('motivo', motivoAprobacion);
-
-        const btnConf = event.target;
-        const textoOriginal = btnConf.innerHTML;
-        btnConf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Aprobando...';
-        btnConf.disabled = true;
-
-        fetch('../../apis/cancelar_reserva.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                alert(data.mensaje);
-                window.location.reload();
-            } else {
-                alert("Error: " + data.mensaje);
-                btnConf.innerHTML = textoOriginal;
-                btnConf.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Ocurrió un error en el servidor.");
-            btnConf.innerHTML = textoOriginal;
-            btnConf.disabled = false;
-        });
-    }
-
-    function filtrarReservas(estado, btn) {
-        // Actualizar estilos visuales de los botones
-        const botones = document.querySelectorAll('.filtro-btn');
-        botones.forEach(b => {
-            b.style.color = '#64748b';
-            b.style.background = '#f8fafc';
-        });
-        btn.style.color = 'white';
-        btn.style.background = 'var(--primary)';
-
-        // Mostrar/Ocultar filas
-        const filas = document.querySelectorAll('.reserva-row');
-        filas.forEach(fila => {
-            if (estado === 'Todas' || fila.getAttribute('data-status') === estado) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
-            }
-        });
-    }
-
-    function cancelarReserva(idReserva, role, idUsuario) {
-        cancelacionPendiente = { idReserva, role, idUsuario };
-        document.getElementById('motivoCancelacion').value = '';
-        document.getElementById('modalCancelacion').style.display = 'flex';
-    }
-
-    function cerrarModalCancelacion() {
-        document.getElementById('modalCancelacion').style.display = 'none';
-        cancelacionPendiente = null;
-    }
-
-    function confirmarCancelacion() {
-        if (!cancelacionPendiente) return;
-        
-        const motivo = document.getElementById('motivoCancelacion').value.trim();
-        if (!motivo) {
-            alert('Por favor, ingresa el motivo de la cancelación.');
-            return;
-        }
-
-        const { idReserva, role, idUsuario } = cancelacionPendiente;
-        
-        const formData = new FormData();
-        formData.append('idReserva', idReserva);
-        formData.append('role', role);
-        formData.append('idUsuario', idUsuario);
-        formData.append('motivo', motivo);
-
-        const btnConf = event.target;
-        const textoOriginal = btnConf.innerHTML;
-        btnConf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cancelando...';
-        btnConf.disabled = true;
-
-        fetch('../../apis/cancelar_reserva.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                alert("Reserva cancelada exitosamente.");
-                window.location.reload();
-            } else {
-                alert("Error: " + data.mensaje);
-                btnConf.innerHTML = textoOriginal;
-                btnConf.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Ocurrió un problema de red al intentar cancelar.");
-            btnConf.innerHTML = textoOriginal;
-            btnConf.disabled = false;
-        });
-    }
-
-    let respuestaPendiente = null;
-
-    function abrirModalRespuesta(tipo, id, nombre) {
-        respuestaPendiente = { tipo, id };
-        document.getElementById('respGuestName').innerText = nombre;
-        document.getElementById('txtRespuesta').value = '';
-        document.getElementById('modalRespuesta').style.display = 'flex';
-    }
-
-    function cerrarModalRespuesta() {
-        document.getElementById('modalRespuesta').style.display = 'none';
-        respuestaPendiente = null;
-    }
-
-    function enviarRespuesta() {
-        if (!respuestaPendiente) return;
-        const respuesta = document.getElementById('txtRespuesta').value.trim();
-        if (!respuesta) {
-            alert('Escribe una respuesta antes de enviar.');
-            return;
-        }
-
-        const btn = event.target;
-        btn.disabled = true;
-        btn.innerText = 'Enviando...';
-
-        const fd = new FormData();
-        fd.append('tipo', respuestaPendiente.tipo);
-        fd.append('id', respuestaPendiente.id);
-        fd.append('respuesta', respuesta);
-
-        fetch('../../apis/anfitrion/responder_comentario.php', {
-            method: 'POST',
-            body: fd
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                window.location.reload();
-            } else {
-                alert('Error: ' + data.error);
-                btn.disabled = false;
-                btn.innerText = 'Enviar Respuesta';
-            }
-        })
-        .catch(e => {
-            console.error(e);
-            alert('Error de red al enviar la respuesta.');
-            btn.disabled = false;
-            btn.innerText = 'Enviar Respuesta';
-        });
-    }
-    </script>
+    <script src="../../recursos/js/anfitrion/reservas.js"></script>
 
     <!-- Modal Respuesta -->
     <div id="modalRespuesta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center;">

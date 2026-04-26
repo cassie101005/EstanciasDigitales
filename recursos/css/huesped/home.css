@@ -1,0 +1,106 @@
+.hero-section {
+    height: 420px;
+    background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('../../img/marketplace_hero.png') center/cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+.search-pill-v2 {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 100px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 8px 16px;
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid #eee;
+}
+.search-input-box {
+    flex: 1;
+    padding: 0 16px;
+    border-right: 1px solid #eee;
+}
+.search-input-box:last-of-type {
+    border-right: none;
+}
+.search-input-box label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+}
+.search-input-box input, .search-input-box select {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #6a6a6a;
+    background: transparent;
+    padding: 2px 0;
+}
+.btn-search {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+}
+.btn-search:hover {
+    transform: scale(1.05);
+    background: #6d28d9;
+}
+.date-inputs {
+    display: flex;
+    gap: 4px;
+}
+.date-inputs input {
+    font-size: 12px !important;
+}
+.categories-tabs {
+    padding: 2rem 4rem;
+    display: flex;
+    gap: 2.5rem;
+    overflow-x: auto;
+    background: white;
+    scrollbar-width: none;
+    border-bottom: 1px solid #eee;
+}
+.categories-tabs::-webkit-scrollbar {
+    display: none;
+}
+.cat-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 13px;
+    font-weight: 600;
+    color: #717171;
+    cursor: pointer;
+    min-width: fit-content;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.cat-pill i { font-size: 1.5rem; }
+.cat-pill:hover {
+    color: #000;
+    border-bottom: 2px solid #ddd;
+}
+.cat-pill.active {
+    color: #000;
+    border-bottom: 2px solid #000;
+    opacity: 1;
+}

@@ -71,7 +71,7 @@ function confirmarCancelacion() {
     btnConf.innerHTML  = '<i class="fa-solid fa-spinner fa-spin"></i> Cancelando...';
     btnConf.disabled   = true;
 
-    fetch('../../apis/cancelar_reserva.php', { method: 'POST', body: formData })
+    fetch('../../apis/huesped/cancelar_reserva.php', { method: 'POST', body: formData })
         .then(res  => res.json())
         .then(data => {
             if (data.ok) {

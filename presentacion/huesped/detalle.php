@@ -11,141 +11,35 @@ if ($idPropiedad <= 0) {
     exit();
 }
 
-// Consultar detalles de la propiedad
-$sql = "SELECT p.*, u.vNombre as hostNombre, u.vApellido as hostApellido, 
-               tp.vNombreCategoria as tipo, ci.vNombreCiudad as ciudad, 
-               es.vNombreEstado as estado, pa.vNombrePais as pais
-        FROM tbl_propiedad p
-        JOIN tbl_usuarios u ON p.idUsuario = u.idUsuario
-        LEFT JOIN tbl_tipo_propiedad tp ON p.idTipoPropiedad = tp.idTipoPropiedad
-        LEFT JOIN tbl_ciudad ci ON p.idCiudad = ci.idCiudad
-        LEFT JOIN tbl_estado es ON ci.idEstado = es.idEstado
-        LEFT JOIN tbl_pais pa ON es.idPais = pa.idPais
-        WHERE p.idPropiedad = ?";
+require_once '../../negocio/huesped/detalle_view.php';
 
-$stmt = $conexion->prepare($sql);
-$stmt->bind_param("i", $idPropiedad);
-$stmt->execute();
-$propResult = $stmt->get_result();
-$prop = $propResult->fetch_assoc();
+// 1. Consultar detalles de la propiedad
+$prop = getPropertyDetail($idPropiedad, $conexion);
 
 if (!$prop) {
     header("Location: home.php");
     exit();
 }
 
-// Consultar imágenes
-$sqlImages = "SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = ? ORDER BY idImagen ASC";
-$stmtImages = $conexion->prepare($sqlImages);
-$stmtImages->bind_param("i", $idPropiedad);
-$stmtImages->execute();
-$imagesResult = $stmtImages->get_result();
-$images = [];
-while ($row = $imagesResult->fetch_assoc()) {
-    $images[] = "../../" . str_replace(' ', '%20', $row['vImagen']);
-}
+// 2. Consultar imágenes
+$images = getPropertyImages($idPropiedad, $conexion);
 $mainImage = !empty($images) ? $images[0] : "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
 $secondaryImages = array_slice($images, 1, 2);
 
-// Consultar servicios
-$sqlServices = "SELECT se.vNombreServicio 
-                FROM tbl_propiedad_servicios ps
-                JOIN tbl_servicios_extra se ON ps.idServicio = se.idServicio
-                WHERE ps.idPropiedad = ?";
-$stmtServices = $conexion->prepare($sqlServices);
-$stmtServices->bind_param("i", $idPropiedad);
-$stmtServices->execute();
-$servicesResult = $stmtServices->get_result();
-$services = [];
-while ($row = $servicesResult->fetch_assoc()) {
-    $services[] = $row['vNombreServicio'];
-}
+// 3. Consultar servicios
+$services = getPropertyServices($idPropiedad, $conexion);
 
-// Consultar reglas
-$sqlRules = "SELECT r.vNombreRegla 
-             FROM tbl_propiedad_regla pr
-             JOIN tbl_reglas r ON pr.idRegla = r.idRegla
-             WHERE pr.idPropiedad = ?";
-$stmtRules = $conexion->prepare($sqlRules);
-$stmtRules->bind_param("i", $idPropiedad);
-$stmtRules->execute();
-$rulesResult = $stmtRules->get_result();
-$rules = [];
-while ($row = $rulesResult->fetch_assoc()) {
-    $rules[] = $row['vNombreRegla'];
-}
+// 4. Consultar reseñas y comentarios
+$resenias = getPropertyResenias($idPropiedad, $conexion);
 
-// Consultar políticas
-$sqlPolicies = "SELECT pol.vNombrePol 
-                FROM tbl_propiedad_politica pp
-                JOIN tbl_politicas pol ON pp.idPolitica = pol.idPolitica
-                WHERE pp.idPropiedad = ?";
-$stmtPolicies = $conexion->prepare($sqlPolicies);
-$stmtPolicies->bind_param("i", $idPropiedad);
-$stmtPolicies->execute();
-$policiesResult = $stmtPolicies->get_result();
-$policies = [];
-while ($row = $policiesResult->fetch_assoc()) {
-    $policies[] = $row['vNombrePol'];
-}
+// 5. Consultar fechas ya reservadas
+$reservedDates = getReservedDates($idPropiedad, $conexion);
 
-// NUEVO: Consultar reseñas y comentarios (máximo 10, unificado)
-$sqlResenias = "SELECT * FROM (
-                    SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha,
-                           u.vNombre, u.vApellido, u.vFoto, u.idUsuario,
-                           r.vRespuesta, r.dtFechaRespuesta,
-                           CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
-                    FROM tbl_resenia r
-                    JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario
-                    JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
-                    JOIN tbl_usuarios h ON p.idUsuario = h.idUsuario
-                    WHERE r.idPropiedad = ?
-                    UNION ALL
-                    SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha,
-                           u.vNombre, u.vApellido, u.vFoto, u.idUsuario,
-                           c.vRespuesta, NULL as dtFechaRespuesta,
-                           CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
-                    FROM tbl_comentarios c
-                    JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
-                    JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
-                    JOIN tbl_usuarios h ON p.idUsuario = h.idUsuario
-                    WHERE c.idPropiedad = ?
-                ) as t
-                ORDER BY fecha DESC
-                LIMIT 10";
-$stmtRes = $conexion->prepare($sqlResenias);
-$stmtRes->bind_param("ii", $idPropiedad, $idPropiedad);
-$stmtRes->execute();
-$resenias = $stmtRes->get_result();
-
-
-// NUEVO: Consultar fechas ya reservadas para bloquearlas
-$sqlReserved = "SELECT dtFechaInicio, dtFechaFin FROM tbl_reserva WHERE idPropiedad = ? AND vEstatus NOT IN ('Cancelada')";
-$stmtReserved = $conexion->prepare($sqlReserved);
-$stmtReserved->bind_param("i", $idPropiedad);
-$stmtReserved->execute();
-$resReserved = $stmtReserved->get_result();
-$reservedDates = [];
-while ($row = $resReserved->fetch_assoc()) {
-    $reservedDates[] = [
-        'start' => $row['dtFechaInicio'],
-        'end' => $row['dtFechaFin']
-    ];
-}
-
-// Verificar si el usuario actual ya calificó
+// 6. Verificar si el usuario actual ya calificó
 $yaCalifico = false;
 $miCalificacion = 0;
 if (isset($_SESSION['idUsuario'])) {
-    $sqlCheck = "SELECT iCalificacion FROM tbl_resenia WHERE idPropiedad = ? AND idUsuario = ? AND iCalificacion > 0";
-    $stmtCheck = $conexion->prepare($sqlCheck);
-    $stmtCheck->bind_param("ii", $idPropiedad, $_SESSION['idUsuario']);
-    $stmtCheck->execute();
-    $resCheck = $stmtCheck->get_result();
-    if ($rowCheck = $resCheck->fetch_assoc()) {
-        $yaCalifico = true;
-        $miCalificacion = $rowCheck['iCalificacion'];
-    }
+    list($yaCalifico, $miCalificacion) = checkUserCalifico($idPropiedad, $_SESSION['idUsuario'], $conexion);
 }
 ?>
 <!DOCTYPE html>
@@ -160,22 +54,7 @@ if (isset($_SESSION['idUsuario'])) {
     <link rel="stylesheet" href="../../recursos/css/huesped/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .input-hidden { position: absolute; opacity: 0; pointer-events: none; }
-        .date-picker-trigger { cursor: pointer; transition: background 0.2s; border-radius: 8px; }
-        .date-picker-trigger:hover { background: #f0f0f0; }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            cursor: pointer;
-            opacity: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="../../recursos/css/huesped/detalle.css">
 </head>
 <body style="background: var(--surface);">
     <?php include '../../recursos/navbar.php'; ?>
@@ -237,7 +116,7 @@ if (isset($_SESSION['idUsuario'])) {
                     
                     <?php if (isset($_SESSION['idUsuario'])): ?>
                     <!-- Formulario de Reseña -->
-                    <div id="formReseniaBox" style="position: relative; z-index: 5; background: white; border: 1px solid #eee; padding: 2rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                    <div id="formReseniaBox" style="position: relative; z-index: 5; background: white; border: 1px solid #eee; padding: 2rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 800px;">
                         <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">Deja tu opinión</h3>
                         <form id="formResenia" style="position: relative; z-index: 10;">
                             <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
@@ -255,10 +134,10 @@ if (isset($_SESSION['idUsuario'])) {
 
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #64748b;">Comentario</label>
-                                <textarea name="vComentario" style="width: 100%; border: 1px solid #eee; border-radius: 1rem; padding: 1rem; font-family: inherit; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s; position: relative; z-index: 11; cursor: text;" placeholder="Cuéntanos tu experiencia..." required></textarea>
+                                <textarea name="vComentario" style="width: 100%; border: 1px solid #eee; border-radius: 1rem; padding: 1.25rem; font-family: inherit; resize: vertical; min-height: 120px; outline: none; transition: border-color 0.2s; position: relative; z-index: 11; cursor: text; background: #fcfcfc;" placeholder="Cuéntanos tu experiencia..." required></textarea>
                             </div>
 
-                            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 800;">Enviar Reseña</button>
+                            <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2.5rem; font-weight: 800;">Enviar Reseña</button>
                         </form>
                     </div>
                     <?php else: ?>
@@ -267,9 +146,9 @@ if (isset($_SESSION['idUsuario'])) {
                     </div>
                     <?php endif; ?>
 
-                    <?php if ($resenias->num_rows > 0): ?>
-                        <div style="display: grid; gap: 2rem;">
-                            <?php while ($res = $resenias->fetch_assoc()): ?>
+                    <?php if (count($resenias) > 0): ?>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
+                            <?php foreach ($resenias as $res): ?>
                                 <div style="background: #f8fafc; padding: 2rem; border-radius: 1.5rem;">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                                         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -312,7 +191,7 @@ if (isset($_SESSION['idUsuario'])) {
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </div>
                     <?php else: ?>
                         <div style="text-align: center; padding: 3rem; background: #f1f5f9; border-radius: 1.5rem; color: #64748b;">

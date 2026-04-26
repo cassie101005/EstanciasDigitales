@@ -1,0 +1,10 @@
+.prop-skeleton {
+    height: 380px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmerProp 1.4s infinite;
+}
+@keyframes shimmerProp {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
