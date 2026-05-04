@@ -51,13 +51,13 @@ $properties = getHomeProperties($ubicacion, $huespedes, $fechaInicio, $fechaFin,
         <form method="GET" action="home.php" class="search-pill-v2">
             <div class="search-input-box">
                 <label>Ubicación</label>
-                <input type="text" name="ubicacion" placeholder="¿A dónde quieres ir?" value="<?php echo htmlspecialchars($ubicacion); ?>">
+                <input type="text" name="ubicacion" placeholder="¿A dónde quieres ir?" value="<?php echo htmlspecialchars($ubicacion); ?>" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
             </div>
             <div class="search-input-box">
                 <label>Fechas</label>
                 <div class="date-inputs">
-                    <input type="date" name="fecha_inicio" title="Llegada" value="<?php echo htmlspecialchars($fechaInicio); ?>">
-                    <input type="date" name="fecha_fin" title="Salida" value="<?php echo htmlspecialchars($fechaFin); ?>">
+                    <input type="date" name="fecha_inicio" title="Llegada" value="<?php echo htmlspecialchars($fechaInicio); ?>" min="<?php echo date('Y-m-d'); ?>">
+                    <input type="date" name="fecha_fin" title="Salida" value="<?php echo htmlspecialchars($fechaFin); ?>" min="<?php echo date('Y-m-d'); ?>">
                 </div>
             </div>
             <div class="search-input-box">
@@ -76,23 +76,20 @@ $properties = getHomeProperties($ubicacion, $huespedes, $fechaInicio, $fechaFin,
     </header>
 
     <div class="categories-tabs">
-        <a href="home.php" class="cat-pill <?php echo $categoriaSeleccionada === '' ? 'active' : ''; ?>">
+        <button type="button" class="cat-pill <?php echo $categoriaSeleccionada === '' ? 'active' : ''; ?>" data-categoria="">
             <i class="fa-solid fa-border-all"></i>
             <span>Todas</span>
-        </a>
+        </button>
         <?php foreach ($categorias as $cat): ?>
-            <?php 
-                $icono = isset($iconosCategorias[$cat]) ? $iconosCategorias[$cat] : 'fa-house-user';
-                $url = "home.php?" . http_build_query(array_merge($_GET, ['categoria' => $cat]));
-            ?>
-            <a href="<?php echo $url; ?>" class="cat-pill <?php echo $categoriaSeleccionada === $cat ? 'active' : ''; ?>">
+            <?php $icono = isset($iconosCategorias[$cat]) ? $iconosCategorias[$cat] : 'fa-house-user'; ?>
+            <button type="button" class="cat-pill <?php echo $categoriaSeleccionada === $cat ? 'active' : ''; ?>" data-categoria="<?php echo htmlspecialchars($cat); ?>">
                 <i class="fa-solid <?php echo $icono; ?>"></i>
                 <span><?php echo htmlspecialchars($cat); ?></span>
-            </a>
+            </button>
         <?php endforeach; ?>
     </div>
 
-    <div class="prop-grid" id="mainGrid">
+    <div class="prop-grid" id="mainGrid" style="position:relative;">
         <?php if (count($properties) > 0): ?>
             <?php foreach ($properties as $p): ?>
                 <div class="prop-card-v2" onclick="window.location.href = 'detalle.php?id=<?php echo $p['id']; ?>'">
@@ -123,7 +120,16 @@ $properties = getHomeProperties($ubicacion, $huespedes, $fechaInicio, $fechaFin,
     <footer class="main-footer">
     </footer>
 
-    <script src="../../recursos/js/huesped/home.js"></script>
+    <script>
+        window._homeFilters = {
+            ubicacion:   <?php echo json_encode($ubicacion); ?>,
+            huespedes:   <?php echo json_encode($huespedes > 0 ? (string)$huespedes : ''); ?>,
+            fecha_inicio: <?php echo json_encode($fechaInicio); ?>,
+            fecha_fin:   <?php echo json_encode($fechaFin); ?>,
+            categoria:   <?php echo json_encode($categoriaSeleccionada); ?>
+        };
+    </script>
+    <script src="../../recursos/js/huesped/home.js?v=2"></script>
 
 </body>
 </html>

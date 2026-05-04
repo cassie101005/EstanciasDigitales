@@ -10,6 +10,27 @@
     border: 0 solid #e5e7eb;
 }
 
+/* --- Global Cursor & Selection Fix (Login & Modals) --- */
+/* Removed aggressive user-select: none that breaks WebKit inputs */
+
+.auth-main button, .auth-main a, .auth-main .auth-tab, .auth-main .role-btn, .auth-main .btn-submit,
+.modal-overlay button, .modal-overlay a, .modal-overlay .modal-close, .modal-overlay .btn-submit-modal {
+    cursor: pointer !important;
+}
+
+.auth-main button, .auth-main a, .auth-main .auth-tab, .auth-main .role-btn, .auth-main .btn-submit,
+.modal-overlay button, .modal-overlay a, .modal-overlay .modal-close, .modal-overlay .btn-submit-modal {
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+/* Forzar que SweetAlert2 siempre esté por encima de cualquier modal */
+.swal2-container {
+    z-index: 999999 !important;
+}
+
+/* --------------------------------------------------- */
+
 html { line-height: 1.5; -webkit-text-size-adjust: 100%; }
 body {
     font-family: 'Inter', sans-serif;
@@ -34,7 +55,7 @@ button, input, select, textarea {
     font-weight: inherit; line-height: inherit;
     color: inherit;
 }
-button { cursor: pointer; background: transparent; }
+button { background: transparent; }
 a { color: inherit; text-decoration: inherit; }
 h1,h2,h3,h4,h5,h6 { font-size: inherit; font-weight: inherit; }
 [hidden] { display: none !important; }

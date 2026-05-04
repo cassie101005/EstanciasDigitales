@@ -9,17 +9,27 @@ if ($accion === 'guardar') {
     $direccion = trim($_POST['direccion'] ?? '');
     $precioNoche = floatval($_POST['precioNoche'] ?? 0);
     $descripcion = trim($_POST['descripcion'] ?? '');
-    $especificaciones = trim($_POST['especificaciones'] ?? '');
     $capacidadHuespedes = intval($_POST['capacidadHuespedes'] ?? 0);
     $numeroHabitaciones = intval($_POST['numeroHabitaciones'] ?? 0);
+    $numeroBanos = intval($_POST['numeroBanos'] ?? 0);
 
     $servicios = json_decode($_POST['servicios'] ?? '[]');
     $reglas = json_decode($_POST['reglas'] ?? '[]');
     $politicas = json_decode($_POST['politicas'] ?? '[]');
     $reglaExtra = trim($_POST['reglaExtra'] ?? '');
 
-    if ($idCiudad <= 0 || $idUsuario <= 0 || $idTipoPropiedad <= 0 || empty($nombre) || empty($direccion) || $precioNoche <= 0 || $capacidadHuespedes <= 0 || $numeroHabitaciones <= 0) {
+    if ($idCiudad <= 0 || $idUsuario <= 0 || $idTipoPropiedad <= 0 || empty($nombre) || empty($direccion) || $precioNoche <= 0 || $capacidadHuespedes <= 0 || $numeroHabitaciones <= 0 || $numeroBanos <= 0) {
         echo json_encode(['error' => 'Por favor, completa todos los campos obligatorios correctamente.']);
+        exit;
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ]+$/u', $nombre)) {
+        echo json_encode(['error' => 'El nombre de la propiedad solo puede contener letras y números, sin caracteres especiales.']);
+        exit;
+    }
+
+    if (!preg_match('/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/u', $nombre)) {
+        echo json_encode(['error' => 'El nombre de la propiedad debe contener al menos una letra.']);
         exit;
     }
 } else if ($accion === 'subir_imagenes') {

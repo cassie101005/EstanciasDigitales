@@ -17,6 +17,7 @@ class QueriesPropiedades {
     public function obtenerPropiedadesUsuario($idUsuario) {
         $sql = "SELECT
                     p.idPropiedad,
+                    p.idTipoPropiedad,
                     p.vNombre,
                     p.dPrecioNoche,
                     p.iCapacidadHuespedes,
@@ -133,6 +134,30 @@ class QueriesPropiedades {
         $stmt->bind_param("i", $idPropiedad);
         $stmt->execute();
         return $stmt->get_result();
+    }
+    /**
+     * Obtener tipos de propiedad presentes en el inventario del usuario
+     */
+    public function obtenerTiposPresentesUsuario($idUsuario) {
+        $sql = "SELECT DISTINCT tp.idTipoPropiedad, tp.vNombreCategoria
+                FROM tbl_propiedad p
+                JOIN tbl_tipo_propiedad tp ON tp.idTipoPropiedad = p.idTipoPropiedad
+                WHERE p.idUsuario = ?
+                ORDER BY tp.vNombreCategoria ASC";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idUsuario);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    /**
+     * Eliminar una propiedad (validando dueño)
+     */
+    public function eliminarPropiedad($idPropiedad, $idUsuario) {
+        $sql = "DELETE FROM tbl_propiedad WHERE idPropiedad = ? AND idUsuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("ii", $idPropiedad, $idUsuario);
+        return $stmt->execute();
     }
 }
 ?>

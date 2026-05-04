@@ -45,24 +45,12 @@ $reservas = getGuestReservas($idUsuarioHuesped, $conexion);
             <?php if (count($reservas) > 0): ?>
                 <?php foreach ($reservas as $res): ?>
                     <?php 
-                        $fechaInicio = new DateTime($res['dtFechaInicio']);
-                        $fechaFin = new DateTime($res['dtFechaFin']);
-                        $hoy = new DateTime();
-                        
-                        $statusId = $res['idEstadoReserva'];
-                        $status = "CONFIRMADA";
-                        $statusColor = "var(--primary)";
-                        
-                        if ($statusId == 2) {
-                            $status = "EN CURSO";
-                            $statusColor = "#008a60";
-                        } elseif ($statusId == 3) {
-                            $status = "FINALIZADA";
-                            $statusColor = "#6c757d";
-                        } elseif ($statusId == 4) {
-                            $status = "CANCELADA";
-                            $statusColor = "#dc3545";
-                        }
+                        require_once '../../negocio/utilidades/helper_reservas.php';
+                        $statusInfo = obtenerEstadoReserva($res);
+                        $status = $statusInfo['label'];
+                        $statusBadge = renderizarBadgeEstado($res);
+                        $fechaInicio = $statusInfo['fechaInicio'];
+                        $fechaFin = $statusInfo['fechaFin'];
 
                         // Corregir ruta de imagen si es relativa
                         $rutaImagen = $res['imagen'];
@@ -72,10 +60,10 @@ $reservas = getGuestReservas($idUsuarioHuesped, $conexion);
                             $rutaImagen = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80';
                         }
                     ?>
-                    <div class="res-card-v2">
+                    <div class="res-card-v2 res-card-row">
                         <div class="res-img-box">
                             <img src="<?php echo htmlspecialchars($rutaImagen); ?>">
-                            <div class="status-badge-v2" style="background: <?php echo $statusColor; ?>;"><?php echo $status; ?></div>
+                            <?php echo $statusBadge; ?>
                         </div>
                         <div class="res-content-box">
                             <h2 style="font-size: 1.5rem; font-weight: 700;"><?php echo htmlspecialchars($res['nombrePropiedad']); ?></h2>
@@ -111,6 +99,9 @@ $reservas = getGuestReservas($idUsuarioHuesped, $conexion);
             <?php endif; ?>
 
         </div>
+
+        <!-- Paginación -->
+        <div id="paginationContainer" style="display: flex; justify-content: center; gap: 0.75rem; margin-top: 3rem; margin-bottom: 5rem;"></div>
     </div>
 
     <!-- Modal de Comentarios -->

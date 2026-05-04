@@ -1,4 +1,5 @@
 <?php
+ob_start();
 header('Content-Type: application/json');
 require_once '../../negocio/auth/verificar_sesion.php';
 validarSesionAPI('anfitrion');
@@ -7,9 +8,9 @@ $idUsuario = intval($_SESSION['idUsuario']);
 $accion    = $_GET['accion'] ?? 'listar';
 
 require_once '../../datos/anfitrion/propiedades.php';
-
 require_once '../../negocio/anfitrion/propiedades.php';
 
+ob_end_clean();
 if (isset($resultado)) {
     echo json_encode($resultado);
 } else {

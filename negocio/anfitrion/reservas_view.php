@@ -2,6 +2,34 @@
 require_once '../../datos/conexion.php';
 
 function getHostReservas($idHost, $conexion) {
+    $hoy_str = date('Y-m-d');
+    
+    // ── ACTUALIZAR ESTADOS A FINALIZADA Y NOTIFICAR ──
+    $sqlFinal = "SELECT r.idReserva, r.idPropiedad, p.vNombre as nombrePropiedad
+                 FROM tbl_reserva r
+                 JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                 WHERE p.idUsuario = $idHost 
+                 AND r.idEstadoReserva != 4 
+                 AND r.idEstadoReserva != 3
+                 AND r.dtFechaFin < '$hoy_str'";
+    $resFinal = $conexion->query($sqlFinal);
+    if ($resFinal && $resFinal->num_rows > 0) {
+        require_once '../../negocio/utilidades/notificaciones.php';
+        while ($r = $resFinal->fetch_assoc()) {
+            $titulo = "Reserva finalizada";
+            $mensaje = "La estancia en '" . $r['nombrePropiedad'] . "' ha concluido.";
+            $url = "presentacion/anfitrion/reservas.php";
+            registrarNotificacion($idHost, 'reserva_finalizada', $titulo, $mensaje, $url, $r['idReserva']);
+        }
+    }
+
+    $conexion->query("UPDATE tbl_reserva r 
+                      JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                      SET r.idEstadoReserva = 3 
+                      WHERE p.idUsuario = $idHost 
+                      AND r.idEstadoReserva != 4 
+                      AND r.dtFechaFin < '$hoy_str'");
+
     $sqlRes = "SELECT r.*, p.vNombre as nombrePropiedad, p.idPropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto,
                       MAX(c.vMotivo) as motivoCancelacionReal,
                       MAX(c.dPenalizacion) as penalizacion,

@@ -19,6 +19,14 @@ if ($accion === 'listar') {
 
     $resultado = ['ok' => true, 'propiedades' => $propiedades];
 }
+else if ($accion === 'listar_tipos') {
+    $resultadoQuery = $queriesPropiedades->obtenerTiposPresentesUsuario($idUsuario);
+    $tipos = [];
+    while ($fila = $resultadoQuery->fetch_assoc()) {
+        $tipos[] = $fila;
+    }
+    $resultado = ['ok' => true, 'tipos' => $tipos];
+}
 else if ($accion === 'detalle') {
     // Datos principales
     $resultadoQuery = $queriesPropiedades->obtenerDetallePropiedad($idPropiedad, $idUsuario);
@@ -73,5 +81,18 @@ else if ($accion === 'detalle') {
         'politicas' => $politicas,
         'resenias'  => $resenias,
     ];
+}
+else if ($accion === 'eliminar') {
+    $idPropiedad = intval($_GET['id'] ?? 0);
+    if ($idPropiedad <= 0) {
+        $resultado = ['ok' => false, 'error' => 'ID de propiedad no válido.'];
+        return;
+    }
+
+    if ($queriesPropiedades->eliminarPropiedad($idPropiedad, $idUsuario)) {
+        $resultado = ['ok' => true, 'mensaje' => 'Propiedad eliminada correctamente.'];
+    } else {
+        $resultado = ['ok' => false, 'error' => 'No se pudo eliminar la propiedad.'];
+    }
 }
 

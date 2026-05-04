@@ -5,17 +5,49 @@ require_once '../../datos/conexion.php';
 
 // Obtener datos del POST
 $idPropiedad = isset($_POST['idPropiedad']) ? intval($_POST['idPropiedad']) : 0;
-$fechaInicio = isset($_POST['fechaInicio']) ? $_POST['fechaInicio'] : '';
-$fechaFin = isset($_POST['fechaFin']) ? $_POST['fechaFin'] : '';
-$huespedes = isset($_POST['huespedes']) ? intval($_POST['huespedes']) : 1;
-$totalBase = isset($_POST['total']) ? floatval($_POST['total']) : 0;
-$noches = isset($_POST['noches']) ? intval($_POST['noches']) : 0;
-$precioNoche = isset($_POST['precioNoche']) ? floatval($_POST['precioNoche']) : 0;
+$fechaInicio = isset($_POST['fechaInicio']) ? trim($_POST['fechaInicio']) : '';
+$fechaFin    = isset($_POST['fechaFin'])    ? trim($_POST['fechaFin'])    : '';
+$huespedes   = isset($_POST['huespedes'])   ? intval($_POST['huespedes']) : 1;
 
-if ($idPropiedad <= 0 || empty($fechaInicio) || empty($fechaFin)) {
-    header("Location: home.php");
+// Validar que las fechas tengan formato YYYY-MM-DD antes de procesarlas
+function esFormatoFechaValido(string $fecha): bool {
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) return false;
+    $d = DateTime::createFromFormat('Y-m-d', $fecha);
+    return $d && $d->format('Y-m-d') === $fecha;
+}
+
+if (!esFormatoFechaValido($fechaInicio) || !esFormatoFechaValido($fechaFin)) {
+    echo "<script>alert('Error: Las fechas proporcionadas no son válidas. Por favor selecciona fechas correctas.'); window.history.back();</script>";
     exit();
 }
+
+if ($idPropiedad <= 0) {
+    echo "<script>alert('Error: Propiedad no válida.'); window.history.back();</script>";
+    exit();
+}
+require_once '../../negocio/utilidades/calculadora_precios.php';
+
+// 1. Validar fechas en el servidor (Evita manipulación de DOM)
+if ($fechaInicio < date('Y-m-d')) {
+    echo "<script>alert('Error: No se pueden seleccionar fechas pasadas.'); window.history.back();</script>";
+    exit();
+}
+
+// 2. Validar disponibilidad inmediata
+if (!validarDisponibilidad($idPropiedad, $fechaInicio, $fechaFin, $conexion)) {
+    echo "<script>alert('Lo sentimos, estas fechas ya no están disponibles.'); window.location.href='home.php';</script>";
+    exit();
+}
+
+// 2. Recalcular TODO desde la base de datos (Sincronización total)
+$desglose = calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion);
+
+$noches = $desglose['noches'];
+$totalBase = $desglose['totalBase'];
+$tarifaLimpieza = $desglose['limpieza'];
+$impuestos = $desglose['impuestos'];
+$granTotal = $desglose['granTotal'];
+$precioPromedio = $desglose['precioPromedio'];
 
 require_once '../../negocio/huesped/pago_view.php';
 
@@ -25,12 +57,8 @@ $prop = getPropertyPaymentDetails($idPropiedad, $conexion);
 // Imagen principal
 $mainImage = getPropertyMainImage($idPropiedad, $conexion);
 
-$tarifaLimpieza = 1200;
-$impuestos = ($precioNoche * $noches) * 0.16;
-$granTotal = $totalBase + $impuestos;
-
 // Simular usuario logueado si no hay sesión
-$idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; // ID 2 por defecto para pruebas
+$idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; 
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -97,7 +125,7 @@ $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; 
                         <div>
                             <span style="font-size: 11px; font-weight: 800; color: #999; text-transform: uppercase;"><?php echo htmlspecialchars($prop['tipo']); ?></span>
                             <h3 style="font-size: 15px; font-weight: 700; margin-top: 4px;"><?php echo htmlspecialchars($prop['vNombre']); ?></h3>
-                            <div style="font-size: 13px; margin-top: 8px;"><i class="fa-solid fa-star"></i> 4.98 <span style="color: #999;">(Exclente)</span></div>
+                            <div style="font-size: 13px; margin-top: 8px;"><i class="fa-solid fa-star"></i> 4.98 <span style="color: #999;">(Excelente)</span></div>
                         </div>
                     </div>
 
@@ -118,23 +146,33 @@ $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2; 
                     </div>
 
                     <div id="summary-details">
-                        <h4 style="font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 1.5rem;">Resumen de precios</h4>
-                        <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <span>$<?php echo number_format($precioNoche, 2); ?> x <?php echo $noches; ?> noches</span>
-                            <span>$<?php echo number_format($precioNoche * $noches, 2); ?></span>
-                        </div>
-                        <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <span>Tarifa de limpieza</span>
-                            <span>$<?php echo number_format($tarifaLimpieza, 2); ?></span>
-                        </div>
-                        <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <span>Impuestos</span>
-                            <span>$<?php echo number_format($impuestos, 2); ?></span>
-                        </div>
+                        <h4 style="font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 1.5rem;">Desglose por noche</h4>
+                        
+                        <?php foreach ($desglose['desgloseNoches'] as $n): ?>
+                            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 14px;">
+                                <span style="color: #64748b;"><?php echo date('d M Y', strtotime($n['fecha'])); ?><?php echo $n['esEspecial'] ? ' <small style="color:var(--primary); font-weight:800;">(Tarifa especial)</small>' : ''; ?></span>
+                                <span style="font-weight: 600;">$<?php echo number_format($n['precio'], 2); ?></span>
+                            </div>
+                        <?php endforeach; ?>
 
-                        <div class="price-row" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #000; font-size: 1.25rem; font-weight: 800; display: flex; justify-content: space-between;">
-                            <span>Total (MXN)</span>
-                            <span id="total-amount">$<?php echo number_format($granTotal, 2); ?></span>
+                        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                                <span style="font-weight: 700;">Subtotal noches</span>
+                                <span style="font-weight: 700;">$<?php echo number_format($totalBase, 2); ?></span>
+                            </div>
+                            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                                <span>Tarifa de limpieza</span>
+                                <span>$<?php echo number_format($tarifaLimpieza, 2); ?></span>
+                            </div>
+                            <div class="price-row" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                                <span>Impuestos (16%)</span>
+                                <span>$<?php echo number_format($impuestos, 2); ?></span>
+                            </div>
+
+                            <div class="price-row" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #000; font-size: 1.25rem; font-weight: 800; display: flex; justify-content: space-between;">
+                                <span>Total (MXN)</span>
+                                <span id="total-amount" style="color: var(--primary);">$<?php echo number_format($granTotal, 2); ?></span>
+                            </div>
                         </div>
                     </div>
                 </div>

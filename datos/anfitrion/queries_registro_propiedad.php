@@ -92,14 +92,14 @@ class QueriesRegistroPropiedad {
                     vDireccion,
                     dPrecioNoche,
                     vDescripcion,
-                    vEspecificaciones,
                     iCapacidadHuespedes,
-                    iNumeroHabitaciones
+                    iNumeroHabitaciones,
+                    iNumeroBanos
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param(
-            "iiisssssii",
+            "iiissssiii",
             $datos['idCiudad'],
             $datos['idUsuario'],
             $datos['idTipoPropiedad'],
@@ -107,9 +107,9 @@ class QueriesRegistroPropiedad {
             $datos['direccion'],
             $datos['precioNoche'],
             $datos['descripcion'],
-            $datos['especificaciones'],
             $datos['capacidadHuespedes'],
-            $datos['numeroHabitaciones']
+            $datos['numeroHabitaciones'],
+            $datos['numeroBanos']
         );
         
         return $stmt->execute();
@@ -159,7 +159,7 @@ class QueriesRegistroPropiedad {
      * Insertar regla personalizada
      */
     public function insertarReglaPersonalizada($nombreRegla) {
-        $sql = "INSERT INTO tbl_reglas (idClasificacionRegla, vNombreRegla, vDescripcion, vEstado) VALUES (1, ?, '', 'Activo')";
+        $sql = "INSERT INTO tbl_reglas (idClasificacionRegla, vNombreRegla, vDescripcion, bEstado) VALUES (1, ?, '', 1)";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("s", $nombreRegla);
         return $stmt->execute();

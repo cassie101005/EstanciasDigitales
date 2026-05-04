@@ -53,6 +53,7 @@ function selectRole(role, element) {
 function abrirModalRegistro() {
     document.getElementById('regNombre').value = '';
     document.getElementById('regApellido').value = '';
+    document.getElementById('regFechaNac').value = '';
     document.getElementById('regCorreo').value = '';
     document.getElementById('regPassword').value = '';
     const alertBox = document.getElementById('regAlert');
@@ -93,11 +94,43 @@ async function handleRegistro(event) {
     btn.innerText = 'Registrando...';
     btn.disabled = true;
 
+    const fechaNacVal = document.getElementById('regFechaNac').value;
+    if (!fechaNacVal) {
+        const el = document.getElementById('regAlert');
+        if (el) {
+            el.innerText = 'Debe ingresar su fecha de nacimiento.';
+            el.style.display = 'block';
+        }
+        btn.innerText = originalText;
+        btn.disabled = false;
+        return;
+    }
+
+    const birthDate = new Date(fechaNacVal);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    
+    if (age < 18) {
+        const el = document.getElementById('regAlert');
+        if (el) {
+            el.innerText = 'Debes ser mayor de 18 años para registrarte.';
+            el.style.display = 'block';
+        }
+        btn.innerText = originalText;
+        btn.disabled = false;
+        return;
+    }
+
     const rol = document.getElementById('role_input').value;
     const payload = {
         idRol: rol === 'huesped' ? 2 : 3,
         nombre: document.getElementById('regNombre').value,
         apellido: document.getElementById('regApellido').value,
+        fechaNacimiento: fechaNacVal,
         correo: document.getElementById('regCorreo').value,
         contrasenia: document.getElementById('regPassword').value
     };
@@ -109,14 +142,14 @@ async function handleRegistro(event) {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (data.ok) {
+        if (data.success) {
+            alert('Cuenta creada exitosamente');
             cerrarModalRegistro();
-            alert('Registro exitoso. Ahora puedes iniciar sesión.');
-            event.target.reset();
+            window.location.href = "index.php";
         } else {
             const el = document.getElementById('regAlert');
             if (el) {
-                el.innerText = data.mensaje || data.error || 'Error en el registro';
+                el.innerText = data.message || 'Error en el registro';
                 el.style.display = 'block';
             }
         }
@@ -203,7 +236,7 @@ async function handleResetPassword(event) {
 }
 
 function limpiarCamposLogin() {
-    const fields = ['email', 'password', 'resetCorreo', 'resetPassword', 'regNombre', 'regApellido', 'regCorreo', 'regPassword'];
+    const fields = ['email', 'password', 'resetCorreo', 'resetPassword', 'regNombre', 'regApellido', 'regFechaNac', 'regCorreo', 'regPassword'];
     fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -211,5 +244,9 @@ function limpiarCamposLogin() {
 }
 
 // Event Listeners for cleaning fields
-window.addEventListener('load', limpiarCamposLogin);
+window.addEventListener('load', () => {
+    limpiarCamposLogin();
+    setTimeout(limpiarCamposLogin, 100);
+    setTimeout(limpiarCamposLogin, 500);
+});
 window.addEventListener('pageshow', limpiarCamposLogin);

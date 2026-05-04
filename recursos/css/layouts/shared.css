@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
+
 /* ============================================
    SHARED.CSS — Layout Admin & Anfitrión
    Paleta Ventanas: #7C3AED | #F9FAFB | #111827
    ============================================ */
 :root {
-    --sidebar-width: 260px;
+    --sidebar-width: 280px;
 }
 
 html, body {
@@ -11,6 +13,11 @@ html, body {
     width: 100%;
     margin: 0;
     font-family: 'Inter', sans-serif;
+}
+
+/* Forzar que SweetAlert2 siempre esté por encima de cualquier modal o sidebar */
+.swal2-container {
+    z-index: 999999 !important;
 }
 
 .host-body, .admin-body {
@@ -41,6 +48,17 @@ html, body {
     overflow-y: auto;
 }
 
+/* Force resets inside sidebar-host to prevent other CSS from overriding */
+.sidebar-host nav,
+.sidebar-host li,
+.sidebar-host div,
+.sidebar-host p,
+.sidebar-host h2 {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 @media (max-width: 1024px) {
     .sidebar-host {
         transform: translateX(-100%);
@@ -52,59 +70,161 @@ html, body {
     }
 }
 
+/* Overlay para cerrar sidebar en móvil */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 2099; /* justo debajo del sidebar (2100) */
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    transition: opacity 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
+
 /* Logo box */
-.host-logo-box { margin-bottom: 3rem; }
+.host-logo-box { margin-bottom: 3rem !important; display: block; }
 .host-logo-box h2 {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--primary);
-    letter-spacing: -0.5px;
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    color: var(--primary) !important;
+    margin: 0 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.5px !important;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 .host-logo-box p {
-    font-size: 10px;
-    color: #9CA3AF;
-    font-weight: 700;
-    margin-top: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 1.5px !important;
+    font-weight: 600 !important;
+    color: #9ca3af !important;
+    text-transform: uppercase !important;
+    margin-top: 0.25rem !important;
 }
 
 /* Nav items */
-.side-nav-host {
-    list-style: none;
-    padding: 0; margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+.side-nav-host { list-style: none !important; padding: 0 !important; margin: 0 !important; display: block !important; }
+.side-nav-host .side-nav-item {
+    padding: 0.85rem 1.25rem !important;
+    color: #4B5563 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    margin-bottom: 0.5rem !important;
+    transition: all 0.2s !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    background: transparent;
 }
-.side-nav-item {
-    padding: 0.75rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    color: #6B7280;
-    font-weight: 600;
-    font-size: 14px;
-    border-radius: 12px;
-    transition: all 0.2s;
-    cursor: pointer;
+.side-nav-host .side-nav-item i { width: 18px !important; text-align: center !important; }
+.side-nav-host .side-nav-item:hover {
+    background: #F3F4F6 !important;
+    color: #111827 !important;
 }
-.side-nav-item i { width: 18px; text-align: center; }
-.side-nav-item:hover {
-    background: rgba(124, 58, 237, 0.07);
-    color: var(--primary);
-}
-.side-nav-item.active {
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--primary);
-    font-weight: 700;
-    box-shadow: none;
+.side-nav-host .side-nav-item.active {
+    background: var(--primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2) !important;
 }
 
-/* Contenido principal */
+/* ── Root UX Fix: Non-Editable Element Behavior ── */
+/* Force default cursor and disable selection for informational areas */
+.no-editable,
+.no-editable *,
+.reservation-card,
+.reservation-card *,
+.card-reserva,
+.card-reserva *,
+.host-card,
+.host-card *,
+.review-card,
+.review-card *,
+.kpi-host-card,
+.kpi-host-card *,
+.mini-stat-card,
+.mini-stat-card *,
+.reservation-list-item,
+.reservation-list-item *,
+.profile-modal-content,
+.profile-modal-content *,
+.modal-content,
+.modal-content *,
+.sidebar-host,
+.sidebar-host *,
+.nav-huesped,
+.nav-huesped *,
+.host-content-main,
+.host-content-main * {
+    cursor: default !important;
+    user-select: none;
+}
+
+/* Exceptions: Re-enable interaction for specific interactive elements */
+button,
+a,
+select,
+label,
+.clickable,
+[role="button"],
+[onclick],
+.nav-link,
+.side-nav-item,
+.avatar-edit-icon,
+.btn-modal-primary,
+.btn-modal-secondary,
+.btn-modal-logout,
+.btn-close-modal,
+.nav-profile-avatar,
+.nav-profile-avatar img,
+.nav-icons-box i,
+.host-prop-card,
+.host-prop-card *,
+.prop-card-v2,
+.prop-card-v2 *,
+.view-toggle-btn,
+.tipo-option,
+.filter-dropdown,
+.filter-dropdown * {
+    cursor: pointer !important;
+    user-select: auto !important;
+}
+
+/* Specific fix for inputs/textareas where text cursor IS required */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+textarea,
+.modal-input:not(:read-only),
+[contenteditable="true"] {
+    cursor: text !important;
+    user-select: text !important;
+}
+
+/* Helper for informational containers that should look read-only */
+.info-box-readonly {
+    background: #f8fafc !important;
+    border: 1px solid #f1f5f9 !important;
+    border-radius: 12px;
+    cursor: default !important;
+    box-shadow: none !important;
+}
+
 .host-content-main {
     grid-column: 2;
     min-width: 0;

@@ -1,6 +1,8 @@
 // ── Límite y acumulador global de imágenes ──
 const MAX_IMAGENES = 10;
 let archivosImagenes = []; // Array acumulativo de File objects
+let formularioModificado = false;
+let formularioGuardado = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     cargarTiposPropiedad();
@@ -62,8 +64,75 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configurar Drag & Drop de imágenes
     configurarDragAndDrop();
 
-    // Enviar el formulario
-    document.getElementById('formNuevaPropiedad').addEventListener('submit', guardarPropiedad);
+    // ── Protección contra cambios no guardados ──
+    document.querySelectorAll('input, textarea, select').forEach(campo => {
+        campo.addEventListener('input', () => formularioModificado = true);
+        campo.addEventListener('change', () => formularioModificado = true);
+    });
+
+    const form = document.getElementById('formNuevaPropiedad');
+    if (form) {
+        form.addEventListener('submit', guardarPropiedad);
+    }
+
+    let urlDestinoPendiente = null;
+
+    function abrirModalCambiosSinGuardar() {
+        Swal.fire({
+            title: 'Cambios sin guardar',
+            text: "Tienes cambios sin guardar. ¿Deseas salir sin guardar?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Salir sin guardar',
+            cancelButtonText: 'Seguir editando',
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                formularioModificado = false;
+                window.location.href = urlDestinoPendiente;
+            }
+        });
+    }
+
+    // Interceptar enlaces y botones con redirección (Sidebar, regresar, cancelar)
+    document.querySelectorAll('a, .side-nav-item, .np-back-btn, .np-btn-cancel').forEach(elemento => {
+        // Extraer la URL original (puede venir de href, de onclick, o estar hardcodeada para ciertos botones)
+        let urlOriginal = elemento.href;
+        
+        if (!urlOriginal && elemento.getAttribute('onclick')) {
+            const match = elemento.getAttribute('onclick').match(/'([^']+)'/);
+            if (match) {
+                urlOriginal = match[1];
+                elemento.removeAttribute('onclick');
+            }
+        }
+
+        if (!urlOriginal && (elemento.classList.contains('np-btn-cancel') || elemento.classList.contains('np-back-btn'))) {
+            urlOriginal = 'propiedades.php';
+        }
+
+        if (urlOriginal) {
+            elemento.addEventListener('click', function(e) {
+                if (formularioModificado && !formularioGuardado) {
+                    e.preventDefault();
+                    urlDestinoPendiente = urlOriginal;
+                    abrirModalCambiosSinGuardar();
+                } else if (!elemento.href) {
+                    // Si no hay cambios y era un elemento sin href nativo, navegamos manualmente
+                    window.location.href = urlOriginal;
+                }
+            });
+        }
+    });
+
+    // Browser level
+    window.addEventListener('beforeunload', function (e) {
+        if (formularioModificado && !formularioGuardado) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 });
 
 // Cargas iniciales
@@ -183,7 +252,14 @@ async function guardarPropiedad(e) {
             body: formData
         });
         
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("Respuesta no es JSON:", text);
+            throw new Error("La respuesta del servidor no es válida.");
+        }
         
         if (data.ok) {
             const idPropiedad = data.idPropiedad;
@@ -203,18 +279,33 @@ async function guardarPropiedad(e) {
                 });
             }
             
-            alert('¡Propiedad guardada correctamente!');
-            e.target.reset(); // Limpia el formulario
-            // También podemos redirigir a mis propiedades
-            window.location.href = 'propiedades.php';
+            formularioGuardado = true;
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'Propiedad guardada correctamente.',
+                icon: 'success',
+                confirmButtonColor: '#7C3AED'
+            }).then(() => {
+                window.location.href = 'propiedades.php';
+            });
         } else {
-            alert(data.error || data.mensaje || 'Hubo un error al registrar.');
+            Swal.fire({
+                title: 'Error',
+                text: data.error || data.mensaje || 'Hubo un error al registrar.',
+                icon: 'error',
+                confirmButtonColor: '#7C3AED'
+            });
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
     } catch (error) {
         console.error("Error registrando", error);
-        alert('Problema al contactar al servidor.');
+        Swal.fire({
+            title: 'Error de servidor',
+            text: 'Hubo un problema al procesar la solicitud. Por favor intenta de nuevo.',
+            icon: 'warning',
+            confirmButtonColor: '#7C3AED'
+        });
         btn.innerHTML = originalText;
         btn.disabled = false;
     }

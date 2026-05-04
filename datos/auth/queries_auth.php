@@ -81,6 +81,7 @@ class QueriesAuth {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
         
         $stmt = $this->conexion->prepare($sql);
+        $hashContrasenia = password_hash($datos['contrasenia'], PASSWORD_DEFAULT);
         $stmt->bind_param(
             "issssss",
             $datos['idRol'],
@@ -89,7 +90,7 @@ class QueriesAuth {
             $datos['fechaNacimiento'],
             $datos['correo'],
             $datos['telefono'],
-            $datos['contrasenia']
+            $hashContrasenia
         );
         
         return $stmt->execute();

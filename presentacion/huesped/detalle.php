@@ -26,16 +26,21 @@ $images = getPropertyImages($idPropiedad, $conexion);
 $mainImage = !empty($images) ? $images[0] : "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
 $secondaryImages = array_slice($images, 1, 2);
 
-// 3. Consultar servicios
+// 3. Consultar servicios, reglas y políticas
 $services = getPropertyServices($idPropiedad, $conexion);
+$reglas = getPropertyReglas($idPropiedad, $conexion);
+$politicas = getPropertyPoliticas($idPropiedad, $conexion);
 
 // 4. Consultar reseñas y comentarios
 $resenias = getPropertyResenias($idPropiedad, $conexion);
 
-// 5. Consultar fechas ya reservadas
+// 5. Consultar fechas ya reservadas y bloqueos
 $reservedDates = getReservedDates($idPropiedad, $conexion);
 
-// 6. Verificar si el usuario actual ya calificó
+// 6. Consultar tarifas especiales
+$specialRates = getSpecialRates($idPropiedad, $conexion);
+
+// 7. Verificar si el usuario actual ya calificó
 $yaCalifico = false;
 $miCalificacion = 0;
 if (isset($_SESSION['idUsuario'])) {
@@ -59,60 +64,123 @@ if (isset($_SESSION['idUsuario'])) {
 <body style="background: var(--surface);">
     <?php include '../../recursos/navbar.php'; ?>
 
-    <div class="detail-container" style="max-width: 1600px; width: 95%; padding: 4rem 0;">
+    <div class="property-detail-page">
         <header class="detail-header">
-            <h1 class="detail-title"><?php echo htmlspecialchars($prop['vNombre']); ?></h1>
-            <p class="detail-subtitle"><?php echo htmlspecialchars($prop['ciudad'] . ', ' . $prop['estado'] . ', ' . $prop['pais']); ?> • <span style="color: var(--primary);"><?php echo htmlspecialchars($prop['tipo']); ?></span></p>
+            <h1 class="property-title"><?php echo htmlspecialchars($prop['vNombre']); ?></h1>
+            <?php if (!empty($prop['direccion'])): ?>
+            <p class="property-location" style="margin-bottom: 0.25rem;">
+                <i class="fa-solid fa-location-dot" style="color: var(--primary); margin-right: 4px;"></i>
+                <?php echo htmlspecialchars($prop['direccion']); ?>
+            </p>
+            <?php endif; ?>
+            <p class="property-location"><?php echo htmlspecialchars($prop['ciudad'] . ', ' . $prop['estado'] . ', ' . $prop['pais']); ?> • <span style="color: var(--primary);"><?php echo htmlspecialchars($prop['tipo']); ?></span></p>
         </header>
 
-        <section class="gallery-section" style="height: 700px;">
-            <div class="main-img"><img src="<?php echo htmlspecialchars($mainImage); ?>" style="width:100%; height:100%; object-fit:cover;"></div>
-            <div class="gallery-grid" style="display: grid; grid-template-rows: 1fr 1fr; gap: 0.5rem;">
-                <?php foreach ($secondaryImages as $img): ?>
-                    <img src="<?php echo htmlspecialchars($img); ?>" style="width:100%; height:100%; object-fit:cover;">
-                <?php endforeach; ?>
-                <?php if (count($secondaryImages) < 2): ?>
-                    <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80" style="width:100%; height:100%; object-fit:cover;">
-                    <?php if (count($secondaryImages) < 1): ?>
-                        <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=600&q=80" style="width:100%; height:100%; object-fit:cover;">
-                    <?php endif; ?>
-                <?php endif; ?>
+        <div class="property-gallery">
+            <div class="gallery-item main-item" onclick="openGallery(0)">
+                <img src="<?php echo htmlspecialchars($mainImage); ?>" alt="Imagen principal">
             </div>
-        </section>
+            <div class="gallery-side">
+                <?php 
+                $img1 = isset($images[1]) ? $images[1] : "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80";
+                $img2 = isset($images[2]) ? $images[2] : "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=600&q=80";
+                $totalImgs = count($images);
+                ?>
+                <div class="gallery-item" onclick="openGallery(1)">
+                    <img src="<?php echo htmlspecialchars($img1); ?>" alt="Imagen secundaria 1">
+                </div>
+                <div class="gallery-item" onclick="openGallery(2)" style="position: relative;">
+                    <img src="<?php echo htmlspecialchars($img2); ?>" alt="Imagen secundaria 2">
+                    <?php if ($totalImgs > 3): ?>
+                        <div class="gallery-more-overlay">
+                            +<?php echo ($totalImgs - 3); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
 
-        <div class="detail-main-grid" style="grid-template-columns: 1fr 450px; gap: 8rem;">
-            <main>
-                <div class="host-badge" style="border-bottom: 1px solid var(--surface-container-high); padding-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem;">Anfitrión: <?php echo htmlspecialchars($prop['hostNombre'] . ' ' . $prop['hostApellido']); ?></h2>
-                        <p style="color: var(--on-surface-variant); font-weight: 600;"><?php echo $prop['iCapacidadHuespedes']; ?> huéspedes · <?php echo $prop['iNumeroHabitaciones']; ?> habitaciones</p>
+        <div class="detail-layout">
+            <main class="main-detail-content">
+                
+                <div class="detail-section">
+                    <div class="host-badge" style="border-bottom: 1px solid var(--surface-container-high); padding-bottom: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 class="detail-section-title" style="margin-bottom: 0.5rem;">Anfitrión: <?php echo htmlspecialchars($prop['hostNombre'] . ' ' . $prop['hostApellido']); ?></h2>
+                            <p style="color: var(--on-surface-variant); font-weight: 600;"><?php echo $prop['iCapacidadHuespedes']; ?> huéspedes · <?php echo $prop['iNumeroHabitaciones']; ?> habitaciones</p>
+                            <?php if (!empty($prop['direccion'])): ?>
+                            <p style="color: var(--on-surface-variant); font-size: 13px; margin-top: 0.4rem;">
+                                <i class="fa-solid fa-location-dot" style="color: var(--primary); margin-right: 4px;"></i>
+                                <?php echo htmlspecialchars($prop['direccion'] . ', ' . $prop['ciudad'] . ', ' . $prop['estado']); ?>
+                            </p>
+                            <?php endif; ?>
+                        </div>
+                        <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--primary);">
+                            <?php if (!empty($prop['hostFoto'])): ?>
+                                <img src="../../<?php echo htmlspecialchars($prop['hostFoto']); ?>" 
+                                     alt="<?php echo htmlspecialchars($prop['hostNombre']); ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover;">
+                            <?php else: ?>
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.4rem; font-weight: 800;">
+                                    <?php echo strtoupper(mb_substr($prop['hostNombre'], 0, 1)); ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div style="width: 64px; height: 64px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <img src="https://i.pravatar.cc/100?u=<?php echo $prop['idUsuario']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
+
+                    <h2 class="detail-section-title">Descripción</h2>
+                    <div style="font-size: 1.1rem; line-height: 1.7; color: #4b5563;">
+                        <p><?php echo nl2br(htmlspecialchars($prop['vDescripcion'])); ?></p>
                     </div>
                 </div>
 
-                <article style="padding: 2rem 0; border-top: 1px solid #eee;">
-                    <h2 style="font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2rem;">Descripción</h2>
-                    <div style="font-size: 1.15rem; line-height: 1.8; color: var(--on-surface-variant); max-width: 800px;">
-                        <p style="margin-bottom: 1.5rem;"><?php echo nl2br(htmlspecialchars($prop['vDescripcion'])); ?></p>
-                    </div>
-                </article>
-
-                <section style="padding: 4rem 0; border-top: 1px solid #eee;">
-                    <h2 style="font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2.5rem;">Servicios e Instalaciones</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; font-weight: 600;">
-                        <?php foreach (array_slice($services, 0, 6) as $service): ?>
-                            <div style="display:flex; align-items:center; gap: 1.25rem;">
-                                <i class="fa-solid fa-check" style="width: 24px; color: var(--primary);"></i> 
+                <div class="detail-section">
+                    <h2 class="detail-section-title">Servicios e Instalaciones</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; color: #374151; font-weight: 500;">
+                        <?php foreach ($services as $service): ?>
+                            <div style="display:flex; align-items:center; gap: 0.75rem;">
+                                <i class="fa-solid fa-check" style="color: var(--primary); font-size: 0.9rem;"></i> 
                                 <?php echo htmlspecialchars($service); ?>
                             </div>
                         <?php endforeach; ?>
+                        <?php if (empty($services)): ?>
+                            <p style="color: #94a3b8; font-style: italic;">No se especificaron servicios.</p>
+                        <?php endif; ?>
                     </div>
-                </section>
+                </div>
 
-                <section style="padding: 4rem 0; border-top: 1px solid #eee;">
-                    <h2 style="font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2.5rem;">Opiniones de los huéspedes</h2>
+                <div class="detail-section">
+                    <h2 class="detail-section-title">Reglas de la estancia</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; color: #374151; font-weight: 500;">
+                        <?php foreach ($reglas as $regla): ?>
+                            <div style="display:flex; align-items:center; gap: 0.75rem;">
+                                <i class="fa-solid fa-check" style="color: var(--primary); font-size: 0.9rem;"></i> 
+                                <?php echo htmlspecialchars($regla); ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <?php if (empty($reglas)): ?>
+                            <p style="color: #94a3b8; font-style: italic;">No hay reglas específicas.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h2 class="detail-section-title">Políticas de la propiedad</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; color: #374151; font-weight: 500;">
+                        <?php foreach ($politicas as $politica): ?>
+                            <div style="display:flex; align-items:center; gap: 0.75rem;">
+                                <i class="fa-solid fa-check" style="color: var(--primary); font-size: 0.9rem;"></i> 
+                                <?php echo htmlspecialchars($politica); ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <?php if (empty($politicas)): ?>
+                            <p style="color: #94a3b8; font-style: italic;">No se especificaron políticas.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h2 class="detail-section-title">Opiniones de los huéspedes</h2>
                     
                     <?php if (isset($_SESSION['idUsuario'])): ?>
                     <!-- Formulario de Reseña -->
@@ -199,7 +267,7 @@ if (isset($_SESSION['idUsuario'])) {
                             Aún no hay opiniones para esta propiedad. ¡Sé el primero en hospedarte!
                         </div>
                     <?php endif; ?>
-                </section>
+                </div>
             </main>
 
             <aside>
@@ -219,11 +287,11 @@ if (isset($_SESSION['idUsuario'])) {
                             <div style="display: flex; border-bottom: 1px solid #ddd;">
                                 <div style="flex:1; padding: 0.75rem; position: relative;" class="date-picker-trigger">
                                     <label style="display:block; font-size: 10px; font-weight: 800; text-transform: uppercase;">Llegada</label>
-                                    <input type="date" name="fechaInicio" id="fechaInicio" required style="width: 100%; border: none; background: transparent; font-size: 14px; outline: none;" onchange="updateReservationSummary()">
+                                    <input type="date" name="fechaInicio" id="fechaInicio" required style="width: 100%; border: none; background: transparent; font-size: 14px; outline: none;" onchange="updateReservationSummary()" min="<?php echo date('Y-m-d'); ?>">
                                 </div>
                                 <div style="flex:1; padding: 0.75rem; border-left: 1px solid #ddd; position: relative;" class="date-picker-trigger">
                                     <label style="display:block; font-size: 10px; font-weight: 800; text-transform: uppercase;">Salida</label>
-                                    <input type="date" name="fechaFin" id="fechaFin" required style="width: 100%; border: none; background: transparent; font-size: 14px; outline: none;" onchange="updateReservationSummary()">
+                                    <input type="date" name="fechaFin" id="fechaFin" required style="width: 100%; border: none; background: transparent; font-size: 14px; outline: none;" onchange="updateReservationSummary()" min="<?php echo date('Y-m-d'); ?>">
                                 </div>
                             </div>
                             <div style="padding: 0.75rem;">
@@ -258,12 +326,80 @@ if (isset($_SESSION['idUsuario'])) {
         </div>
     </div>
 
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="gallery-modal">
+        <div class="gallery-modal-header">
+            <div class="gallery-counter"><span id="galCurrent">1</span> / <span id="galTotal">1</span></div>
+            <button class="gallery-btn" onclick="closeGallery()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="gallery-modal-content" onclick="handleGalClick(event)">
+            <button class="gallery-btn gallery-nav-btn gallery-prev" onclick="prevGal()"><i class="fa-solid fa-chevron-left"></i></button>
+            <img id="galMainImg" src="" alt="Gallery Image">
+            <button class="gallery-btn gallery-nav-btn gallery-next" onclick="nextGal()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
     <script>
         // Variables del servidor — inyectadas para uso en detalle.js
         window.DETALLE_DATA = {
+            idPropiedad:    <?php echo $idPropiedad; ?>,
             precioNoche:    <?php echo $prop['dPrecioNoche']; ?>,
-            reservedRanges: <?php echo json_encode($reservedDates); ?>
+            reservedRanges: <?php echo json_encode($reservedDates); ?>,
+            specialRates:   <?php echo json_encode($specialRates); ?>,
+            galleryImages:  <?php echo json_encode($images); ?>
         };
+
+        let currentGalIndex = 0;
+        const galModal = document.getElementById('galleryModal');
+        const galImg = document.getElementById('galMainImg');
+        const galCurrent = document.getElementById('galCurrent');
+        const galTotal = document.getElementById('galTotal');
+
+        function openGallery(index) {
+            currentGalIndex = index;
+            updateGalleryUI();
+            galModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGallery() {
+            galModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateGalleryUI() {
+            const imgs = window.DETALLE_DATA.galleryImages;
+            if (!imgs || imgs.length === 0) return;
+            
+            galImg.src = imgs[currentGalIndex];
+            galCurrent.innerText = currentGalIndex + 1;
+            galTotal.innerText = imgs.length;
+        }
+
+        function nextGal() {
+            const imgs = window.DETALLE_DATA.galleryImages;
+            currentGalIndex = (currentGalIndex + 1) % imgs.length;
+            updateGalleryUI();
+        }
+
+        function prevGal() {
+            const imgs = window.DETALLE_DATA.galleryImages;
+            currentGalIndex = (currentGalIndex - 1 + imgs.length) % imgs.length;
+            updateGalleryUI();
+        }
+
+        function handleGalClick(e) {
+            if (e.target.id === 'galleryModal-content' || e.target.classList.contains('gallery-modal-content')) {
+                closeGallery();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!galModal.classList.contains('active')) return;
+            if (e.key === 'Escape') closeGallery();
+            if (e.key === 'ArrowRight') nextGal();
+            if (e.key === 'ArrowLeft') prevGal();
+        });
     </script>
     <script src="../../recursos/js/huesped/detalle.js"></script>
 

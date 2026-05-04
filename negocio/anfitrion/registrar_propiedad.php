@@ -4,6 +4,9 @@ require_once '../../datos/anfitrion/queries_registro_propiedad.php';
 
 $queriesRegistro = new QueriesRegistroPropiedad($conexion);
 
+
+//CODIGO QUE MANEJA ENDPOINTS JUNTOS EN UNA SOLA PESTAÑA Y USANDO LA MISMA API
+
 // --------------------
 // GET: TIPOS
 // --------------------
@@ -27,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'tipos') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'paises') {
     $consulta = $queriesRegistro->obtenerPaises();
     $paises = [];
-    
+
     if ($consulta && $consulta->num_rows > 0) {
         while ($fila = $consulta->fetch_assoc()) {
             $paises[] = $fila;
@@ -43,13 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'paises') {
 // --------------------
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'estados') {
     $idPais = intval($_GET['idPais'] ?? 0);
-    
+
     if ($idPais <= 0) {
         $resultado = ['ok' => false, 'mensaje' => 'ID de país inválido.'];
     } else {
         $consulta = $queriesRegistro->obtenerEstadosPorPais($idPais);
         $estados = [];
-        
+
         if ($consulta && $consulta->num_rows > 0) {
             while ($fila = $consulta->fetch_assoc()) {
                 $estados[] = $fila;
@@ -66,13 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'estados') {
 // --------------------
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'ciudades') {
     $idEstado = intval($_GET['idEstado'] ?? 0);
-    
+
     if ($idEstado <= 0) {
         $resultado = ['ok' => false, 'mensaje' => 'ID de estado inválido.'];
     } else {
         $consulta = $queriesRegistro->obtenerCiudadesPorEstado($idEstado);
         $ciudades = [];
-        
+
         if ($consulta && $consulta->num_rows > 0) {
             while ($fila = $consulta->fetch_assoc()) {
                 $ciudades[] = $fila;
@@ -155,9 +158,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
         'direccion' => $direccion,
         'precioNoche' => $precioNoche,
         'descripcion' => $descripcion,
-        'especificaciones' => $especificaciones,
         'capacidadHuespedes' => $capacidadHuespedes,
-        'numeroHabitaciones' => $numeroHabitaciones
+        'numeroHabitaciones' => $numeroHabitaciones,
+        'numeroBanos' => $numeroBanos
     ];
 
     if ($queriesRegistro->insertarPropiedad($datosPropiedad)) {
@@ -189,6 +192,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
             'mensaje' => 'Propiedad registrada correctamente.',
             'idPropiedad' => $idPropiedad
         ];
+
+        // ── NOTIFICAR A HUESPEDES ──
+        require_once '../../negocio/utilidades/notificaciones.php';
+        $tituloNotif = "Nueva propiedad disponible: " . $nombre;
+        $mensajeNotif = "Descubre '" . $nombre . "' y reserva tu próxima estancia hoy mismo.";
+        $urlNotif = "presentacion/huesped/detalle.php?id=" . $idPropiedad;
+        notificarAHuespedes('propiedad', $tituloNotif, $mensajeNotif, $urlNotif, $idPropiedad);
     } else {
         $resultado = [
             'error' => 'No se pudo registrar la propiedad.'

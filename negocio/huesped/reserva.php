@@ -7,24 +7,45 @@ if (!isset($idPropiedad) || !isset($idUsuario) || !isset($fechaInicio) || !isset
     return;
 }
 
-// 1. Validar solapamiento en el backend para seguridad
-$sqlCheck = "SELECT idReserva FROM tbl_reserva 
-             WHERE idPropiedad = ? 
-             AND vEstatus NOT IN ('Cancelada')
-             AND (
-                 (dtFechaInicio < ? AND dtFechaFin > ?)
-             )";
-$stmtCheck = $conexion->prepare($sqlCheck);
-$stmtCheck->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
-$stmtCheck->execute();
-if ($stmtCheck->get_result()->num_rows > 0) {
-    $resultado = ['ok' => false, 'mensaje' => 'Lo sentimos, estas fechas ya no están disponibles.'];
+require_once '../../negocio/utilidades/calculadora_precios.php';
+
+// 1. Validar disponibilidad real en BD (Doble verificación)
+if (!validarDisponibilidad($idPropiedad, $fechaInicio, $fechaFin, $conexion)) {
+    $resultado = ['ok' => false, 'mensaje' => 'Lo sentimos, estas fechas ya no están disponibles. Alguien más pudo haber reservado mientras realizabas el pago.'];
     return;
 }
 
-// 2. Insertar en tbl_reserva
-$sql = "INSERT INTO tbl_reserva (idUsuario, idPropiedad, dtFechaInicio, dtFechaFin, dTotalReserva) 
-        VALUES (?, ?, ?, ?, ?)";
+// 2. Validar fechas pasadas y coherencia
+$hoy = new DateTime();
+$hoy->setTime(0, 0, 0); // Ignorar la hora para comparar solo fechas
+$inicioObj = DateTime::createFromFormat('Y-m-d', $fechaInicio);
+$finObj = DateTime::createFromFormat('Y-m-d', $fechaFin);
+
+if (!$inicioObj || !$finObj) {
+    $resultado = ['ok' => false, 'mensaje' => 'Formato de fecha inválido.'];
+    return;
+}
+$inicioObj->setTime(0, 0, 0);
+$finObj->setTime(0, 0, 0);
+
+if ($inicioObj < $hoy) {
+    $resultado = ['ok' => false, 'mensaje' => 'No puedes realizar reservas con fechas de llegada en el pasado.'];
+    return;
+}
+
+if ($finObj <= $inicioObj) {
+    $resultado = ['ok' => false, 'mensaje' => 'La fecha de salida debe ser posterior a la fecha de llegada.'];
+    return;
+}
+
+// 3. Recalcular precio real desde BD (No confiar en el precio enviado por el cliente)
+$calculo = calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion);
+$totalReal = $calculo['granTotal'];
+
+// 4. Insertar en tbl_reserva (Guardando snapshot de precios)
+// idEstadoReserva = 1 => Confirmada; dtFechaRegistro = NOW() para el cálculo de 24h en cancelaciones
+$sql = "INSERT INTO tbl_reserva (idUsuario, idPropiedad, dtFechaInicio, dtFechaFin, iCantidadHuespedes, dSubtotalReserva, dTotalReserva, dPrecioNocheReserva, dLimpiezaReserva, dImpuestosReserva, tDesgloseNoches, idEstadoReserva, vEstatus, dtFechaRegistro) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'Confirmada', NOW())";
 
 $stmt = $conexion->prepare($sql);
 if (!$stmt) {
@@ -32,10 +53,75 @@ if (!$stmt) {
     return;
 }
 
-$stmt->bind_param("iissd", $idUsuario, $idPropiedad, $fechaInicio, $fechaFin, $total);
+$subtotal    = $calculo['totalBase'];
+$precioNoche = $calculo['precioPromedio'];
+$limpieza    = $calculo['limpieza'];
+$impuestos   = $calculo['impuestos'];
+$desgloseJson = json_encode($calculo['desgloseNoches']);
+
+// Tipos: i=idUsuario, i=idPropiedad, s=fechaInicio, s=fechaFin,
+//        i=huespedes, d=subtotal, d=totalReal, d=precioNoche,
+//        d=limpieza, d=impuestos, s=desgloseJson  → 11 params
+$stmt->bind_param("iissiddddds", 
+    $idUsuario, 
+    $idPropiedad, 
+    $fechaInicio, 
+    $fechaFin,
+    $huespedes,
+    $subtotal,
+    $totalReal, 
+    $precioNoche, 
+    $limpieza, 
+    $impuestos,
+    $desgloseJson
+);
 
 if ($stmt->execute()) {
-    $resultado = ['ok' => true, 'mensaje' => 'Reservación guardada con éxito'];
+    $idReserva = $conexion->insert_id;
+    $resultado = ['ok' => true, 'mensaje' => 'Reservación confirmada con éxito'];
+
+    // ── NOTIFICACIÓN AL HUÉSPED ──
+    require_once '../../negocio/utilidades/notificaciones.php';
+    
+    // Obtener nombre de la propiedad
+    $stmtProp = $conexion->prepare("SELECT vNombre FROM tbl_propiedad WHERE idPropiedad = ?");
+    $stmtProp->bind_param("i", $idPropiedad);
+    $stmtProp->execute();
+    $propData = $stmtProp->get_result()->fetch_assoc();
+    $nombreProp = $propData['vNombre'] ?? 'la propiedad';
+
+    $tituloNotif = "¡Reserva Confirmada!";
+    $mensajeNotif = "Tu reservación en " . $nombreProp . " ha sido confirmada. ¡Prepárate para tu viaje!";
+    $urlNotif = "presentacion/huesped/detalle_reserva.php?id=" . $idPropiedad . "&id_reserva=" . $idReserva;
+    
+    registrarNotificacion($idUsuario, 'reserva', $tituloNotif, $mensajeNotif, $urlNotif, $idReserva);
+
+    // ── NOTIFICACIÓN AL ANFITRIÓN ──
+    // Obtener id del anfitrión y nombre del huésped
+    $sqlHost = "SELECT p.idUsuario as idAnfitrion, u.vNombre, u.vApellido 
+                FROM tbl_propiedad p 
+                JOIN tbl_usuarios u ON u.idUsuario = ? 
+                WHERE p.idPropiedad = ?";
+    $stmtHost = $conexion->prepare($sqlHost);
+    $stmtHost->bind_param("ii", $idUsuario, $idPropiedad);
+    $stmtHost->execute();
+    $hostData = $stmtHost->get_result()->fetch_assoc();
+    
+    if ($hostData) {
+        $idAnfitrion = $hostData['idAnfitrion'];
+        $nombreHuesped = $hostData['vNombre'] . ' ' . $hostData['vApellido'];
+        
+        $tituloHost = "Nueva reserva recibida";
+        $mensajeHost = $nombreHuesped . " ha reservado '" . $nombreProp . "'.";
+        $urlHost = "presentacion/anfitrion/reservas.php"; 
+        
+        registrarNotificacion($idAnfitrion, 'reserva_nueva', $tituloHost, $mensajeHost, $urlHost, $idReserva);
+
+        // Notificación de Pago Confirmado
+        $tituloPago = "Pago confirmado";
+        $mensajePago = "Se ha confirmado el pago de " . $nombreHuesped . " por su estancia en '" . $nombreProp . "'.";
+        registrarNotificacion($idAnfitrion, 'pago_confirmado', $tituloPago, $mensajePago, $urlHost, $idReserva);
+    }
 } else {
     $resultado = ['ok' => false, 'mensaje' => 'Error al guardar la reservación: ' . $stmt->error];
 }

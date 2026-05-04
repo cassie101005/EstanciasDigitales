@@ -40,40 +40,18 @@ function getReservationMainImage($idPropiedad, $conexion) {
     return $mainImage;
 }
 
+require_once __DIR__ . '/../utilidades/helper_reservas.php';
+
 function calculateReservationStatus($reserva) {
+    $info = obtenerEstadoReserva($reserva);
     $fechaInicio = new DateTime($reserva['dtFechaInicio']);
     $fechaFin = new DateTime($reserva['dtFechaFin']);
-    $hoy = new DateTime();
-    $diff = $fechaInicio->diff($fechaFin);
-    $noches = $diff->days;
-
-    $status = "CONFIRMADA";
-    $color = "#3b82f6";
-    $bgColor = "#eff6ff";
-
-    if (isset($reserva['vEstatus']) && (strtoupper($reserva['vEstatus']) === 'CANCELADA' || strtoupper($reserva['vEstatus']) === 'CANCELADO')) {
-        $status = "CANCELADA";
-        $color = "#991b1b";
-        $bgColor = "#fee2e2";
-    } elseif (isset($reserva['vEstado']) && (strtoupper($reserva['vEstado']) === 'CANCELADA' || strtoupper($reserva['vEstado']) === 'CANCELADO')) {
-        $status = "CANCELADA";
-        $color = "#991b1b";
-        $bgColor = "#fee2e2";
-    } elseif ($hoy >= $fechaInicio && $hoy <= $fechaFin) {
-        $status = "EN CURSO";
-        $color = "#059669";
-        $bgColor = "#ecfdf5";
-    } elseif ($hoy > $fechaFin) {
-        $status = "FINALIZADA";
-        $color = "#64748b";
-        $bgColor = "#f8fafc";
-    }
-
+    
     return [
-        'noches' => $noches,
-        'status' => $status,
-        'color' => $color,
-        'bgColor' => $bgColor,
+        'noches' => $info['noches'],
+        'status' => strtoupper($info['label']),
+        'color' => $info['color'],
+        'bgColor' => $info['bgColor'],
         'fechaInicio' => $fechaInicio,
         'fechaFin' => $fechaFin
     ];

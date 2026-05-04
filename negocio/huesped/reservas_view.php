@@ -5,6 +5,24 @@ function updateReservaStates($idUsuario, $conexion) {
     $hoy_str = date('Y-m-d');
 
     // 1. FINALIZADA (id 3): Si la fecha fin ya pasó y no está cancelada
+    $sqlFinal = "SELECT r.idReserva, r.idPropiedad, p.vNombre 
+                 FROM tbl_reserva r
+                 JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
+                 WHERE r.idUsuario = $idUsuario 
+                 AND r.idEstadoReserva != 4 
+                 AND r.idEstadoReserva != 3
+                 AND r.dtFechaFin < '$hoy_str'";
+    $resFinal = $conexion->query($sqlFinal);
+    if ($resFinal && $resFinal->num_rows > 0) {
+        require_once '../../negocio/utilidades/notificaciones.php';
+        while ($r = $resFinal->fetch_assoc()) {
+            $titulo = "¡Reserva finalizada!";
+            $mensaje = "Esperamos que hayas disfrutado tu estancia en " . $r['vNombre'];
+            $url = "presentacion/huesped/detalle_reserva.php?id=" . $r['idPropiedad'] . "&id_reserva=" . $r['idReserva'];
+            registrarNotificacion($idUsuario, 'reserva_finalizada', $titulo, $mensaje, $url, $r['idReserva']);
+        }
+    }
+
     $conexion->query("UPDATE tbl_reserva SET idEstadoReserva = 3 
                       WHERE idUsuario = $idUsuario 
                       AND idEstadoReserva != 4 
@@ -25,7 +43,7 @@ function updateReservaStates($idUsuario, $conexion) {
 
 function getGuestReservas($idUsuario, $conexion) {
     $sql = "SELECT r.*, p.vNombre as nombrePropiedad, p.vDescripcion, 
-                   (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as imagen,
+                   (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad ORDER BY idImagen ASC LIMIT 1) as imagen,
                    ci.vNombreCiudad as ciudad, pa.vNombrePais as pais
             FROM tbl_reserva r
             JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad

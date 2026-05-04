@@ -8,8 +8,27 @@ $fechaFin = isset($_POST['fechaFin']) ? $_POST['fechaFin'] : '';
 $total = isset($_POST['total']) ? floatval($_POST['total']) : 0;
 $huespedes = isset($_POST['huespedes']) ? intval($_POST['huespedes']) : 1;
 
+$fechaInicio = trim($_POST['fechaInicio'] ?? '');
+$fechaFin    = trim($_POST['fechaFin']    ?? '');
+
 if ($idPropiedad == 0 || $idUsuario == 0 || empty($fechaInicio) || empty($fechaFin)) {
     echo json_encode(['ok' => false, 'mensaje' => 'Datos incompletos']);
+    exit();
+}
+
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaInicio) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaFin)) {
+    echo json_encode(['ok' => false, 'mensaje' => 'Formato de fecha inválido.']);
+    exit();
+}
+
+$hoy = date('Y-m-d');
+if ($fechaInicio < $hoy) {
+    echo json_encode(['ok' => false, 'mensaje' => 'No se permiten fechas pasadas.']);
+    exit();
+}
+
+if ($fechaInicio >= $fechaFin) {
+    echo json_encode(['ok' => false, 'mensaje' => 'La fecha de inicio debe ser menor a la fecha de fin.']);
     exit();
 }
 ?>

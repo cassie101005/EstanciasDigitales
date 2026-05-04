@@ -13,34 +13,16 @@ $notificaciones = getDashboardData($idHost, $conexion);
     <meta charset="UTF-8">
     <title>Panel de Control | Modo Anfitrión</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
+    <link rel="stylesheet" href="../../recursos/css/main.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
     <link rel="stylesheet" href="../../recursos/css/anfitrion/host_main.css">
-    <link rel="stylesheet" href="../../recursos/css/admin/main.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="host-body">
     <div class="host-wrapper">
-        <aside class="sidebar-host">
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <div class="host-logo-box">
-                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-house-laptop"></i>
-                        Estancias Digitales
-                    </h2>
-                    <p>Modo Anfitrión</p>
-                </div>
-                
-                <nav class="side-nav-host">
-                    <li class="side-nav-item active" onclick="window.location.href='dashboard.php'"><i class="fa-solid fa-house"></i> Inicio</li>
-                    <li class="side-nav-item" onclick="window.location.href='propiedades.php'"><i class="fa-solid fa-building"></i> Propiedades</li>
-                    <li class="side-nav-item" onclick="window.location.href='calendario.php'"><i class="fa-solid fa-calendar-days"></i> Calendario</li>
-                    <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
-                </nav>
-            </div>
-
-        </aside>
+        <?php include '../../recursos/sidebar-host.php'; ?>
 
         <main class="host-content-main">
             <?php include '../../recursos/navbar.php'; ?>
@@ -83,7 +65,8 @@ $notificaciones = getDashboardData($idHost, $conexion);
                         </div>
 
                         <?php if (count($notificaciones) > 0): ?>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1rem;">
+                        <!-- Grid de reservas ajustable -->
+                        <div class="reservas-grid-host" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem;">
                             <?php foreach ($notificaciones as $notif): 
                                 $fIni = new DateTime($notif['dtFechaInicio']);
                                 $fFin = new DateTime($notif['dtFechaFin']);
@@ -128,7 +111,7 @@ $notificaciones = getDashboardData($idHost, $conexion);
                 </section>
 
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Floating Button -->

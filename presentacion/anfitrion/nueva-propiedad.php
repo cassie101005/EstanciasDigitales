@@ -11,7 +11,10 @@ require_once '../../datos/conexion.php';
     <title>Nueva Propiedad | Estancias Digitales</title>
     <meta name="description" content="Registra una nueva propiedad en tu panel de anfitrión de Estancias Digitales.">
     <link rel="stylesheet" href="../../recursos/css/variables.css">
+    <link rel="stylesheet" href="../../recursos/css/main.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
+    <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
+    <link rel="stylesheet" href="../../recursos/css/anfitrion/host_main.css">
     <link rel="stylesheet" href="../../recursos/css/anfitrion/nueva-propiedad.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -21,32 +24,7 @@ require_once '../../datos/conexion.php';
     <div class="host-wrapper">
 
         <!-- ═══════════ SIDEBAR ═══════════ -->
-        <aside class="sidebar-host">
-            <div class="host-logo-box">
-                <h2>
-                    <i class="fa-solid fa-house-laptop"></i>
-                    Estancias Digitales
-                </h2>
-                <p>Modo Anfitrión</p>
-            </div>
-
-            <nav class="side-nav-host">
-                <li class="side-nav-item" onclick="window.location.href='dashboard.php'">
-                    <i class="fa-solid fa-house"></i> Inicio
-                </li>
-                <li class="side-nav-item active" onclick="window.location.href='propiedades.php'">
-                    <i class="fa-solid fa-building"></i> Propiedades
-                </li>
-                <li class="side-nav-item" onclick="window.location.href='calendario.php'">
-                    <i class="fa-solid fa-calendar-days"></i> Calendario
-                </li>
-                <li class="side-nav-item" onclick="window.location.href='reservas.php'">
-                    <i class="fa-solid fa-receipt"></i> Reservas
-                </li>
-            </nav>
-
-            
-        </aside>
+        <?php include '../../recursos/sidebar-host.php'; ?>
 
         <!-- ═══════════ CONTENIDO PRINCIPAL ═══════════ -->
         <main class="host-content-main">
@@ -101,7 +79,7 @@ require_once '../../datos/conexion.php';
                             <div class="np-form-group">
                                 <label class="np-label" for="precioNoche">Precio por noche <span class="np-required">*</span></label>
                                 <div class="np-input-icon-wrap">
-                                    <span class="np-input-prefix"><i class="fa-solid fa-euro-sign"></i></span>
+                                    <span class="np-input-prefix">$</span>
                                     <input id="precioNoche" type="number" name="precioNoche" class="np-input np-input-prefixed"
                                         step="0.01" placeholder="0.00" min="0" required>
                                 </div>
@@ -292,7 +270,7 @@ require_once '../../datos/conexion.php';
 
                     <!-- ── ACCIONES FINALES ── -->
                     <div class="np-form-actions">
-                        <button type="button" class="np-btn-cancel" onclick="window.location.href='propiedades.php'">
+                        <button type="button" class="np-btn-cancel">
                             <i class="fa-solid fa-xmark"></i> Cancelar
                         </button>
                         <button type="submit" class="np-btn-save" id="btnGuardar">
@@ -305,6 +283,7 @@ require_once '../../datos/conexion.php';
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../recursos/js/anfitrion/nueva-propiedad.js"></script>
 </body>
 </html>

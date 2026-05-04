@@ -52,27 +52,28 @@ class QueriesEdicionPropiedad {
 
     public function actualizarPropiedad($datos, $idUsuario) {
         $sql = "UPDATE tbl_propiedad SET 
-                    vNombre = ?, 
-                    idTipoPropiedad = ?, 
-                    dPrecioNoche = ?, 
+                    vNombre             = ?, 
+                    idTipoPropiedad     = ?, 
+                    dPrecioNoche        = ?, 
                     iCapacidadHuespedes = ?, 
                     iNumeroHabitaciones = ?, 
-                    idCiudad = ?, 
-                    vDireccion = ?, 
-                    vDescripcion = ?,
-                    vEspecificaciones = ?
+                    iNumeroBanos        = ?,
+                    idCiudad            = ?, 
+                    vDireccion          = ?, 
+                    vDescripcion        = ?
                 WHERE idPropiedad = ? AND idUsuario = ?";
         $stmt = $this->conexion->prepare($sql);
-        $stmt->bind_param("sidiiisssii", 
-            $datos['nombre'], 
-            $datos['idTipoPropiedad'], 
-            $datos['precioNoche'], 
-            $datos['capacidadHuespedes'], 
-            $datos['numeroHabitaciones'], 
-            $datos['idCiudad'], 
-            $datos['direccion'], 
+        $stmt->bind_param(
+            "sidiiiissii",
+            $datos['nombre'],
+            $datos['idTipoPropiedad'],
+            $datos['precioNoche'],
+            $datos['capacidadHuespedes'],
+            $datos['numeroHabitaciones'],
+            $datos['numeroBanos'],
+            $datos['idCiudad'],
+            $datos['direccion'],
             $datos['descripcion'],
-            $datos['especificaciones'],
             $datos['idPropiedad'],
             $idUsuario
         );
@@ -80,9 +81,17 @@ class QueriesEdicionPropiedad {
     }
 
     public function limpiarRelaciones($idPropiedad) {
-        $this->conexion->query("DELETE FROM tbl_propiedad_servicios WHERE idPropiedad = $idPropiedad");
-        $this->conexion->query("DELETE FROM tbl_propiedad_regla WHERE idPropiedad = $idPropiedad");
-        $this->conexion->query("DELETE FROM tbl_propiedad_politica WHERE idPropiedad = $idPropiedad");
+        $stmt1 = $this->conexion->prepare("DELETE FROM tbl_propiedad_servicios WHERE idPropiedad = ?");
+        $stmt1->bind_param("i", $idPropiedad);
+        $stmt1->execute();
+        
+        $stmt2 = $this->conexion->prepare("DELETE FROM tbl_propiedad_regla WHERE idPropiedad = ?");
+        $stmt2->bind_param("i", $idPropiedad);
+        $stmt2->execute();
+        
+        $stmt3 = $this->conexion->prepare("DELETE FROM tbl_propiedad_politica WHERE idPropiedad = ?");
+        $stmt3->bind_param("i", $idPropiedad);
+        $stmt3->execute();
     }
 
     public function eliminarImagen($idImagen, $idPropiedad) {

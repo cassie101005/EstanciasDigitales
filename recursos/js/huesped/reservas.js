@@ -4,6 +4,72 @@
  * Requiere: SweetAlert2
  */
 
+let currentPage = 1;
+const rowsPerPage = 5;
+
+function renderTable() {
+    const filas = Array.from(document.querySelectorAll('.res-card-row'));
+    if (filas.length === 0) return;
+
+    const totalRows = filas.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+    // Ocultar todas las filas primero
+    filas.forEach(f => f.style.display = 'none');
+
+    // Mostrar solo las de la página actual
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    
+    filas.slice(start, end).forEach(f => f.style.display = 'flex');
+
+    renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+    const container = document.getElementById('paginationContainer');
+    if (!container) return;
+
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = `
+        <button onclick="changePage(${currentPage - 1})" class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}">
+            <i class="fa-solid fa-chevron-left"></i> Anterior
+        </button>
+    `;
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `
+            <button onclick="changePage(${i})" class="pagination-btn ${currentPage === i ? 'active' : ''}">
+                ${i}
+            </button>
+        `;
+    }
+
+    html += `
+        <button onclick="changePage(${currentPage + 1})" class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}">
+            Siguiente <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    `;
+
+    container.innerHTML = html;
+}
+
+function changePage(page) {
+    currentPage = page;
+    renderTable();
+    // Scroll suave hacia arriba de la lista
+    document.querySelector('.reservations-list').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Inicializar al cargar
+document.addEventListener('DOMContentLoaded', () => {
+    renderTable();
+});
+
 function openCommentModal(idRes, idProp, title) {
     document.getElementById('modalIdReserva').value  = idRes;
     document.getElementById('modalIdPropiedad').value = idProp;
@@ -25,7 +91,12 @@ async function saveComment() {
         });
         const data = await response.json();
         if (data.ok) {
-            Swal.fire('¡Gracias!', data.mensaje, 'success').then(() => location.reload());
+            Swal.fire('¡Gracias!', data.mensaje, 'success').then(() => {
+                closeCommentModal();
+                const idReserva = document.getElementById('modalIdReserva').value;
+                const btns = document.querySelectorAll(`button[onclick*="openCommentModal(${idReserva},"]`);
+                btns.forEach(btn => btn.style.display = 'none');
+            });
         } else {
             Swal.fire('Error', data.mensaje, 'error');
         }

@@ -67,11 +67,11 @@ $logout_url = rtrim($base_path ?? '../../', '/') . '/negocio/auth/logout.php';
                 <div class="form-row-2">
                     <div class="form-group-modal">
                         <label>Nombre</label>
-                        <input type="text" name="nombre" value="<?php echo htmlspecialchars($userData['vNombre'] ?? ''); ?>" class="modal-input" placeholder="Tu nombre">
+                        <input type="text" name="nombre" value="<?php echo htmlspecialchars($userData['vNombre'] ?? ''); ?>" required pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" class="modal-input" placeholder="Tu nombre">
                     </div>
                     <div class="form-group-modal">
                         <label>Apellido</label>
-                        <input type="text" name="apellido" value="<?php echo htmlspecialchars($userData['vApellido'] ?? ''); ?>" class="modal-input" placeholder="Tu apellido">
+                        <input type="text" name="apellido" value="<?php echo htmlspecialchars($userData['vApellido'] ?? ''); ?>" required pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" class="modal-input" placeholder="Tu apellido">
                     </div>
                 </div>
 
@@ -105,7 +105,7 @@ $logout_url = rtrim($base_path ?? '../../', '/') . '/negocio/auth/logout.php';
                 </div>
 
                 <div class="form-group-modal">
-                    <label>Contraseña actual</label>
+                    <label>Nueva contraseña</label>
                     <div class="input-icon-right">
                         <input type="password" name="contrasenia" id="pw_current" value="" class="modal-input" placeholder="Dejar en blanco para no cambiar">
                         <i class="fa-regular fa-eye" style="cursor:pointer;" onclick="togglePw('pw_current', this)"></i>
@@ -148,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 let initialProfileData = null;
+let fotoPerfilModificada = false;
 
 function getProfileFormData() {
     const form = document.getElementById('profileForm');
@@ -167,6 +168,7 @@ function openProfileModal() {
         document.body.style.overflow = 'hidden';
         // Capturar estado inicial
         initialProfileData = getProfileFormData();
+        fotoPerfilModificada = false;
     }
 }
 
@@ -185,7 +187,7 @@ async function closeProfileModal(e) {
 
     const currentData = getProfileFormData();
     
-    if (initialProfileData !== null && currentData !== initialProfileData) {
+    if ((initialProfileData !== null && currentData !== initialProfileData) || fotoPerfilModificada) {
         const result = await Swal.fire({
             title: '¿Deseas guardar los cambios?',
             text: "Has realizado modificaciones en tu perfil que no se han guardado.",
@@ -227,6 +229,7 @@ async function closeProfileModal(e) {
             return;
         } else if (result.dismiss === Swal.DismissReason.cancel) {
             // Descartar: recargar para limpiar cambios visuales
+            fotoPerfilModificada = false;
             location.reload();
             return;
         } else {
@@ -252,6 +255,7 @@ function togglePw(inputId, icon) {
 
 function previewImage(input) {
     if (input.files && input.files[0]) {
+        fotoPerfilModificada = true;
         var reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('profilePreview').src = e.target.result;
@@ -261,6 +265,20 @@ function previewImage(input) {
 }
 
 async function guardarCambiosPerfil() {
+    const pwCurrent = document.getElementById('pw_current').value;
+    const pwConfirm = document.getElementById('pw_confirm').value;
+
+    if (pwCurrent !== '' || pwConfirm !== '') {
+        if (pwCurrent !== pwConfirm) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de contraseña',
+                text: 'datos no coinciden o errones'
+            });
+            return;
+        }
+    }
+
     const form = document.getElementById('profileForm');
     const formData = new FormData(form);
     
@@ -268,6 +286,25 @@ async function guardarCambiosPerfil() {
     const avatarFile = document.getElementById('avatarInput').files[0];
     if (avatarFile) {
         formData.append('fotoPerfil', avatarFile);
+    }
+
+    const fechaNacVal = formData.get('fechaNacimiento');
+    if (fechaNacVal) {
+        const birthDate = new Date(fechaNacVal);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        if (age < 18) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Edad no permitida',
+                text: 'Debes ser mayor de 18 años para actualizar tu perfil.'
+            });
+            return;
+        }
     }
 
     const email = formData.get('correo');
@@ -312,7 +349,34 @@ async function guardarCambiosPerfil() {
                 timer: 2000,
                 showConfirmButton: false
             }).then(() => {
-                location.reload();
+                // Actualizar interfaz sin recargar
+                
+                // 1. Actualizar avatares
+                const newAvatarSrc = document.getElementById('profilePreview').src;
+                document.querySelectorAll('.nav-profile-avatar img, .sidebar-profile-avatar img, .sidebar-host-profile img').forEach(img => {
+                    img.src = newAvatarSrc;
+                });
+                
+                // 2. Actualizar nombre en sidebars si existe
+                const newNombre = document.querySelector('[name="nombre"]').value;
+                const newApellido = document.querySelector('[name="apellido"]').value;
+                const fullName = newNombre + ' ' + newApellido;
+                
+                document.querySelectorAll('.sidebar-user-name, .host-sidebar-name').forEach(el => {
+                    el.innerText = fullName;
+                });
+                
+                // 3. Reset estado de modificacion
+                initialProfileData = getProfileFormData();
+                fotoPerfilModificada = false;
+                
+                // 4. Cerrar modal manualmente
+                var modal = document.getElementById('profileModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                btn.innerText = originalText;
+                btn.disabled = false;
             });
         } else {
             Swal.fire({

@@ -14,15 +14,19 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Login | Estancias Digitales</title>
     <link rel="icon" type="image/png" href="recursos/img/logo_final.png?v=1">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="recursos/css/login.css">
+    <link rel="stylesheet" href="recursos/css/login.css?v=2">
+
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -57,10 +61,14 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
 
                 <!-- Login Form -->
                 <form class="auth-form" onsubmit="handleLogin(event)" autocomplete="off">
+                    <!-- Evitar autocompletado nativo engañando al navegador -->
+                    <input type="email" style="opacity: 0; position: absolute; z-index: -1; pointer-events: none;" autocomplete="username" />
+                    <input type="password" style="opacity: 0; position: absolute; z-index: -1; pointer-events: none;" autocomplete="current-password" />
+
                     <div class="form-group">
                         <label class="form-label">Correo electrónico</label>
                         <div class="input-wrapper">
-                            <input id="email" class="form-input" required type="email" autocomplete="off" />
+                            <input id="email" class="form-input" required type="email" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');" />
                             <span class="material-symbols-outlined input-icon">alternate_email</span>
                         </div>
                     </div>
@@ -68,10 +76,12 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
                     <div class="form-group">
                         <div class="form-label-row">
                             <label class="form-label">Contraseña</label>
-                            <a class="link-forgot" href="javascript:void(0)" onclick="abrirModalReset()">¿Olvidaste tu contraseña?</a>
+                            <a class="link-forgot" href="javascript:void(0)" onclick="abrirModalReset()">¿Olvidaste tu
+                                contraseña?</a>
                         </div>
                         <div class="input-wrapper">
-                            <input id="password" class="form-input" required type="password" autocomplete="new-password" />
+                            <input id="password" class="form-input" required type="password"
+                                autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" />
                             <span class="material-symbols-outlined input-icon">lock</span>
                         </div>
                     </div>
@@ -121,18 +131,24 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
                 <span class="material-symbols-outlined">close</span>
             </button>
             <h2 class="modal-title">Crear nueva cuenta</h2>
-            <p class="modal-subtitle">Regístrate como <span id="txtRolSeleccionado" class="role-highlight"></span> para continuar.</p>
+            <p class="modal-subtitle">Regístrate como <span id="txtRolSeleccionado" class="role-highlight"></span> para
+                continuar.</p>
 
             <form onsubmit="handleRegistro(event)" class="auth-form" autocomplete="off">
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label-sm">Nombre</label>
-                        <input id="regNombre" required class="form-input-sm" autocomplete="off" />
+                        <input id="regNombre" required pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" class="form-input-sm" autocomplete="off" />
                     </div>
                     <div class="form-group">
                         <label class="form-label-sm">Apellido</label>
-                        <input id="regApellido" required class="form-input-sm" autocomplete="off" />
+                        <input id="regApellido" required pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" class="form-input-sm" autocomplete="off" />
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-sm">Fecha de nacimiento</label>
+                    <input id="regFechaNac" type="date" required class="form-input-sm" autocomplete="off" />
                 </div>
 
                 <div class="form-group">
@@ -142,7 +158,8 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
 
                 <div class="form-group">
                     <label class="form-label-sm">Contraseña</label>
-                    <input id="regPassword" type="password" required class="form-input-sm" autocomplete="new-password" />
+                    <input id="regPassword" type="password" required class="form-input-sm"
+                        autocomplete="new-password" />
                 </div>
 
                 <div id="regAlert" class="form-alert" style="display:none;"></div>
@@ -169,7 +186,8 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
 
                 <div class="form-group">
                     <label class="form-label-sm">Nueva contraseña</label>
-                    <input id="resetPassword" type="password" required class="form-input-sm" autocomplete="new-password" />
+                    <input id="resetPassword" type="password" required class="form-input-sm"
+                        autocomplete="new-password" />
                 </div>
 
                 <div id="resetAlert" class="form-alert" style="display:none;"></div>
@@ -184,7 +202,7 @@ if (isset($_SESSION['idUsuario']) && isset($_SESSION['rol'])) {
         <div class="blob blob-2"></div>
     </div>
 
-    <script src="./recursos/js/auth/auth.js"></script>
+    <script src="./recursos/js/auth/auth.js?v=2"></script>
 </body>
 
 </html>

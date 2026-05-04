@@ -8,6 +8,7 @@ header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+
     // 1. Extraer y validar datos
     require_once '../../datos/auth/login.php';
 
@@ -18,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode($resultado);
 
 } else {
+    http_response_code(405);
     echo json_encode([
         'error' => 'Metodo no permitido o datos invalidos.'
     ]);
-    http_response_code(405);
 }

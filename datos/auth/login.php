@@ -6,9 +6,19 @@ $contrasenia = trim($_POST['contrasenia'] ?? '');
 $rol = trim($_POST['rol'] ?? '');
 
 // Validaciones básicas
+$rolesPermitidos = ['admin', 'huesped', 'anfitrion'];
+
 if (empty($correo) || empty($contrasenia) || empty($rol)) {
     echo json_encode([
         'error' => 'Por favor, completa todos los campos correctamente.'
+    ]);
+    http_response_code(400);
+    exit;
+}
+
+if (!in_array(strtolower($rol), $rolesPermitidos)) {
+    echo json_encode([
+        'error' => 'El rol proporcionado no es válido.'
     ]);
     http_response_code(400);
     exit;

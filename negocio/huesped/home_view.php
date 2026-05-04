@@ -2,7 +2,11 @@
 // negocio/huesped/home_view.php
 
 function getHomeCategories($conexion) {
-    $sqlCats = "SELECT MIN(idTipoPropiedad) as id, vNombreCategoria FROM tbl_tipo_propiedad WHERE bEstado = 1 GROUP BY vNombreCategoria ORDER BY vNombreCategoria ASC";
+    $sqlCats = "SELECT DISTINCT tp.vNombreCategoria 
+                FROM tbl_tipo_propiedad tp
+                JOIN tbl_propiedad p ON p.idTipoPropiedad = tp.idTipoPropiedad
+                WHERE tp.bEstado = 1 
+                ORDER BY tp.vNombreCategoria ASC";
     $resCats = $conexion->query($sqlCats);
     $categorias = [];
     while ($cat = $resCats->fetch_assoc()) {
@@ -14,7 +18,7 @@ function getHomeCategories($conexion) {
 function getHomeProperties($ubicacion, $huespedes, $fechaInicio, $fechaFin, $categoriaSeleccionada, $conexion) {
     // Construir la consulta base
     $sql = "SELECT p.*, 
-                   (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad LIMIT 1) as imagen,
+                   (SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = p.idPropiedad ORDER BY idImagen ASC LIMIT 1) as imagen,
                    (SELECT COALESCE(AVG(iCalificacion), 0.0) FROM tbl_resenia WHERE idPropiedad = p.idPropiedad) as promedio_rating,
                    ci.vNombreCiudad as ciudad, pa.vNombrePais as pais, tp.vNombreCategoria as tipo
             FROM tbl_propiedad p

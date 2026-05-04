@@ -13,6 +13,7 @@ $totalIngresos = getHostIngresos($idHost, $conexion);
     <meta charset="UTF-8">
     <title>Mis Propiedades | Modo Anfitrión</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
+    <link rel="stylesheet" href="../../recursos/css/main.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
     <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
     <link rel="stylesheet" href="../../recursos/css/anfitrion/host_main.css">
@@ -21,32 +22,13 @@ $totalIngresos = getHostIngresos($idHost, $conexion);
 </head>
 <body class="host-body">
     <div class="host-wrapper">
-        <aside class="sidebar-host">
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <div class="host-logo-box">
-                    <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-house-laptop"></i>
-                        Estancias Digitales
-                    </h2>
-                    <p>Modo Anfitrión</p>
-                </div>
-                
-                <nav class="side-nav-host">
-                    <li class="side-nav-item" onclick="window.location.href='dashboard.php'"><i class="fa-solid fa-house"></i> Inicio</li>
-                    <li class="side-nav-item active" onclick="window.location.href='propiedades.php'"><i class="fa-solid fa-building"></i> Propiedades</li>
-                    <li class="side-nav-item" onclick="window.location.href='calendario.php'"><i class="fa-solid fa-calendar-days"></i> Calendario</li>
-                    <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
-                </nav>
-            </div>
-
-
-        </aside>
+        <?php include '../../recursos/sidebar-host.php'; ?>
 
         <!-- Main Content -->
         <main class="host-content-main">
             <?php include '../../recursos/navbar.php'; ?>
             
-            <div style="padding: 2.5rem 4rem; max-width: 1600px; margin: 0 auto;">
+            <div class="host-dashboard-container">
                 <header style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <div>
                         <h1 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 0.5rem;">Mis Propiedades</h1>
@@ -70,16 +52,18 @@ $totalIngresos = getHostIngresos($idHost, $conexion);
                 <!-- Filters & View Toggle -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem;">
                     <div style="display: flex; gap: 1rem;">
-                        <div class="filter-dropdown" style="background: #f1f5f9; padding: 0.75rem 1.5rem; border-radius: 12px; font-size: 13px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 1rem;">
-                            Tipo: <span style="color: #64748b; font-weight: 500;">Todos</span> <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
-                        </div>
-                        <div class="filter-dropdown" style="background: #f1f5f9; padding: 0.75rem 1.5rem; border-radius: 12px; font-size: 13px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 1rem;">
-                            Estado: <span style="color: #64748b; font-weight: 500;">Todos</span> <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
+                        <div class="filter-dropdown" id="containerFilterType" style="position: relative; background: #f1f5f9; padding: 0.75rem 1.5rem; border-radius: 12px; font-size: 13px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                            Tipo: <span id="currentTypeLabel" style="color: #64748b; font-weight: 500;">Todos</span> <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
+                            
+                            <!-- Dropdown Menu -->
+                            <div id="menuTipos" style="display: none; position: absolute; top: 110%; left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; min-width: 180px; padding: 0.5rem;">
+                                <div class="tipo-option" data-id="all" style="padding: 0.6rem 1rem; border-radius: 8px; transition: background 0.2s; cursor: pointer; font-weight: 500;">Todos</div>
+                            </div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1rem; font-size: 1.1rem; color: #94a3b8;">
-                        <i class="fa-solid fa-grip" style="color: var(--primary); cursor: pointer;"></i>
-                        <i class="fa-solid fa-list" style="cursor: pointer;"></i>
+                    <div style="display: flex; gap: 1.25rem; font-size: 1.15rem; color: #94a3b8; align-items: center;">
+                        <i class="fa-solid fa-grip view-toggle-btn active" id="btnViewGrid" title="Vista Cuadrícula"></i>
+                        <i class="fa-solid fa-list view-toggle-btn" id="btnViewList" title="Vista Lista"></i>
                     </div>
                 </div>
 

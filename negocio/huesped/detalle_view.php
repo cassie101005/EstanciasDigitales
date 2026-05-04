@@ -2,9 +2,13 @@
 require_once '../../datos/conexion.php';
 
 function getPropertyDetail($idPropiedad, $conexion) {
-    $sql = "SELECT p.*, u.vNombre as hostNombre, u.vApellido as hostApellido, 
-                   tp.vNombreCategoria as tipo, ci.vNombreCiudad as ciudad, 
-                   es.vNombreEstado as estado, pa.vNombrePais as pais
+    $sql = "SELECT p.*, 
+                   u.vNombre as hostNombre, u.vApellido as hostApellido, u.vFoto as hostFoto,
+                   tp.vNombreCategoria as tipo,
+                   ci.vNombreCiudad as ciudad,
+                   es.vNombreEstado as estado,
+                   pa.vNombrePais as pais,
+                   p.vDireccion as direccion
             FROM tbl_propiedad p
             JOIN tbl_usuarios u ON p.idUsuario = u.idUsuario
             LEFT JOIN tbl_tipo_propiedad tp ON p.idTipoPropiedad = tp.idTipoPropiedad
@@ -48,6 +52,38 @@ function getPropertyServices($idPropiedad, $conexion) {
     return $services;
 }
 
+function getPropertyReglas($idPropiedad, $conexion) {
+    $sql = "SELECT r.vNombreRegla 
+            FROM tbl_propiedad_regla pr
+            JOIN tbl_reglas r ON pr.idRegla = r.idRegla
+            WHERE pr.idPropiedad = ?";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("i", $idPropiedad);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $reglas = [];
+    while ($row = $res->fetch_assoc()) {
+        $reglas[] = $row['vNombreRegla'];
+    }
+    return $reglas;
+}
+
+function getPropertyPoliticas($idPropiedad, $conexion) {
+    $sql = "SELECT p.vNombrePol 
+            FROM tbl_propiedad_politica pp
+            JOIN tbl_politicas p ON pp.idPolitica = p.idPolitica
+            WHERE pp.idPropiedad = ?";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("i", $idPropiedad);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $politicas = [];
+    while ($row = $res->fetch_assoc()) {
+        $politicas[] = $row['vNombrePol'];
+    }
+    return $politicas;
+}
+
 function getPropertyResenias($idPropiedad, $conexion) {
     $sqlResenias = "SELECT * FROM (
                         SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha,
@@ -85,19 +121,59 @@ function getPropertyResenias($idPropiedad, $conexion) {
 }
 
 function getReservedDates($idPropiedad, $conexion) {
-    $sqlReserved = "SELECT dtFechaInicio, dtFechaFin FROM tbl_reserva WHERE idPropiedad = ? AND vEstatus NOT IN ('Cancelada')";
+    $reservedDates = [];
+    
+    // 1. Reservas activas
+    $sqlReserved = "SELECT dtFechaInicio, dtFechaFin FROM tbl_reserva 
+                    WHERE idPropiedad = ? 
+                    AND vEstatus NOT IN ('Cancelada', 'Cancelado', 'CANCELADA', 'CANCELADO')";
     $stmtReserved = $conexion->prepare($sqlReserved);
     $stmtReserved->bind_param("i", $idPropiedad);
     $stmtReserved->execute();
     $resReserved = $stmtReserved->get_result();
-    $reservedDates = [];
     while ($row = $resReserved->fetch_assoc()) {
         $reservedDates[] = [
-            'start' => $row['dtFechaInicio'],
-            'end' => $row['dtFechaFin']
+            'start' => date('Y-m-d', strtotime($row['dtFechaInicio'])),
+            'end' => date('Y-m-d', strtotime($row['dtFechaFin'])),
+            'tipo' => 'reserva'
         ];
     }
+    
+    // 2. Bloqueos administrativos
+    $sqlBlocked = "SELECT dtFechaInicio, dtFechaFin FROM tbl_disponibilidad_administrativa_propiedad 
+                   WHERE idPropiedad = ? AND bEstado = 1";
+    $stmtBlocked = $conexion->prepare($sqlBlocked);
+    $stmtBlocked->bind_param("i", $idPropiedad);
+    $stmtBlocked->execute();
+    $resBlocked = $stmtBlocked->get_result();
+    while ($row = $resBlocked->fetch_assoc()) {
+        $reservedDates[] = [
+            'start' => date('Y-m-d', strtotime($row['dtFechaInicio'])),
+            'end' => date('Y-m-d', strtotime($row['dtFechaFin'])),
+            'tipo' => 'bloqueo'
+        ];
+    }
+    
     return $reservedDates;
+}
+
+function getSpecialRates($idPropiedad, $conexion) {
+    $sql = "SELECT dtFechaInicio, dtFechaFin, dPrecioNoche 
+            FROM tbl_tarifa_propiedad 
+            WHERE idPropiedad = ? AND bEstado = 1";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("i", $idPropiedad);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $rates = [];
+    while ($row = $res->fetch_assoc()) {
+        $rates[] = [
+            'start' => $row['dtFechaInicio'],
+            'end' => $row['dtFechaFin'],
+            'precio' => $row['dPrecioNoche']
+        ];
+    }
+    return $rates;
 }
 
 function checkUserCalifico($idPropiedad, $idUsuario, $conexion) {

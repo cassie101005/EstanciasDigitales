@@ -28,11 +28,12 @@ class QueriesCalendario {
     public function obtenerEventosPropiedad($idPropiedad, $anio, $mes) {
         $eventos = [];
         
-        // Reservas
+        // Reservas (Excluimos las canceladas)
         $sqlRes = "SELECT r.idReserva, r.dtFechaInicio, r.dtFechaFin, r.dTotalReserva, u.vNombre as nombreHuesped
                    FROM tbl_reserva r
                    JOIN tbl_usuarios u ON u.idUsuario = r.idUsuario
                    WHERE r.idPropiedad = ? 
+                   AND LOWER(r.vEstatus) NOT LIKE '%cancel%'
                    AND (YEAR(r.dtFechaInicio) = ? OR YEAR(r.dtFechaFin) = ?)
                    AND (MONTH(r.dtFechaInicio) = ? OR MONTH(r.dtFechaFin) = ?)";
         $stmtRes = $this->conexion->prepare($sqlRes);
@@ -76,13 +77,52 @@ class QueriesCalendario {
     }
     
     /**
+     * Obtener tarifas especiales de una propiedad
+     */
+    public function obtenerTarifasPropiedad($idPropiedad, $anio, $mes) {
+        $tarifas = [];
+        $sql = "SELECT idTarifaPropiedad, dtFechaInicio, dtFechaFin, dPrecioNoche
+                FROM tbl_tarifa_propiedad
+                WHERE idPropiedad = ? AND bEstado = 1
+                AND (YEAR(dtFechaInicio) = ? OR YEAR(dtFechaFin) = ?)
+                AND (MONTH(dtFechaInicio) = ? OR MONTH(dtFechaFin) = ?)";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("iiiii", $idPropiedad, $anio, $anio, $mes, $mes);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        
+        while ($f = $res->fetch_assoc()) {
+            $tarifas[] = [
+                'id' => $f['idTarifaPropiedad'],
+                'inicio' => date('Y-m-d', strtotime($f['dtFechaInicio'])),
+                'fin' => date('Y-m-d', strtotime($f['dtFechaFin'])),
+                'precio' => $f['dPrecioNoche']
+            ];
+        }
+        return $tarifas;
+    }
+    
+    /**
      * Validar solapamiento con reservas existentes
      */
     public function validarSolapamientoReservas($idPropiedad, $fechaInicio, $fechaFin) {
         $sql = "SELECT idReserva FROM tbl_reserva 
                 WHERE idPropiedad = ? 
-                AND dtFechaInicio <= ? AND dtFechaFin >= ?
-                AND vEstatus NOT IN ('Cancelada', 'CANCELADA', 'Cancelado', 'CANCELADO')";
+                AND dtFechaInicio < ? AND dtFechaFin > ?
+                AND LOWER(vEstatus) NOT LIKE '%cancel%'";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    /**
+     * Validar solapamiento con bloqueos existentes
+     */
+    public function validarSolapamientoBloqueos($idPropiedad, $fechaInicio, $fechaFin) {
+        $sql = "SELECT idDisponibilidad FROM tbl_disponibilidad_administrativa_propiedad
+                WHERE idPropiedad = ? AND bEstado = 1
+                AND dtFechaInicio < ? AND dtFechaFin > ?";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
         $stmt->execute();
@@ -96,6 +136,22 @@ class QueriesCalendario {
         $sql = "INSERT INTO tbl_disponibilidad_administrativa_propiedad (idPropiedad, dtFechaInicio, dtFechaFin, bEstado, vMotivo) VALUES (?, ?, ?, 1, ?)";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("isss", $idPropiedad, $fechaInicio, $fechaFin, $motivo);
+        return $stmt->execute();
+    }
+
+    /**
+     * Insertar tarifa especial
+     */
+    public function insertarTarifa($idPropiedad, $fechaInicio, $fechaFin, $precio) {
+        // Primero desactivamos tarifas previas que se solapen (opcional, o simplemente permitimos la nueva)
+        $sqlDeact = "UPDATE tbl_tarifa_propiedad SET bEstado = 0 WHERE idPropiedad = ? AND dtFechaInicio < ? AND dtFechaFin > ?";
+        $stmtD = $this->conexion->prepare($sqlDeact);
+        $stmtD->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
+        $stmtD->execute();
+
+        $sql = "INSERT INTO tbl_tarifa_propiedad (idPropiedad, dtFechaInicio, dtFechaFin, dPrecioNoche, bEstado) VALUES (?, ?, ?, ?, 1)";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("isss", $idPropiedad, $fechaInicio, $fechaFin, $precio);
         return $stmt->execute();
     }
     

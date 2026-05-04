@@ -27,9 +27,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('capacidadHuespedes').value = p.iCapacidadHuespedes;
         document.getElementById('numeroHabitaciones').value = p.iNumeroHabitaciones;
         document.getElementById('numeroBanos').value = p.iNumeroBanos;
-        document.getElementById('direccion').value = p.vDireccion;
+        document.getElementById('direccion').value = p.vDireccion || '';
         document.getElementById('descripcion').value = p.vDescripcion || '';
-        document.getElementById('especificaciones').value = p.vEspecificaciones || '';
 
         // Ubicación
         document.getElementById('idPais').value = p.idPais;
@@ -97,6 +96,69 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(d.ok) btn.closest('.img-edit-card').remove();
     };
 
+    // --- Protección contra cambios no guardados ---
+    let formModificado = false;
+    form.addEventListener('input', () => formModificado = true);
+    form.addEventListener('change', () => formModificado = true);
+
+    // Función para manejar navegación segura
+    const navegacionSegura = (url) => {
+        if (formModificado) {
+            Swal.fire({
+                title: '¿Deseas guardar los cambios?',
+                text: "Tienes cambios sin guardar en tu propiedad.",
+                icon: 'warning',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'Guardar ahora',
+                denyButtonText: 'No guardar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: 'var(--primary)',
+                denyButtonColor: '#64748b',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Simular clic en guardar y luego navegar
+                    form.requestSubmit();
+                } else if (result.isDenied) {
+                    formModificado = false;
+                    window.location.href = url;
+                }
+            });
+        } else {
+            window.location.href = url;
+        }
+    };
+
+    // Sobrescribir clics en el sidebar
+    document.querySelectorAll('.side-nav-item').forEach(item => {
+        const originalOnClick = item.getAttribute('onclick');
+        if (originalOnClick && originalOnClick.includes('window.location.href')) {
+            const url = originalOnClick.match(/'([^']+)'/)[1];
+            item.removeAttribute('onclick');
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                navegacionSegura(url);
+            });
+        }
+    });
+
+    // Manejar botón Cancelar
+    const btnCancelar = document.querySelector('.np-btn-cancel');
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', (e) => {
+            e.preventDefault();
+            navegacionSegura('propiedades.php');
+        });
+    }
+
+    // Browser level
+    window.addEventListener('beforeunload', (e) => {
+        if (formModificado) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
     // --- Envío de Formulario ---
     form.onsubmit = async (e) => {
         e.preventDefault();
@@ -116,34 +178,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.set('politicas', JSON.stringify(pols));
 
         try {
-            // 1. Actualizar datos
-            const res = await fetch('../../apis/anfitrion/editar_propiedad.php?accion=actualizar', {
+            const response = await fetch('../../apis/anfitrion/editar_propiedad.php?accion=actualizar', {
                 method: 'POST',
                 body: formData
             });
-            const data = await res.json();
+
+            const text = await response.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                throw new Error("La respuesta del servidor no es un JSON válido.");
+            }
 
             if (data.ok) {
-                // 2. Subir nuevas imágenes si hay
+                // Subir nuevas imágenes si hay
                 if (fileInput.files.length > 0) {
                     const fdImgs = new FormData();
                     fdImgs.append('idPropiedad', idPropiedad);
                     for (let i = 0; i < fileInput.files.length; i++) {
                         fdImgs.append('imagenes[]', fileInput.files[i]);
                     }
-                    await fetch('../../apis/anfitrion/registrar_propiedad.php?accion=subir_imagenes', {
+                    await fetch('../../apis/anfitrion/editar_propiedad.php?accion=subir_imagenes', {
                         method: 'POST',
                         body: fdImgs
                     });
                 }
-                alert('Propiedad actualizada con éxito');
-                window.location.href = 'propiedades.php';
+                
+                formModificado = false; // Reset flag
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Propiedad actualizada correctamente',
+                    icon: 'success',
+                    confirmButtonColor: 'var(--primary)'
+                }).then(() => {
+                    window.location.href = 'propiedades.php';
+                });
+
             } else {
-                alert(data.error || 'Error al actualizar');
+                Swal.fire('Error', data.error || 'Error al actualizar', 'error');
             }
         } catch (err) {
             console.error(err);
-            alert('Error de conexión');
+            Swal.fire('Error', 'Error de conexión', 'error');
         } finally {
             btn.disabled = false;
             btn.innerText = 'Guardar Cambios';
@@ -191,9 +268,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const r = await fetch('../../apis/anfitrion/registrar_propiedad.php?accion=servicios');
         const d = await r.json();
         const cont = document.getElementById('contenedorServicios');
-        cont.innerHTML = '<h4>Servicios</h4>';
+        cont.innerHTML = '';
         d.servicios.forEach(s => {
-            cont.innerHTML += `<label class="np-check-item"><input type="checkbox" name="servicios[]" value="${s.idServicio}"> ${s.vNombreServicio}</label>`;
+            cont.innerHTML += `
+                <label class="checkbox-group">
+                    <input type="checkbox" name="servicios[]" value="${s.idServicio}"> ${s.vNombreServicio}
+                </label>
+            `;
         });
     }
 
@@ -201,9 +282,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const r = await fetch('../../apis/anfitrion/registrar_propiedad.php?accion=reglas');
         const d = await r.json();
         const cont = document.getElementById('contenedorReglas');
-        cont.innerHTML = '<h4>Reglas</h4>';
+        cont.innerHTML = '';
         d.reglas.forEach(r => {
-            cont.innerHTML += `<label class="np-check-item"><input type="checkbox" name="reglas[]" value="${r.idRegla}"> ${r.vNombreRegla}</label>`;
+            cont.innerHTML += `
+                <label class="checkbox-group">
+                    <input type="checkbox" name="reglas[]" value="${r.idRegla}"> ${r.vNombreRegla}
+                </label>
+            `;
         });
     }
 
@@ -211,9 +296,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const r = await fetch('../../apis/anfitrion/registrar_propiedad.php?accion=politicas');
         const d = await r.json();
         const cont = document.getElementById('contenedorPoliticas');
-        cont.innerHTML = '<h4>Políticas</h4>';
+        cont.innerHTML = '';
         d.politicas.forEach(p => {
-            cont.innerHTML += `<label class="np-check-item"><input type="checkbox" name="politicas[]" value="${p.idPolitica}"> ${p.vNombrePol}</label>`;
+            cont.innerHTML += `
+                <label class="checkbox-group">
+                    <input type="checkbox" name="politicas[]" value="${p.idPolitica}"> ${p.vNombrePol}
+                </label>
+            `;
         });
     }
 });

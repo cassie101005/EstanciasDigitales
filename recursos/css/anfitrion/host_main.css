@@ -1,8 +1,16 @@
 /* Host Dashboard Specific Components */
 .host-dashboard-container {
-    padding: 3rem 4rem;
-    display: block;
-    max-width: 100%;
+    padding: 2.5rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .host-dashboard-container {
+        padding: 1.5rem 1rem;
+    }
 }
 
 .host-top-header {
@@ -53,21 +61,28 @@
 /* Host Calendar Styles */
 .calendar-layout-grid {
     display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 3rem;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 2rem;
+    width: 100%;
+    min-width: 0;
 }
 
+/* Wrapper con scroll interno para el calendario */
 .calendar-main-box {
     background: white;
     border-radius: 2rem;
     padding: 3rem;
     border: 1px solid #f1f5f9;
+    overflow-x: auto;
+    min-width: 0;
 }
 
+/* El grid de días necesita un ancho mínimo para no comprimir celdas */
 .calendar-days-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     margin-top: 2rem;
+    min-width: 560px;
 }
 .cal-day-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-align: center; text-transform: uppercase; margin-bottom: 2rem; }
 
@@ -101,6 +116,44 @@
     border-radius: 1.5rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+/* ============================================================
+   CALENDARIO — RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+    .calendar-layout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cal-detail-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendar-main-box {
+        padding: 1.25rem;
+        border-radius: 1.25rem;
+    }
+
+    .cal-day-box {
+        height: 72px !important;
+        padding: 6px !important;
+        font-size: 12px;
+    }
+
+    .cal-legend {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 600px) {
+    .calendar-main-box {
+        padding: 1rem;
+    }
 }
 .event-item {
     display: flex; gap: 1rem; padding: 1rem; border-radius: 12px;
@@ -111,11 +164,57 @@
 
 /* Reviews */
 /* Property Cards Host */
+.view-toggle-btn {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.view-toggle-btn:hover { color: var(--primary); }
+.view-toggle-btn.active { color: var(--primary); }
+
 .host-prop-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
+}
+
+/* List View */
+.host-prop-grid.view-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.host-prop-grid.view-list .host-prop-card {
+    display: flex;
+    flex-direction: row;
+    height: 200px;
+    align-items: stretch;
+}
+.host-prop-grid.view-list .card-img-wrapper {
+    width: 300px;
+    height: 100%;
+    flex-shrink: 0;
+}
+.host-prop-grid.view-list .host-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+}
+.host-prop-grid.view-list .host-card-footer {
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .host-prop-grid.view-list .host-prop-card {
+        flex-direction: column;
+        height: auto;
+    }
+    .host-prop-grid.view-list .card-img-wrapper {
+        width: 100%;
+        height: 200px;
+    }
 }
 
 .host-prop-card {
@@ -255,16 +354,28 @@
 
 .reservation-list-item {
     background: white;
-    padding: 2rem 2.5rem;
-    border-radius: 1.5rem;
+    padding: 1.5rem 2rem;
+    border-radius: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
     border: 1px solid #f1f5f9;
     transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
-.reservation-list-item:hover { border-color: #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transform: translateX(4px); }
+.reservation-list-item:hover { 
+    border-color: #e2e8f0; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
+}
+
+/* Variante Host / Admin */
+.nav-huesped.nav-is-host {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 0 2rem;
+}
 
 /* Tables & Lists */
 .admin-table-container {

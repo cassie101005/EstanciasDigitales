@@ -15,12 +15,16 @@ function getPropertyPaymentDetails($idPropiedad, $conexion) {
 }
 
 function getPropertyMainImage($idPropiedad, $conexion) {
-    // Imagen principal
-    $sqlImg = "SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = ? LIMIT 1";
+    // Imagen principal (la primera subida)
+    $sqlImg = "SELECT vImagen FROM tbl_imagen_propiedad WHERE idPropiedad = ? ORDER BY idImagen ASC LIMIT 1";
     $stmtImg = $conexion->prepare($sqlImg);
     $stmtImg->bind_param("i", $idPropiedad);
     $stmtImg->execute();
     $imgRow = $stmtImg->get_result()->fetch_assoc();
     
-    return $imgRow ? $imgRow['vImagen'] : "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80";
+    if ($imgRow && !empty($imgRow['vImagen'])) {
+        return "../../" . str_replace(' ', '%20', $imgRow['vImagen']);
+    }
+
+    return "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80";
 }

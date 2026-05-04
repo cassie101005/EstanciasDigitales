@@ -1,5 +1,10 @@
 /* Guest/Marketplace Specific Styles */
 
+/* Forzar que SweetAlert2 siempre esté por encima de cualquier modal */
+.swal2-container {
+    z-index: 999999 !important;
+}
+
 /* Hero Section */
 .hero-section {
     height: 420px;
@@ -271,15 +276,47 @@
 }
 .res-img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-.status-badge-v2 {
+/* ============================================================
+   BADGE DE ESTADO — PILL DESIGN
+   ============================================================ */
+.reserva-status-badge {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 800;
-    color: white;
+    top: 14px;
+    left: 14px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    z-index: 2;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+}
+
+/* Variantes de color por estado */
+.reserva-status-badge.confirmada {
+    background: rgba(219, 234, 254, 0.92);
+    color: #2563eb;
+}
+
+.reserva-status-badge.cancelada {
+    background: rgba(254, 226, 226, 0.92);
+    color: #dc2626;
+}
+
+.reserva-status-badge.finalizada {
+    background: rgba(243, 244, 246, 0.92);
+    color: #4b5563;
+}
+
+.reserva-status-badge.en-curso {
+    background: rgba(220, 252, 231, 0.92);
+    color: #16a34a;
 }
 
 .res-content-box {
@@ -385,4 +422,68 @@
 @media (max-width: 1100px) {
     .payment-layout { grid-template-columns: 1fr; gap: 4rem; }
     .summary-sidebar-v2 { position: static; }
+}
+
+/* ============================================================
+   RESERVATION CARD — RESPONSIVE (≤ 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+    /* Card apilado verticalmente */
+    .res-card-v2 {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    /* Imagen ocupa 100% con altura controlada */
+    .res-img-box {
+        height: 220px;
+        border-radius: 14px;
+        width: 100%;
+    }
+
+    /* Contenido a ancho completo */
+    .res-content-box {
+        width: 100%;
+        padding-right: 0;
+        gap: 0.75rem;
+    }
+
+    /* Precio: quitar absolute, meterlo en flujo normal */
+    .res-price-abs {
+        position: static !important;
+        font-size: 1.6rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    /* Botones apilados a ancho completo */
+    .res-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .res-actions .btn,
+    .res-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Contenedor de reservas con padding lateral más compacto */
+    .reservation-container {
+        padding: 1.5rem 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .res-img-box {
+        height: 180px;
+    }
+
+    .res-card-v2 {
+        border-radius: 1rem;
+        padding: 1rem;
+    }
 }

@@ -29,6 +29,31 @@ class ReseniaNegocio {
         $stmt->bind_param("iiis", $idPropiedad, $idUsuario, $califFinal, $comentario);
 
         if ($stmt->execute()) {
+            $idResenia = $this->conexion->insert_id;
+            
+            // ── NOTIFICACIÓN AL ANFITRIÓN ──
+            require_once '../../negocio/utilidades/notificaciones.php';
+            $sqlHost = "SELECT p.idUsuario as idAnfitrion, p.vNombre as nombreProp, u.vNombre as guestNombre, u.vApellido as guestApellido 
+                        FROM tbl_propiedad p 
+                        JOIN tbl_usuarios u ON u.idUsuario = ? 
+                        WHERE p.idPropiedad = ?";
+            $qHost = $this->conexion->prepare($sqlHost);
+            $qHost->bind_param("ii", $idUsuario, $idPropiedad);
+            $qHost->execute();
+            $hostData = $qHost->get_result()->fetch_assoc();
+            
+            if ($hostData) {
+                $idAnfitrion = $hostData['idAnfitrion'];
+                $nombreProp  = $hostData['nombreProp'];
+                $nombreHuesped = $hostData['guestNombre'] . ' ' . $hostData['guestApellido'];
+                
+                $tituloHost = "Nueva reseña recibida";
+                $mensajeHost = $nombreHuesped . " ha dejado un comentario en '" . $nombreProp . "'.";
+                $urlHost = "presentacion/anfitrion/reservas.php#reseñas";
+                
+                registrarNotificacion($idAnfitrion, 'resena_recibida', $tituloHost, $mensajeHost, $urlHost, $idResenia);
+            }
+
             return ['ok' => true, 'mensaje' => 'Comentario guardado correctamente.'];
         }
 

@@ -29,6 +29,20 @@ if (isset($_SESSION['idUsuario'])) {
             }
         }
     }
+
+    // ── Contador de Notificaciones No Leídas ──
+    $unread_count = 0;
+    if (isset($_SESSION['idUsuario'])) {
+        $stmtCount = $conexion->prepare("SELECT COUNT(*) as total FROM tbl_notificaciones WHERE idUsuario = ? AND leida = 0");
+        if ($stmtCount) {
+            $stmtCount->bind_param("i", $_SESSION['idUsuario']);
+            $stmtCount->execute();
+            $resCount = $stmtCount->get_result();
+            if ($rowCount = $resCount->fetch_assoc()) {
+                $unread_count = $rowCount['total'];
+            }
+        }
+    }
 }
 ?>
 <nav class="nav-huesped <?php echo ($is_host || $is_admin) ? 'nav-is-host' : ''; ?>">
@@ -64,6 +78,9 @@ if (isset($_SESSION['idUsuario'])) {
         
         <div class="nav-icons-box" onclick="toggleNotificationsModal()" style="cursor: pointer; position: relative;">
             <i class="fa-regular fa-bell"></i>
+            <?php if ($unread_count > 0): ?>
+                <span class="nav-notif-badge"><?php echo $unread_count > 9 ? '9+' : $unread_count; ?></span>
+            <?php endif; ?>
         </div>
         <?php if (isset($_SESSION['idUsuario'])): ?>
             <div class="nav-profile-avatar" onclick="openProfileModal()" style="cursor:pointer;">
@@ -77,13 +94,66 @@ if (isset($_SESSION['idUsuario'])) {
     </div>
 </nav>
 
+<?php if (!$is_host && !$is_admin): ?>
+<!-- Bottom Navigation Móvil para Huésped -->
+<div class="mobile-bottom-nav">
+    <a href="<?php echo ($is_root ? "presentacion/huesped/" : ""); ?>home.php" class="bottom-nav-item <?php echo $current_page == 'home.php' ? 'active' : ''; ?>">
+        <i class="fa-solid fa-house"></i>
+        <span>Inicio</span>
+    </a>
+    <a href="<?php echo ($is_root ? "presentacion/huesped/" : ""); ?>reservas.php" class="bottom-nav-item <?php echo $current_page == 'reservas.php' ? 'active' : ''; ?>">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Reservas</span>
+    </a>
+    <div class="bottom-nav-item" onclick="openProfileModal()">
+        <i class="fa-solid fa-user-circle"></i>
+        <span>Perfil</span>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Overlay para cerrar sidebar en móvil -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeHostSidebar()"></div>
+
 <script>
 function toggleHostSidebar() {
     const sidebar = document.querySelector('.sidebar-host');
-    if (sidebar) {
-        sidebar.classList.toggle('mobile-active');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+
+    const isOpen = sidebar.classList.contains('mobile-active');
+    if (isOpen) {
+        sidebar.classList.remove('mobile-active');
+        overlay.classList.remove('active');
+    } else {
+        sidebar.classList.add('mobile-active');
+        overlay.classList.add('active');
     }
 }
+
+function closeHostSidebar() {
+    const sidebar = document.querySelector('.sidebar-host');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+    sidebar.classList.remove('mobile-active');
+    if (overlay) overlay.classList.remove('active');
+}
+
+// Cerrar con clic fuera del sidebar (sin necesidad de overlay)
+document.addEventListener('click', function (e) {
+    const sidebar = document.querySelector('.sidebar-host');
+    const toggleBtn = document.querySelector('.host-mobile-toggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar || !sidebar.classList.contains('mobile-active')) return;
+
+    const isClickInsideSidebar = sidebar.contains(e.target);
+    const isClickToggle = toggleBtn && toggleBtn.contains(e.target);
+
+    if (!isClickInsideSidebar && !isClickToggle) {
+        sidebar.classList.remove('mobile-active');
+        if (overlay) overlay.classList.remove('active');
+    }
+});
 </script>
 
 <?php include __DIR__ . '/user_profile_modal.php'; ?>

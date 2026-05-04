@@ -11,16 +11,52 @@
 .calendar-days-grid { gap: 0; border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 1rem; }
 .cal-day-label { background: white; padding: 1rem 0; margin-bottom: 0 !important; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
 .cal-day-label:last-child { border-right: none; }
-.cal-day-box { cursor: pointer; transition: all 0.2s; position: relative; border: none !important; border-right: 1px solid #e2e8f0 !important; border-bottom: 1px solid #e2e8f0 !important; }
-.cal-day-box:nth-child(7n) { border-right: none !important; }
-.cal-day-box:hover { background: #f8fafc; }
-.cal-day-box.not-current { background: #f8fafc; color: #94a3b8 !important; }
+/* Cursor y Estados de Disponibilidad */
+.cal-day-box.selectable:hover { background: #f8fafc; }
+.cal-day-box.selectable { cursor: pointer !important; }
+
+.cal-day-box.past,
+.cal-day-box.disabled {
+    cursor: not-allowed !important;
+    background: #fdfdfd !important;
+    opacity: 0.45;
+}
+
+.cal-day-box.reserved,
+.cal-day-box.blocked {
+    cursor: pointer !important; /* El anfitrión puede clickear para ver detalles */
+}
+
+/* Botones y elementos funcionales */
+button,
+a,
+.price-edit,
+#iconEditPrice,
+.btn-bloquear,
+.btn-cancelar,
+#propiedadSelect {
+    cursor: pointer !important;
+}
+
+.cal-day-box.not-current { background: #f8fafc; color: #94a3b8 !important; cursor: default !important; }
 .cal-day-box.selected { border: 2px solid var(--primary) !important; background: #f0f4ff; z-index: 10; }
 .cal-day-box.reserved { background: #eff6ff !important; color: var(--primary); }
-.cal-day-box.blocked { background: #f1f5f9 !important; color: #94a3b8; }
-.cal-day-box.blocked .price { color: #94a3b8; }
-.cal-day-box.reserved .price { font-weight: 700; }
+.cal-day-box.blocked { background: #f8fafc !important; color: #94a3b8; }
+.cal-day-box.blocked .price { color: #94a3b8; font-size: 9px; }
+.cal-day-box.reserved .price { font-weight: 700; font-size: 9px; }
 
-.price { display: block; font-size: 10px; margin-top: 5px; color: #64748b; }
+.price { display: block; font-size: 11px; margin-top: 5px; color: #64748b; font-weight: 500; }
 
-#propiedadSelect { border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--primary); outline: none; cursor: pointer; }
+#propiedadSelect { border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--primary); outline: none; }
+
+/* ==========================================================================
+   RESPONSIVE OVERRIDE — Calendario (host_main.css ya gestiona el layout)
+   ========================================================================== */
+
+/* Evitar que la página entera haga scroll horizontal */
+@media (max-width: 1024px) {
+    .host-dashboard-container {
+        overflow-x: hidden;
+    }
+}
+

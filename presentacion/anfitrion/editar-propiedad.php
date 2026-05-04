@@ -11,27 +11,19 @@ $idPropiedad = intval($_GET['id'] ?? 0);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Propiedad | Estancias Digitales</title>
     <link rel="stylesheet" href="../../recursos/css/variables.css">
+    <link rel="stylesheet" href="../../recursos/css/main.css">
     <link rel="stylesheet" href="../../recursos/css/layouts/shared.css">
+    <link rel="stylesheet" href="../../recursos/css/components/navbar.css">
+    <link rel="stylesheet" href="../../recursos/css/anfitrion/host_main.css">
     <link rel="stylesheet" href="../../recursos/css/anfitrion/nueva-propiedad.css">
+    <link rel="stylesheet" href="../../recursos/css/anfitrion/editar_propiedad.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="../../recursos/css/anfitrion/editar_propiedad.css">
 </head>
 <body class="host-body">
 
     <div class="host-wrapper">
-        <aside class="sidebar-host">
-            <div class="host-logo-box">
-                <h2><i class="fa-solid fa-house-laptop"></i> Estancias Digitales</h2>
-                <p>Modo Anfitrión</p>
-            </div>
-            <nav class="side-nav-host">
-                <li class="side-nav-item" onclick="window.location.href='dashboard.php'"><i class="fa-solid fa-house"></i> Inicio</li>
-                <li class="side-nav-item active" onclick="window.location.href='propiedades.php'"><i class="fa-solid fa-building"></i> Propiedades</li>
-                <li class="side-nav-item" onclick="window.location.href='calendario.php'"><i class="fa-solid fa-calendar-days"></i> Calendario</li>
-                <li class="side-nav-item" onclick="window.location.href='reservas.php'"><i class="fa-solid fa-receipt"></i> Reservas</li>
-            </nav>
-        </aside>
+        <?php include '../../recursos/sidebar-host.php'; ?>
 
         <main class="host-content-main">
             <header class="np-topbar">
@@ -134,10 +126,6 @@ $idPropiedad = intval($_GET['id'] ?? 0);
                             <label class="np-label">Resumen general</label>
                             <textarea id="descripcion" name="descripcion" class="np-textarea" rows="4"></textarea>
                         </div>
-                        <div class="np-form-group np-span-full">
-                            <label class="np-label">Especificaciones adicionales</label>
-                            <textarea id="especificaciones" name="especificaciones" class="np-textarea" rows="3"></textarea>
-                        </div>
                     </div>
 
                     <div class="np-section-card">
@@ -159,16 +147,47 @@ $idPropiedad = intval($_GET['id'] ?? 0);
                         <div class="np-preview-grid" id="previewContainer"></div>
                     </div>
 
+                    <!-- ── SECCIÓN: SERVICIOS ── -->
                     <div class="np-section-card">
                         <div class="np-section-header">
                             <span class="np-section-icon np-icon-teal"><i class="fa-solid fa-list-check"></i></span>
-                            <h2 class="np-section-title">Servicios, Reglas y Políticas</h2>
+                            <div>
+                                <h2 class="np-section-title">Servicios disponibles</h2>
+                                <p class="np-section-desc">Selecciona los amenities que ofrece la propiedad</p>
+                            </div>
                         </div>
-                        <div class="np-check-grid" id="contenedorServicios"></div>
-                        <hr style="margin: 1.5rem 0; opacity: 0.1;">
-                        <div class="np-check-grid" id="contenedorReglas"></div>
-                        <hr style="margin: 1.5rem 0; opacity: 0.1;">
-                        <div class="np-check-grid" id="contenedorPoliticas"></div>
+                        <div class="np-check-grid" id="contenedorServicios">
+                            <div class="np-check-skeleton"></div>
+                            <div class="np-check-skeleton"></div>
+                        </div>
+                    </div>
+
+                    <!-- ── SECCIÓN: REGLAS ── -->
+                    <div class="np-section-card">
+                        <div class="np-section-header">
+                            <span class="np-section-icon np-icon-red"><i class="fa-solid fa-shield-halved"></i></span>
+                            <div>
+                                <h2 class="np-section-title">Reglas de la propiedad</h2>
+                                <p class="np-section-desc">Define las normas de convivencia</p>
+                            </div>
+                        </div>
+                        <div class="np-check-grid" id="contenedorReglas">
+                            <div class="np-check-skeleton"></div>
+                        </div>
+                    </div>
+
+                    <!-- ── SECCIÓN: POLÍTICAS ── -->
+                    <div class="np-section-card">
+                        <div class="np-section-header">
+                            <span class="np-section-icon np-icon-indigo"><i class="fa-solid fa-file-contract"></i></span>
+                            <div>
+                                <h2 class="np-section-title">Políticas</h2>
+                                <p class="np-section-desc">Condiciones de reserva y cancelación</p>
+                            </div>
+                        </div>
+                        <div class="np-check-grid" id="contenedorPoliticas">
+                            <div class="np-check-skeleton"></div>
+                        </div>
                     </div>
 
                     <div class="np-form-actions">
@@ -180,6 +199,7 @@ $idPropiedad = intval($_GET['id'] ?? 0);
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../recursos/js/anfitrion/editar-propiedad.js"></script>
 </body>
 </html>

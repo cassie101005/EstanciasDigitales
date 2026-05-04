@@ -7,8 +7,14 @@ if ($accion === 'detalle') {
         echo json_encode(['error' => 'ID inválido.']);
         exit;
     }
-} else if ($accion !== 'listar') {
-    echo json_encode(['error' => 'Acción no reconocida.']);
+} else if ($accion === 'eliminar') {
+    $idPropiedad = intval($_GET['id'] ?? 0);
+    if ($idPropiedad <= 0) {
+        echo json_encode(['error' => 'ID inválido para eliminar.']);
+        exit;
+    }
+} else if ($accion !== 'listar' && $accion !== 'listar_tipos') {
+    echo json_encode(['error' => 'Acción no reconocida: ' . $accion]);
     exit;
 }
 ?>
