@@ -142,14 +142,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $accion === 'politicas') {
 // POST: GUARDAR PROPIEDAD
 // --------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
-    // Process Regla Extra if there is one
-    if (!empty($reglaExtra)) {
-        if ($queriesRegistro->insertarReglaPersonalizada($reglaExtra)) {
-            $reglas[] = $conexion->insert_id;
+    // 1. Validar imágenes (Mínimo 3 reales)
+    $imagenesValidas = 0;
+    $fotosAProcesar = [];
+    
+    if (isset($_FILES['imagenes']) && is_array($_FILES['imagenes']['name'])) {
+        foreach ($_FILES['imagenes']['name'] as $index => $nombreImg) {
+            if (!empty($nombreImg) && $_FILES['imagenes']['error'][$index] === UPLOAD_ERR_OK) {
+                $nombreLower = strtolower($nombreImg);
+                $placeholders = ['default.jpg', 'placeholder.jpg', 'sin-imagen.jpg', 'imagen-default.png', 'propiedad-default.png'];
+                if (!in_array($nombreLower, $placeholders)) {
+                    $imagenesValidas++;
+                    $fotosAProcesar[] = [
+                        'tmp' => $_FILES['imagenes']['tmp_name'][$index],
+                        'name' => $_FILES['imagenes']['name'][$index]
+                    ];
+                }
+            }
         }
     }
 
-    // Preparar datos para inserción
+    if ($imagenesValidas < 3) {
+        $resultado = [
+            'ok' => false,
+            'error' => 'Debes subir mínimo 3 fotos reales para registrar la propiedad.'
+        ];
+        return;
+    }
+
+    // 2. Insertar Propiedad
+    $idCiudad = intval($_POST['idCiudad'] ?? 0);
+    $idTipoPropiedad = intval($_POST['idTipoPropiedad'] ?? 0);
+    $nombre = htmlspecialchars(trim($_POST['nombre'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $direccion = htmlspecialchars(trim($_POST['direccion'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $precioNoche = floatval($_POST['precioNoche'] ?? 0);
+    $descripcion = htmlspecialchars(trim($_POST['descripcion'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $capacidadHuespedes = intval($_POST['capacidadHuespedes'] ?? 0);
+    $numeroHabitaciones = intval($_POST['numeroHabitaciones'] ?? 0);
+    $numeroBanos = intval($_POST['numeroBanos'] ?? 0);
+
+    $servicios = array_unique(json_decode($_POST['servicios'] ?? '[]', true) ?: []);
+    $reglas = array_unique(json_decode($_POST['reglas'] ?? '[]', true) ?: []);
+    $politicas = array_unique(json_decode($_POST['politicas'] ?? '[]', true) ?: []);
+
     $datosPropiedad = [
         'idCiudad' => $idCiudad,
         'idUsuario' => $idUsuario,
@@ -166,50 +201,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
     if ($queriesRegistro->insertarPropiedad($datosPropiedad)) {
         $idPropiedad = $conexion->insert_id;
 
-        // Insertar servicios
-        if (!empty($servicios)) {
-            foreach ($servicios as $idServicio) {
-                $queriesRegistro->insertarServicioPropiedad($idServicio, $idPropiedad);
-            }
-        }
+        // Insertar servicios, reglas, políticas
+        if (!empty($servicios)) foreach ($servicios as $idS) $queriesRegistro->insertarServicioPropiedad($idS, $idPropiedad);
+        if (!empty($reglas)) foreach ($reglas as $idR) $queriesRegistro->insertarReglaPropiedad($idR, $idPropiedad);
+        if (!empty($politicas)) foreach ($politicas as $idP) $queriesRegistro->insertarPoliticaPropiedad($idP, $idPropiedad);
 
-        // Insertar reglas
-        if (!empty($reglas)) {
-            foreach ($reglas as $idRegla) {
-                $queriesRegistro->insertarReglaPropiedad($idRegla, $idPropiedad);
-            }
-        }
+        // 3. Guardar Imágenes
+        $carpeta = '../../recursos/img/propiedades/';
+        if (!file_exists($carpeta)) mkdir($carpeta, 0777, true);
 
-        // Insertar políticas
-        if (!empty($politicas)) {
-            foreach ($politicas as $idPolitica) {
-                $queriesRegistro->insertarPoliticaPropiedad($idPolitica, $idPropiedad);
+        foreach ($fotosAProcesar as $foto) {
+            $nombreArchivo = time() . '_' . preg_replace("/[^a-zA-Z0-9._-]/", "_", $foto['name']);
+            $rutaDestino = $carpeta . $nombreArchivo;
+            $rutaGuardar = 'recursos/img/propiedades/' . $nombreArchivo;
+
+            if (move_uploaded_file($foto['tmp'], $rutaDestino)) {
+                $queriesRegistro->insertarImagenPropiedad($idPropiedad, $rutaGuardar);
             }
         }
 
         $resultado = [
             'ok' => true,
-            'mensaje' => 'Propiedad registrada correctamente.',
+            'mensaje' => 'Propiedad registrada con éxito.',
             'idPropiedad' => $idPropiedad
         ];
 
-        // ── NOTIFICAR A HUESPEDES ──
+        // Notificar
         require_once '../../negocio/utilidades/notificaciones.php';
-        $tituloNotif = "Nueva propiedad disponible: " . $nombre;
-        $mensajeNotif = "Descubre '" . $nombre . "' y reserva tu próxima estancia hoy mismo.";
-        $urlNotif = "presentacion/huesped/detalle.php?id=" . $idPropiedad;
-        notificarAHuespedes('propiedad', $tituloNotif, $mensajeNotif, $urlNotif, $idPropiedad);
+        notificarAHuespedes('propiedad', "Nueva propiedad: $nombre", "Descubre '$nombre' ahora.", "presentacion/huesped/detalle.php?id=$idPropiedad", $idPropiedad);
     } else {
-        $resultado = [
-            'error' => 'No se pudo registrar la propiedad.'
-        ];
+        $resultado = ['ok' => false, 'error' => 'No se pudo guardar la información básica de la propiedad.'];
     }
 }
 
-// --------------------
-// POST: SUBIR IMAGENES
-// --------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'subir_imagenes') {
+    if (!isset($_FILES['imagenes']['name']) || count($_FILES['imagenes']['name']) < 3) {
+        $resultado = [
+            'ok' => false,
+            'error' => 'Debes subir mínimo 3 fotos reales para registrar la propiedad.'
+        ];
+        return;
+    }
+
     $carpeta = '../../recursos/img/propiedades/';
 
     if (!file_exists($carpeta)) {

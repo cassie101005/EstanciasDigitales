@@ -37,8 +37,9 @@ async function procesarPago() {
     formData.append('idUsuario',   d.idUsuario);
     formData.append('fechaInicio', d.fechaInicio);
     formData.append('fechaFin',    d.fechaFin);
-    formData.append('total',       d.granTotal);
+    formData.append('montoTotal',  d.granTotal);
     formData.append('huespedes',   d.huespedes);
+    formData.append('csrf_token',  d.csrf_token);
 
     try {
         const response = await fetch('../../apis/huesped/guardar_reserva.php', {

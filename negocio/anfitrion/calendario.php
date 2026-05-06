@@ -48,6 +48,14 @@ else if ($accion === 'bloquear_fechas') {
         return;
     }
 
+    // Validar solapamiento con bloqueos existentes
+    $resultadoBloqueoExistente = $queriesCalendario->validarSolapamientoBloqueos($idPropiedad, $fechaInicio, $fechaFin);
+    if ($resultadoBloqueoExistente->num_rows > 0) {
+        http_response_code(409);
+        $resultado = ['error' => 'Ya existe un bloqueo administrativo en este rango de fechas.'];
+        return;
+    }
+
     // Insertar bloqueo
     if ($queriesCalendario->insertarBloqueo($idPropiedad, $fechaInicio, $fechaFin, $motivo)) {
         $resultado = ['ok' => true];

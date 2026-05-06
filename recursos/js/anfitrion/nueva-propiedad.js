@@ -233,6 +233,19 @@ async function guardarPropiedad(e) {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
     btn.disabled = true;
 
+    // Validar mínimo 3 imágenes antes de cualquier cosa
+    if (archivosImagenes.length < 3) {
+        Swal.fire({
+            title: 'Imágenes insuficientes',
+            text: 'Debes subir mínimo 3 fotos reales para registrar la propiedad.',
+            icon: 'warning',
+            confirmButtonColor: '#7C3AED'
+        });
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        return;
+    }
+
     // Recolectar datos del formulario
     const formData = new FormData(e.target);
     
@@ -245,6 +258,11 @@ async function guardarPropiedad(e) {
     formData.append('servicios', JSON.stringify(servicios));
     formData.append('reglas', JSON.stringify(reglas));
     formData.append('politicas', JSON.stringify(politicas));
+
+    // Enviar las imágenes también en la primera llamada para validación en backend
+    archivosImagenes.forEach(file => {
+        formData.append('imagenes[]', file);
+    });
 
     try {
         const res = await fetch('../../apis/anfitrion/registrar_propiedad.php', {
@@ -264,21 +282,6 @@ async function guardarPropiedad(e) {
         if (data.ok) {
             const idPropiedad = data.idPropiedad;
 
-            if (archivosImagenes.length > 0) {
-                const imgData = new FormData();
-                imgData.append('accion', 'subir_imagenes');
-                imgData.append('idPropiedad', idPropiedad);
-
-                archivosImagenes.forEach(file => {
-                    imgData.append('imagenes[]', file);
-                });
-
-                await fetch('../../apis/anfitrion/registrar_propiedad.php', {
-                    method: 'POST',
-                    body: imgData
-                });
-            }
-            
             formularioGuardado = true;
             Swal.fire({
                 title: '¡Éxito!',

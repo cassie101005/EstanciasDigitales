@@ -16,6 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once '../../negocio/auth/login.php';
 
     // 4. Retornar resultados en formato JSON
+    if (isset($resultado['error'])) {
+        if (strpos($resultado['error'], 'bloqueada') !== false) {
+            http_response_code(423); // Locked
+        } elseif (strpos($resultado['error'], 'incorrecta') !== false || strpos($resultado['error'], 'no existe') !== false) {
+            http_response_code(401); // Unauthorized
+        } else {
+            http_response_code(400); // Bad Request
+        }
+    }
     echo json_encode($resultado);
 
 } else {

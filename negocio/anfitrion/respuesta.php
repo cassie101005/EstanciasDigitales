@@ -2,9 +2,41 @@
 require_once '../../datos/conexion.php';
 require_once '../../negocio/utilidades/seguridad.php';
 
-// Protección
+// 0. Validar CSRF
+if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    $resultado = ['ok' => false, 'error' => 'Error de seguridad (CSRF).'];
+    return;
+}
+
+// Protección inicial
 if (!isset($id) || !isset($tipo) || !isset($respuesta)) {
     $resultado = ['ok' => false, 'error' => 'Acceso no permitido'];
+    return;
+}
+
+// 1. Validar propiedad del comentario/reseña (IDOR Protection)
+$tabla = ($tipo === 'comentario') ? 'tbl_comentarios' : 'tbl_resenia';
+$colId = ($tipo === 'comentario') ? 'idComentario' : 'idResenia';
+
+$sqlCheck = "SELECT p.idUsuario 
+             FROM $tabla c 
+             JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad 
+             WHERE c.$colId = ?";
+$stmtCheck = $conexion->prepare($sqlCheck);
+$stmtCheck->bind_param("i", $id);
+$stmtCheck->execute();
+$resCheck = $stmtCheck->get_result()->fetch_assoc();
+
+if (!$resCheck) {
+    http_response_code(404);
+    $resultado = ['ok' => false, 'error' => 'Registro no encontrado.'];
+    return;
+}
+
+if ((int)$resCheck['idUsuario'] !== (int)($_SESSION['idUsuario'] ?? 0)) {
+    http_response_code(403);
+    $resultado = ['ok' => false, 'error' => 'No tienes permiso para responder a esta reseña.'];
     return;
 }
 
@@ -20,9 +52,6 @@ if (!in_array($tipo, $tiposPermitidos, true)) {
     $resultado = ['ok' => false, 'error' => 'Tipo no válido'];
     return;
 }
-
-$tabla = ($tipo === 'comentario') ? 'tbl_comentarios' : 'tbl_resenia';
-$colId = ($tipo === 'comentario') ? 'idComentario' : 'idResenia';
 
 $sql = "UPDATE $tabla SET vRespuesta = ?, dtFechaRespuesta = NOW() WHERE $colId = ?";
 $stmt = $conexion->prepare($sql);

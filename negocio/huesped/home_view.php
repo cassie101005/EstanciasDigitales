@@ -55,17 +55,29 @@ function getHomeProperties($ubicacion, $huespedes, $fechaInicio, $fechaFin, $cat
 
     // Filtrar por fechas (disponibilidad)
     if ($fechaInicio !== '' && $fechaFin !== '') {
-        $sql .= " AND p.idPropiedad NOT IN (
-                    SELECT idPropiedad FROM tbl_reserva 
-                    WHERE (dtFechaInicio < ? AND dtFechaFin > ?)
-                  )
-                  AND p.idPropiedad NOT IN (
-                    SELECT idPropiedad FROM tbl_disponibilidad_administrativa_propiedad
-                    WHERE bEstado = 1 AND (dtFechaInicio < ? AND dtFechaFin > ?)
-                  )";
-        $params[] = $fechaFin; $params[] = $fechaInicio;
-        $params[] = $fechaFin; $params[] = $fechaInicio;
-        $types .= "ssss";
+        $valida = true;
+        $hoy = date('Y-m-d');
+        if ($fechaInicio < $hoy) $valida = false;
+        if ($fechaFin <= $fechaInicio) $valida = false;
+
+        if ($valida) {
+            $sql .= " AND p.idPropiedad NOT IN (
+                        SELECT idPropiedad FROM tbl_reserva 
+                        WHERE vEstatus NOT IN ('Cancelada', 'Cancelado', 'CANCELADA', 'CANCELADO')
+                        AND dtFechaInicio < ? AND dtFechaFin > ?
+                      )
+                      AND p.idPropiedad NOT IN (
+                        SELECT idPropiedad FROM tbl_disponibilidad_administrativa_propiedad
+                        WHERE bEstado = 1 AND (dtFechaInicio < ? AND dtFechaFin > ?)
+                      )";
+            $params[] = $fechaFin; $params[] = $fechaInicio;
+            $params[] = $fechaFin; $params[] = $fechaInicio;
+            $types .= "ssss";
+        } else {
+            // Si las fechas son inválidas, reseteamos para que no afecten el desglose visual
+            $fechaInicio = '';
+            $fechaFin = '';
+        }
     }
 
     $sql .= " ORDER BY p.dtFechaRegistro DESC";

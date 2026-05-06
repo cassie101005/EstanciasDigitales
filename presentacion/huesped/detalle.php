@@ -2,6 +2,7 @@
 require_once '../../negocio/auth/verificar_sesion.php';
 validarSesion('huesped', '../../');
 require_once '../../datos/conexion.php';
+require_once '../../negocio/utilidades/seguridad.php';
 
 // Obtener ID de la propiedad
 $idPropiedad = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -121,7 +122,7 @@ if (isset($_SESSION['idUsuario'])) {
                         </div>
                         <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--primary);">
                             <?php if (!empty($prop['hostFoto'])): ?>
-                                <img src="../../<?php echo htmlspecialchars($prop['hostFoto']); ?>" 
+                                <img src="../../<?php echo str_replace(' ', '%20', htmlspecialchars($prop['hostFoto'])); ?>" 
                                      alt="<?php echo htmlspecialchars($prop['hostNombre']); ?>"
                                      style="width: 100%; height: 100%; object-fit: cover;">
                             <?php else: ?>
@@ -191,6 +192,7 @@ if (isset($_SESSION['idUsuario'])) {
                     <div id="formReseniaBox" style="position: relative; z-index: 5; background: white; border: 1px solid #eee; padding: 2rem; border-radius: 1.5rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 800px;">
                         <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">Deja tu opinión</h3>
                         <form id="formResenia" style="position: relative; z-index: 10;">
+                            <input type="hidden" name="csrf_token" value="<?php echo generarTokenCSRF(); ?>">
                             <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
                             <input type="hidden" name="idResenia" id="inputIdResenia" value="0">
                             
@@ -284,6 +286,7 @@ if (isset($_SESSION['idUsuario'])) {
 
             <aside>
                 <form action="pago.php" method="POST" id="reservationForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo generarTokenCSRF(); ?>">
                     <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
                     <input type="hidden" name="precioNoche" id="precioNocheInput" value="<?php echo $prop['dPrecioNoche']; ?>">
                     <input type="hidden" name="total" id="totalInput" value="0">

@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const fd = new FormData();
         fd.append('idImagen', idImg);
         fd.append('idPropiedad', idPropiedad);
+        fd.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
         const r = await fetch('../../apis/anfitrion/editar_propiedad.php?accion=eliminar_imagen', { method: 'POST', body: fd });
         const d = await r.json();
         if(d.ok) btn.closest('.img-edit-card').remove();
@@ -196,6 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (fileInput.files.length > 0) {
                     const fdImgs = new FormData();
                     fdImgs.append('idPropiedad', idPropiedad);
+                    fdImgs.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
                     for (let i = 0; i < fileInput.files.length; i++) {
                         fdImgs.append('imagenes[]', fileInput.files[i]);
                     }

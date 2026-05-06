@@ -7,10 +7,18 @@ if (!isset($idPropiedad) || !isset($idUsuario) || !isset($fechaInicio) || !isset
     return;
 }
 
-require_once '../../negocio/utilidades/calculadora_precios.php';
+require_once '../../negocio/utilidades/seguridad.php';
+
+// 0. Validar CSRF
+if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    $resultado = ['ok' => false, 'mensaje' => 'Error de seguridad (CSRF). Por favor, recarga la página e intenta de nuevo.'];
+    return;
+}
 
 // 1. Validar disponibilidad real en BD (Doble verificación)
 if (!validarDisponibilidad($idPropiedad, $fechaInicio, $fechaFin, $conexion)) {
+    http_response_code(400);
     $resultado = ['ok' => false, 'mensaje' => 'Lo sentimos, estas fechas ya no están disponibles. Alguien más pudo haber reservado mientras realizabas el pago.'];
     return;
 }
@@ -23,6 +31,7 @@ $resCap = $stmtCap->get_result()->fetch_assoc();
 $capacidadMax = $resCap['iCapacidadHuespedes'] ?? 0;
 
 if ($huespedes > $capacidadMax) {
+    http_response_code(400);
     $resultado = ['ok' => false, 'mensaje' => 'La cantidad de huéspedes (' . $huespedes . ') excede la capacidad máxima de la propiedad (' . $capacidadMax . ').'];
     return;
 }
@@ -34,6 +43,7 @@ $inicioObj = DateTime::createFromFormat('Y-m-d', $fechaInicio);
 $finObj = DateTime::createFromFormat('Y-m-d', $fechaFin);
 
 if (!$inicioObj || !$finObj) {
+    http_response_code(400);
     $resultado = ['ok' => false, 'mensaje' => 'Formato de fecha inválido.'];
     return;
 }
@@ -41,6 +51,7 @@ $inicioObj->setTime(0, 0, 0);
 $finObj->setTime(0, 0, 0);
 
 if ($inicioObj < $hoy) {
+    http_response_code(400);
     $resultado = ['ok' => false, 'mensaje' => 'No puedes realizar reservas con fechas de llegada en el pasado.'];
     return;
 }
@@ -49,11 +60,13 @@ $fechaMaxima = clone $hoy;
 $fechaMaxima->modify('+1 year');
 
 if ($inicioObj > $fechaMaxima || $finObj > $fechaMaxima) {
+    http_response_code(400);
     $resultado = ['ok' => false, 'mensaje' => 'Solo puedes realizar reservas desde la fecha actual hasta máximo 1 año en el futuro.'];
     return;
 }
 
 if ($finObj <= $inicioObj) {
+    http_response_code(400);
     $resultado = ['ok' => false, 'mensaje' => 'La fecha de salida debe ser posterior a la fecha de llegada.'];
     return;
 }
@@ -61,6 +74,14 @@ if ($finObj <= $inicioObj) {
 // 3. Recalcular precio real desde BD (No confiar en el precio enviado por el cliente)
 $calculo = calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion);
 $totalReal = $calculo['granTotal'];
+
+// 3.1 Comparar monto enviado con monto calculado (Seguridad de integridad de pago)
+$montoEnviado = floatval($_POST['montoTotal'] ?? 0);
+if (abs($totalReal - $montoEnviado) > 0.01) {
+    http_response_code(400);
+    $resultado = ['ok' => false, 'mensaje' => 'Se detectó una discrepancia en el monto total. Por favor, intenta realizar la reserva de nuevo.'];
+    return;
+}
 
 // 4. Insertar en tbl_reserva (Guardando snapshot de precios)
 // idEstadoReserva = 1 => Confirmada; dtFechaRegistro = NOW() para el cálculo de 24h en cancelaciones

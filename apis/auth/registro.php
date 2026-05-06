@@ -10,6 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once '../../datos/auth/registro.php';
     require_once '../../negocio/auth/registro.php';
 
+    if (!$resultado['success']) {
+        if (strpos($resultado['message'], 'ya está registrado') !== false) {
+            http_response_code(409); // Conflict
+        } else {
+            http_response_code(400); // Bad Request
+        }
+    }
+
     echo json_encode($resultado);
     exit;
 } else {

@@ -4,9 +4,13 @@ require_once '../../negocio/auth/verificar_sesion.php';
 validarSesionAPI('huesped');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once '../../datos/conexion.php';
-    require_once '../../negocio/huesped/resenia.php';
-    
+    require_once '../../negocio/utilidades/seguridad.php';
+    if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Error de seguridad (CSRF).']);
+        exit;
+    }
+
     $idUsuario = $_SESSION['idUsuario'];
     $reseniaNegocio = new ReseniaNegocio($conexion);
 

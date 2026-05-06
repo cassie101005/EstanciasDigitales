@@ -50,4 +50,32 @@ function esSospechoso($data) {
     
     return false;
 }
+/**
+ * Genera un token CSRF y lo guarda en la sesión si no existe
+ * @return string El token generado o existente
+ */
+function generarTokenCSRF() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Valida que el token CSRF recibido coincida con el de la sesión
+ * @param string $token Recibido en la petición
+ * @return bool True si es válido, False de lo contrario
+ */
+function validarTokenCSRF($token) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (empty($_SESSION['csrf_token']) || empty($token)) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
 ?>

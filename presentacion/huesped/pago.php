@@ -2,6 +2,7 @@
 require_once '../../negocio/auth/verificar_sesion.php';
 validarSesion('huesped', '../../');
 require_once '../../datos/conexion.php';
+require_once '../../negocio/utilidades/seguridad.php';
 
 // Obtener datos del POST
 $idPropiedad = isset($_POST['idPropiedad']) ? intval($_POST['idPropiedad']) : 0;
@@ -200,7 +201,8 @@ $idUsuarioHuesped = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : 2;
             idUsuario:   '<?php echo $idUsuarioHuesped; ?>',
             fechaInicio: '<?php echo $fechaInicio; ?>',
             fechaFin:    '<?php echo $fechaFin; ?>',
-            huespedes:   '<?php echo $huespedes; ?>'
+            huespedes:   '<?php echo $huespedes; ?>',
+            csrf_token:  '<?php echo $_POST['csrf_token'] ?? ''; ?>'
         };
     </script>
     <script src="../../recursos/js/huesped/pago.js"></script>

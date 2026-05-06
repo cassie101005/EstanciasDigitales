@@ -58,6 +58,13 @@ if ($accion === 'obtener') {
 
 // ── ACTUALIZAR ───────────────────────────────────────────────────────────────
 elseif ($accion === 'actualizar') {
+    require_once '../../negocio/utilidades/seguridad.php';
+    if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        $resultado = ['ok' => false, 'error' => 'Error de seguridad (CSRF).'];
+        return;
+    }
+
     $idPropiedad = intval($_POST['idPropiedad'] ?? 0);
     $nombre = trim($_POST['nombre'] ?? '');
 
@@ -102,7 +109,16 @@ elseif ($accion === 'actualizar') {
         'numeroBanos' => $numeroBanos
     ];
 
-    if ($queriesEdicion->actualizarPropiedad($datos, $idUsuario)) {
+    // Primero validar que la propiedad pertenece al usuario (IDOR Protection)
+    $checkOwner = $queriesEdicion->obtenerPropiedadPorId($idPropiedad, $idUsuario);
+    if ($checkOwner->num_rows === 0) {
+        http_response_code(403);
+        $resultado = ['ok' => false, 'error' => 'No tienes permiso para editar esta propiedad.'];
+        return;
+    }
+
+    $affectedRows = $queriesEdicion->actualizarPropiedad($datos, $idUsuario);
+    if ($affectedRows > 0) {
         $queriesEdicion->limpiarRelaciones($idPropiedad);
 
         foreach ($servicios as $idS)
@@ -113,6 +129,10 @@ elseif ($accion === 'actualizar') {
             $queriesRegistro->insertarPoliticaPropiedad(intval($idP), $idPropiedad);
 
         $resultado = ['ok' => true, 'mensaje' => 'Propiedad actualizada correctamente.'];
+    } elseif ($affectedRows === 0) {
+        // Si es 0, puede ser que no hubo cambios o que el IDOR falló (aunque ya lo validamos arriba)
+        // El requerimiento pide detener si es 0.
+        $resultado = ['ok' => true, 'mensaje' => 'No se realizaron cambios en la propiedad.'];
     } else {
         $resultado = ['ok' => false, 'error' => 'No se pudo actualizar la propiedad.'];
     }
@@ -132,6 +152,13 @@ elseif ($accion === 'eliminar_imagen') {
 
 // ── SUBIR IMÁGENES NUEVAS ────────────────────────────────────────────────────
 elseif ($accion === 'subir_imagenes') {
+    require_once '../../negocio/utilidades/seguridad.php';
+    if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+        http_response_code(403);
+        $resultado = ['ok' => false, 'error' => 'Error de seguridad (CSRF).'];
+        return;
+    }
+
     $idPropiedad = intval($_POST['idPropiedad'] ?? 0);
 
     if ($idPropiedad <= 0) {

@@ -38,34 +38,51 @@ function calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion
     $start = new DateTime($fechaInicio);
     $end = new DateTime($fechaFin);
     
+    $interval = $start->diff($end);
+    $nochesTotal = $interval->days;
+
+    // Validación de rango excesivo
+    if ($nochesTotal > 365) {
+        return ['error' => 'El rango de fechas es excesivo (máximo 1 año)', 'totalBase' => 0, 'noches' => 0];
+    }
+
+    // 2.1 Obtener TODAS las tarifas especiales del rango de una sola vez (Optimización N+1)
+    $sqlRates = "SELECT dPrecioNoche, dtFechaInicio, dtFechaFin 
+                 FROM tbl_tarifa_propiedad 
+                 WHERE idPropiedad = ? 
+                 AND bEstado = 1 
+                 AND dtFechaInicio <= ? AND dtFechaFin >= ?
+                 ORDER BY idTarifaPropiedad ASC";
+    $stmtRates = $conexion->prepare($sqlRates);
+    $stmtRates->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
+    $stmtRates->execute();
+    $resRates = $stmtRates->get_result();
+
+    $tarifasEspeciales = [];
+    while ($rowRate = $resRates->fetch_assoc()) {
+        $rStart = new DateTime($rowRate['dtFechaInicio']);
+        $rEnd = new DateTime($rowRate['dtFechaFin']);
+        
+        $rPeriod = new DatePeriod($rStart, new DateInterval('P1D'), $rEnd->modify('+1 day'));
+        foreach ($rPeriod as $d) {
+            $tarifasEspeciales[$d->format('Y-m-d')] = floatval($rowRate['dPrecioNoche']);
+        }
+    }
+
     $totalBase = 0;
     $noches = 0;
     $desgloseNoches = [];
 
     // DatePeriod recorre desde 'start' hasta 'end' (sin incluir 'end')
-    $interval = new DateInterval('P1D');
-    $period = new DatePeriod($start, $interval, $end);
+    $period = new DatePeriod($start, new DateInterval('P1D'), $end);
 
     foreach ($period as $date) {
         $fechaActual = $date->format('Y-m-d');
         $precioParaEstaNoche = $precioBase;
         $esEspecial = false;
 
-        // 3. Buscar tarifa especial para ESTA noche específica
-        // Usamos DATE() para ignorar cualquier componente de tiempo en la BD
-        $sqlRate = "SELECT dPrecioNoche FROM tbl_tarifa_propiedad 
-                    WHERE idPropiedad = ? 
-                    AND bEstado = 1 
-                    AND ? BETWEEN DATE(dtFechaInicio) AND DATE(dtFechaFin)
-                    ORDER BY idTarifaPropiedad DESC LIMIT 1";
-        
-        $stmtRate = $conexion->prepare($sqlRate);
-        $stmtRate->bind_param("is", $idPropiedad, $fechaActual);
-        $stmtRate->execute();
-        $resRate = $stmtRate->get_result();
-
-        if ($rowRate = $resRate->fetch_assoc()) {
-            $precioParaEstaNoche = floatval($rowRate['dPrecioNoche']);
+        if (isset($tarifasEspeciales[$fechaActual])) {
+            $precioParaEstaNoche = $tarifasEspeciales[$fechaActual];
             $esEspecial = true;
         }
         

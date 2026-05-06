@@ -16,7 +16,6 @@ if ($accion === 'guardar') {
     $servicios = json_decode($_POST['servicios'] ?? '[]');
     $reglas = json_decode($_POST['reglas'] ?? '[]');
     $politicas = json_decode($_POST['politicas'] ?? '[]');
-    $reglaExtra = trim($_POST['reglaExtra'] ?? '');
 
     if ($idCiudad <= 0 || $idUsuario <= 0 || $idTipoPropiedad <= 0 || empty($nombre) || empty($direccion) || $precioNoche <= 0 || $capacidadHuespedes <= 0 || $numeroHabitaciones <= 0 || $numeroBanos <= 0) {
         echo json_encode(['error' => 'Por favor, completa todos los campos obligatorios correctamente.']);

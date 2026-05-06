@@ -2,6 +2,7 @@
 require_once '../../negocio/auth/verificar_sesion.php';
 validarSesion('anfitrion', '../../');
 require_once '../../datos/conexion.php';
+require_once '../../negocio/utilidades/seguridad.php';
 $idPropiedad = intval($_GET['id'] ?? 0);
 ?>
 <!DOCTYPE html>
@@ -38,6 +39,7 @@ $idPropiedad = intval($_GET['id'] ?? 0);
 
             <div class="np-body">
                 <form id="formEditarPropiedad" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo generarTokenCSRF(); ?>">
                     <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
 
                     <div class="np-section-card">

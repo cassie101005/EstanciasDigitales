@@ -36,7 +36,7 @@ if ($resultadoQuery->num_rows === 0) {
         $resultado = ['error' => 'El usuario está inactivo.'];
     } else {
         // 5. Validar contraseña
-        $passwordCorrecto = password_verify($contrasenia, $usuario['vContrasenia']) || $usuario['vContrasenia'] === $contrasenia;
+        $passwordCorrecto = password_verify($contrasenia, $usuario['vContrasenia']);
 
         if (!$passwordCorrecto) {
             // Incrementar intentos fallidos

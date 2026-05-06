@@ -159,6 +159,7 @@ function aprobarCancelacion() {
     formData.append('role', 'anfitrion');
     formData.append('idUsuario', aprobacionPendiente.idUsuario);
     formData.append('motivo', motivoAprobacion);
+    formData.append('csrf_token', document.getElementById('global_csrf_token').value);
 
     const btnConf = event.target;
     const textoOriginal = btnConf.innerHTML;
@@ -426,6 +427,7 @@ function confirmarCancelacion() {
     formData.append('role', role);
     formData.append('idUsuario', idUsuario);
     formData.append('motivo', motivo);
+    formData.append('csrf_token', document.getElementById('global_csrf_token').value);
 
     const btnConf = event.target;
     const textoOriginal = btnConf.innerHTML;
@@ -526,6 +528,7 @@ function enviarRespuesta() {
     fd.append('tipo', respuestaPendiente.tipo);
     fd.append('id', respuestaPendiente.id);
     fd.append('respuesta', respuesta);
+    fd.append('csrf_token', document.getElementById('global_csrf_token').value);
 
     fetch('../../apis/anfitrion/responder_comentario.php', {
         method: 'POST',

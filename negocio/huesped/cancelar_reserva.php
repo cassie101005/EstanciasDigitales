@@ -2,8 +2,39 @@
 require_once '../../datos/conexion.php';
 
 // Protección
-if (!isset($idReserva) || !isset($idUsuario)) {
-    $resultado = ['ok' => false, 'mensaje' => 'Acceso no permitido'];
+require_once '../../negocio/utilidades/seguridad.php';
+
+// 0. Validar CSRF
+if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    $resultado = ['ok' => false, 'mensaje' => 'Error de seguridad (CSRF).'];
+    return;
+}
+
+// 1. Validar propiedad de la reserva y fecha de inicio
+$sqlCheck = "SELECT dtFechaInicio, idUsuario FROM tbl_reserva WHERE idReserva = ?";
+$stmtCheck = $conexion->prepare($sqlCheck);
+$stmtCheck->bind_param("i", $idReserva);
+$stmtCheck->execute();
+$resCheck = $stmtCheck->get_result()->fetch_assoc();
+
+if (!$resCheck) {
+    http_response_code(404);
+    $resultado = ['ok' => false, 'mensaje' => 'Reserva no encontrada.'];
+    return;
+}
+
+if ((int)$resCheck['idUsuario'] !== (int)$idUsuario) {
+    http_response_code(403);
+    $resultado = ['ok' => false, 'mensaje' => 'No tienes permiso para cancelar esta reserva.'];
+    return;
+}
+
+$fechaInicioReserva = new DateTime($resCheck['dtFechaInicio']);
+$ahora = new DateTime();
+if ($ahora > $fechaInicioReserva) {
+    http_response_code(400);
+    $resultado = ['ok' => false, 'mensaje' => 'No se puede cancelar una reserva que ya ha iniciado o ha pasado.'];
     return;
 }
 

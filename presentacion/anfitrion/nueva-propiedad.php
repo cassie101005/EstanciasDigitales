@@ -240,14 +240,7 @@ require_once '../../datos/conexion.php';
                             <div class="np-check-skeleton"></div>
                             <div class="np-check-skeleton"></div>
                         </div>
-                        <div class="np-custom-rule-box">
-                            <label class="np-label" for="reglaExtra">
-                                <i class="fa-solid fa-plus-circle np-label-icon"></i>
-                                ¿No encuentras tu regla? Agrégala manualmente
-                            </label>
-                            <input id="reglaExtra" type="text" name="reglaExtra" class="np-input"
-                                placeholder="Ej: Prohibido hacer fiestas después de las 11 PM">
-                        </div>
+
                     </div>
 
                     <!-- ── SECCIÓN 7: POLÍTICAS ── -->

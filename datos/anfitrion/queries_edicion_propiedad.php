@@ -77,7 +77,10 @@ class QueriesEdicionPropiedad {
             $datos['idPropiedad'],
             $idUsuario
         );
-        return $stmt->execute();
+        if ($stmt->execute()) {
+            return $stmt->affected_rows;
+        }
+        return -1;
     }
 
     public function limpiarRelaciones($idPropiedad) {

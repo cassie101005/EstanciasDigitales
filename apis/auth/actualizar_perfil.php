@@ -5,6 +5,15 @@ validarSesionAPI(); // Cualquier usuario autenticado
 require_once '../../datos/conexion.php';
 require_once '../../datos/auth/queries_auth.php';
 
+require_once '../../negocio/utilidades/seguridad.php';
+
+// Validar CSRF
+if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'mensaje' => 'Error de seguridad (CSRF).']);
+    exit;
+}
+
 $idUsuario = $_SESSION['idUsuario'];
 $queriesAuth = new QueriesAuth($conexion);
 

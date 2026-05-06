@@ -2,6 +2,7 @@
 require_once '../../negocio/auth/verificar_sesion.php';
 validarSesion('anfitrion', '../../');
 require_once '../../datos/conexion.php';
+require_once '../../negocio/utilidades/seguridad.php';
 
 $idHost = $_SESSION['idUsuario'] ?? 1; // 1 por defecto para pruebas
 
@@ -43,6 +44,7 @@ $totalComentarios = $stats['total'];
         <!-- Main Content -->
         <main class="host-content-main">
             <?php include '../../recursos/navbar.php'; ?>
+            <input type="hidden" id="global_csrf_token" value="<?php echo generarTokenCSRF(); ?>">
             
             <div class="host-dashboard-container">
                 <header style="display: flex; justify-content: space-between; align-items: flex-end;">

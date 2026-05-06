@@ -2,6 +2,7 @@
 // user_profile_modal.php - Ventanas Design System
 require_once __DIR__ . '/../datos/conexion.php';
 require_once __DIR__ . '/../datos/auth/queries_auth.php';
+require_once __DIR__ . '/../negocio/utilidades/seguridad.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -62,6 +63,7 @@ $logout_url = rtrim($base_path ?? '../../', '/') . '/negocio/auth/logout.php';
 
             <!-- Form -->
             <form id="profileForm" onsubmit="event.preventDefault()">
+                <input type="hidden" name="csrf_token" value="<?php echo generarTokenCSRF(); ?>">
 
                 <!-- Nombre / Apellido -->
                 <div class="form-row-2">
