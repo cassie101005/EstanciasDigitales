@@ -21,14 +21,18 @@ function calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion
                 'precioPromedio' => 0, 'desgloseNoches' => []];
     }
 
-    // 1. Obtener precio base de la propiedad
-    $sqlProp = "SELECT dPrecioNoche FROM tbl_propiedad WHERE idPropiedad = ?";
+    // 1. Obtener precio base y CATEGORÍA de la propiedad
+    $sqlProp = "SELECT p.dPrecioNoche, tp.vNombreCategoria as tipo 
+                FROM tbl_propiedad p
+                LEFT JOIN tbl_tipo_propiedad tp ON p.idTipoPropiedad = tp.idTipoPropiedad
+                WHERE p.idPropiedad = ?";
     $stmtProp = $conexion->prepare($sqlProp);
     $stmtProp->bind_param("i", $idPropiedad);
     $stmtProp->execute();
     $resProp = $stmtProp->get_result();
     $prop = $resProp->fetch_assoc();
     $precioBase = floatval($prop['dPrecioNoche'] ?? 0);
+    $categoria  = $prop['tipo'] ?? '';
 
     // 2. Iterar noche por noche (excluyendo el día de salida)
     $start = new DateTime($fechaInicio);
@@ -74,9 +78,24 @@ function calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion
         $noches++;
     }
 
-    $limpieza = 1200;
-    $impuestos = $totalBase * 0.16;
-    $granTotal = $totalBase + $limpieza + $impuestos;
+    // Cálculo dinámico de limpieza por porcentaje según categoría
+    $obtenerPorcentaje = function($cat) {
+        $porcentajes = [
+            'habitacion' => 0.05, 'habitación' => 0.05,
+            'departamento' => 0.08,
+            'casa' => 0.10,
+            'cabaña' => 0.12, 'cabana' => 0.12,
+            'villa' => 0.15,
+            'lujo' => 0.18, 'premium' => 0.18
+        ];
+        $catNormalizada = strtolower(trim($cat));
+        return $porcentajes[$catNormalizada] ?? 0.08;
+    };
+
+    $porcentajeLimpieza = $obtenerPorcentaje($categoria);
+    $limpieza  = round($totalBase * $porcentajeLimpieza, 2);
+    $impuestos = round($totalBase * 0.16, 2);
+    $granTotal = round($totalBase + $limpieza + $impuestos, 2);
 
     return [
         'totalBase' => $totalBase,

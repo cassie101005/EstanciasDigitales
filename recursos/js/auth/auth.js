@@ -200,9 +200,24 @@ async function handleResetPassword(event) {
     btn.innerText = 'Actualizando...';
     btn.disabled = true;
 
+    const passwordInput = document.getElementById('resetPassword').value;
+    document.getElementById('resetPassword').value = ''; // Limpiar inmediatamente por seguridad
+    
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/;
+    if (!regex.test(passwordInput)) {
+        const el = document.getElementById('resetAlert');
+        if (el) {
+            el.innerText = 'La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas y números.';
+            el.style.display = 'block';
+        }
+        btn.innerText = originalText;
+        btn.disabled = false;
+        return;
+    }
+
     const payload = {
         correo: document.getElementById('resetCorreo').value,
-        nuevaContrasenia: document.getElementById('resetPassword').value
+        nuevaContrasenia: passwordInput
     };
 
     try {

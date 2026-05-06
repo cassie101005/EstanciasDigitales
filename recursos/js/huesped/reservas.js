@@ -79,7 +79,12 @@ function openCommentModal(idRes, idProp, title) {
 
 function closeCommentModal() {
     document.getElementById('commentModal').style.display = 'none';
-    document.getElementById('commentForm').reset();
+    const form = document.getElementById('commentForm');
+    if (form) {
+        const txt = form.querySelector('textarea');
+        if (txt) txt.value = '';
+        form.reset();
+    }
 }
 
 async function saveComment() {

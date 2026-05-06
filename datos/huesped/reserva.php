@@ -22,8 +22,15 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaInicio) || !preg_match('/^\d{4}-\
 }
 
 $hoy = date('Y-m-d');
+$fechaMaxima = date('Y-m-d', strtotime('+1 year'));
+
 if ($fechaInicio < $hoy) {
     echo json_encode(['ok' => false, 'mensaje' => 'No se permiten fechas pasadas.']);
+    exit();
+}
+
+if ($fechaInicio > $fechaMaxima || $fechaFin > $fechaMaxima) {
+    echo json_encode(['ok' => false, 'mensaje' => 'Solo puedes realizar reservas desde la fecha actual hasta máximo 1 año en el futuro.']);
     exit();
 }
 

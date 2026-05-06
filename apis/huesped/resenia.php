@@ -5,16 +5,20 @@ validarSesionAPI('huesped');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once '../../datos/conexion.php';
-    
-    // 1. Extraer y validar datos
-    require_once '../../datos/huesped/resenia.php';
+    require_once '../../negocio/huesped/resenia.php';
     
     $idUsuario = $_SESSION['idUsuario'];
-
-    // 2. Ejecutar lógica de negocio
-    require_once '../../negocio/huesped/resenia.php';
     $reseniaNegocio = new ReseniaNegocio($conexion);
-    $resultado = $reseniaNegocio->guardarResenia($idPropiedad, $idUsuario, $calificacion, $comentario);
+
+    $idResenia = isset($_POST['idResenia']) ? intval($_POST['idResenia']) : 0;
+    
+    if ($idResenia > 0) {
+        $comentario = isset($_POST['vComentario']) ? $_POST['vComentario'] : '';
+        $resultado = $reseniaNegocio->actualizarResenia($idResenia, $idUsuario, $comentario);
+    } else {
+        require_once '../../datos/huesped/resenia.php';
+        $resultado = $reseniaNegocio->guardarResenia($idPropiedad, $idUsuario, $calificacion, $comentario);
+    }
 
     echo json_encode($resultado);
 } else {

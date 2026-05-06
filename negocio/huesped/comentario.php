@@ -1,11 +1,19 @@
 <?php
 require_once '../../datos/conexion.php';
+require_once '../../negocio/utilidades/seguridad.php';
 
 // Protección
-if (!isset($idReserva) || !isset($idPropiedad) || !isset($idUsuario)) {
+if (!isset($idReserva) || !isset($idPropiedad) || !isset($idUsuario) || !isset($comentario)) {
     $resultado = ['ok' => false, 'mensaje' => 'Acceso no permitido'];
     return;
 }
+
+// Sanitizar entrada
+if (esSospechoso($comentario)) {
+    $resultado = ['ok' => false, 'mensaje' => 'Se detectó contenido malicioso en el comentario.'];
+    return;
+}
+$comentario = sanitizarEntrada($comentario);
 
 // Verificar si ya comentó para esta reserva
 $check = $conexion->prepare("SELECT idComentario FROM tbl_comentarios WHERE idReserva = ?");

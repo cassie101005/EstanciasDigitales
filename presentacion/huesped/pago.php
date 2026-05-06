@@ -39,6 +39,18 @@ if (!validarDisponibilidad($idPropiedad, $fechaInicio, $fechaFin, $conexion)) {
     exit();
 }
 
+// 2.1 Validar capacidad de huéspedes
+$stmtCap = $conexion->prepare("SELECT iCapacidadHuespedes FROM tbl_propiedad WHERE idPropiedad = ?");
+$stmtCap->bind_param("i", $idPropiedad);
+$stmtCap->execute();
+$resCap = $stmtCap->get_result()->fetch_assoc();
+$capacidadMax = $resCap['iCapacidadHuespedes'] ?? 0;
+
+if ($huespedes > $capacidadMax) {
+    echo "<script>alert('Error: La cantidad de huéspedes excede la capacidad máxima de esta propiedad ($capacidadMax).'); window.history.back();</script>";
+    exit();
+}
+
 // 2. Recalcular TODO desde la base de datos (Sincronización total)
 $desglose = calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion);
 

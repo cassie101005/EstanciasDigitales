@@ -516,9 +516,11 @@ function enviarRespuesta() {
         return;
     }
 
-    const btn = event.target;
-    btn.disabled = true;
-    btn.innerText = 'Enviando...';
+    const btn = document.querySelector('#modalRespuesta button:last-child');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Enviando...';
+    }
 
     const fd = new FormData();
     fd.append('tipo', respuestaPendiente.tipo);
@@ -540,7 +542,34 @@ function enviarRespuesta() {
     })
     .then(data => {
         if (data.ok) {
-            window.location.reload();
+            const cellId = `respCell_${respuestaPendiente.tipo}_${respuestaPendiente.id}`;
+            const cell = document.getElementById(cellId);
+            if (cell) {
+                cell.innerHTML = `
+                    <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${respuesta.replace(/"/g, '&quot;')}">
+                        <i class="fa-solid fa-reply"></i> ${respuesta.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                    </div>
+                `;
+                cell.style.color = 'var(--primary)';
+                
+                const btnAction = cell.closest('tr').querySelector('button[onclick^="abrirModalRespuesta"]');
+                if (btnAction) {
+                    btnAction.innerHTML = '<i class="fa-solid fa-reply"></i> Editar';
+                }
+            }
+            // Limpiar manualmente el campo
+            document.getElementById('txtRespuesta').value = '';
+            cerrarModalRespuesta();
+            Swal.fire({
+                icon: 'success',
+                title: 'Respuesta enviada',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            btn.disabled = false;
+            btn.innerText = 'Enviar Respuesta';
         } else {
             alert('Error: ' + data.error);
             btn.disabled = false;

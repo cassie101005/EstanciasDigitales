@@ -95,4 +95,8 @@ else if ($accion === 'eliminar') {
         $resultado = ['ok' => false, 'error' => 'No se pudo eliminar la propiedad.'];
     }
 }
-
+else if ($accion === 'ingresos') {
+    require_once '../../negocio/anfitrion/propiedades_view.php';
+    $totalIngresos = getHostIngresos($idUsuario, $conexion);
+    $resultado = ['ok' => true, 'totalIngresos' => $totalIngresos];
+}

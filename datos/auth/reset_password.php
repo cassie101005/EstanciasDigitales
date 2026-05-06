@@ -19,14 +19,8 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-if (strlen($nuevaContrasenia) < 8) {
-    echo json_encode(['error' => 'La contraseña debe tener al menos 8 caracteres']);
-    http_response_code(400);
-    exit;
-}
-
-if (!preg_match('/[A-Z]/', $nuevaContrasenia)) {
-    echo json_encode(['error' => 'La contraseña debe contener al menos una letra mayúscula']);
+if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/', $nuevaContrasenia)) {
+    echo json_encode(['error' => 'La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas y números.']);
     http_response_code(400);
     exit;
 }

@@ -40,10 +40,14 @@ $reservedDates = getReservedDates($idPropiedad, $conexion);
 // 6. Consultar tarifas especiales
 $specialRates = getSpecialRates($idPropiedad, $conexion);
 
-// 7. Verificar si el usuario actual ya calificó
+// 7. Verificar si el usuario actual ya calificó y límite de comentarios
 $yaCalifico = false;
 $miCalificacion = 0;
+$totalReseniasHuesped = 0;
 if (isset($_SESSION['idUsuario'])) {
+    require_once '../../negocio/huesped/resenia.php';
+    $resNeg = new ReseniaNegocio($conexion);
+    $totalReseniasHuesped = $resNeg->getReviewsCount($_SESSION['idUsuario'], $idPropiedad);
     list($yaCalifico, $miCalificacion) = checkUserCalifico($idPropiedad, $_SESSION['idUsuario'], $conexion);
 }
 ?>
@@ -188,6 +192,7 @@ if (isset($_SESSION['idUsuario'])) {
                         <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">Deja tu opinión</h3>
                         <form id="formResenia" style="position: relative; z-index: 10;">
                             <input type="hidden" name="idPropiedad" value="<?php echo $idPropiedad; ?>">
+                            <input type="hidden" name="idResenia" id="inputIdResenia" value="0">
                             
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #64748b;">Calificación (Opcional)</label>
@@ -224,6 +229,13 @@ if (isset($_SESSION['idUsuario'])) {
                                             <div>
                                                 <p style="font-weight: 800;"><?php echo htmlspecialchars($res['vNombre'] . ' ' . $res['vApellido']); ?></p>
                                                 <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($res['fecha'])); ?></p>
+                                                <?php if (isset($_SESSION['idUsuario']) && $_SESSION['idUsuario'] == $res['idUsuario']): ?>
+                                                    <button type="button" class="btn-edit-comment" 
+                                                            onclick="editComment(<?php echo $res['id']; ?>, '<?php echo addslashes($res['vComentario']); ?>')"
+                                                            style="background: none; border: none; color: var(--primary); font-size: 11px; font-weight: 700; cursor: pointer; padding: 0; margin-top: 4px; text-transform: uppercase;">
+                                                        <i class="fa-solid fa-pen-to-square"></i> Editar
+                                                    </button>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div style="color: #fbbf24;">
@@ -313,7 +325,10 @@ if (isset($_SESSION['idUsuario'])) {
                                     <span id="summaryBasePrice">$0 MXN</span>
                                 </li>
                                 <li style="display:flex; justify-content: space-between; margin-bottom: 1rem;">
-                                    <span style="text-decoration: underline;">Tarifa de limpieza</span> <span>$1,200 MXN</span>
+                                    <span style="text-decoration: underline;">Tarifa de limpieza</span> <span id="summaryCleaning">$0 MXN</span>
+                                </li>
+                                <li style="display:flex; justify-content: space-between; margin-bottom: 1rem;">
+                                    <span style="text-decoration: underline;">Impuestos (16%)</span> <span id="summaryTax">$0 MXN</span>
                                 </li>
                                 <li style="display:flex; justify-content: space-between; padding-top: 1.5rem; border-top: 1px solid #eee; font-weight: 800; font-size: 1.25rem;">
                                     <span>Total</span> <span id="summaryTotal">$0 MXN</span>
@@ -344,9 +359,13 @@ if (isset($_SESSION['idUsuario'])) {
         window.DETALLE_DATA = {
             idPropiedad:    <?php echo $idPropiedad; ?>,
             precioNoche:    <?php echo $prop['dPrecioNoche']; ?>,
+            capacidadHuespedes: <?php echo $prop['iCapacidadHuespedes']; ?>,
             reservedRanges: <?php echo json_encode($reservedDates); ?>,
             specialRates:   <?php echo json_encode($specialRates); ?>,
-            galleryImages:  <?php echo json_encode($images); ?>
+            galleryImages:  <?php echo json_encode($images); ?>,
+            totalReseniasHuesped: <?php echo $totalReseniasHuesped; ?>,
+            currentUserId: <?php echo $_SESSION['idUsuario'] ?? 0; ?>,
+            categoria: '<?php echo $prop['tipo']; ?>'
         };
 
         let currentGalIndex = 0;
@@ -401,7 +420,7 @@ if (isset($_SESSION['idUsuario'])) {
             if (e.key === 'ArrowLeft') prevGal();
         });
     </script>
-    <script src="../../recursos/js/huesped/detalle.js"></script>
+    <script src="../../recursos/js/huesped/detalle.js?v=<?php echo time(); ?>"></script>
 
 </body>
 </html>

@@ -24,6 +24,8 @@ class QueriesAuth {
                     u.vContrasenia,
                     u.bEstado,
                     u.vFoto,
+                    u.intentos_fallidos,
+                    u.bloqueado_hasta,
                     r.vNombreRol
                 FROM tbl_usuarios u
                 INNER JOIN tbl_roles_usuario r ON u.idRol = r.idRol
@@ -61,6 +63,17 @@ class QueriesAuth {
         $sql = "SELECT idUsuario FROM tbl_usuarios WHERE vCorreo = ? LIMIT 1";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("s", $correo);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    /**
+     * Verificar si teléfono ya existe
+     */
+    public function verificarTelefonoExistente($telefono) {
+        $sql = "SELECT idUsuario FROM tbl_usuarios WHERE vTelefono = ? LIMIT 1";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("s", $telefono);
         $stmt->execute();
         return $stmt->get_result();
     }
@@ -133,6 +146,36 @@ class QueriesAuth {
         $sql = "UPDATE tbl_usuarios SET vContrasenia = ? WHERE vCorreo = ?";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("ss", $nuevaContrasenia, $correo);
+        return $stmt->execute();
+    }
+
+    /**
+     * Incrementar intentos fallidos
+     */
+    public function incrementarIntentosFallidos($idUsuario) {
+        $sql = "UPDATE tbl_usuarios SET intentos_fallidos = intentos_fallidos + 1 WHERE idUsuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idUsuario);
+        return $stmt->execute();
+    }
+
+    /**
+     * Bloquear usuario por 1 día
+     */
+    public function bloquearUsuario($idUsuario) {
+        $sql = "UPDATE tbl_usuarios SET bloqueado_hasta = DATE_ADD(NOW(), INTERVAL 1 DAY) WHERE idUsuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idUsuario);
+        return $stmt->execute();
+    }
+
+    /**
+     * Reiniciar intentos fallidos y desbloquear
+     */
+    public function reiniciarIntentos($idUsuario) {
+        $sql = "UPDATE tbl_usuarios SET intentos_fallidos = 0, bloqueado_hasta = NULL WHERE idUsuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idUsuario);
         return $stmt->execute();
     }
 }

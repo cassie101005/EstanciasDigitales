@@ -3,7 +3,7 @@
 
 $idReserva = isset($_POST['idReserva']) ? intval($_POST['idReserva']) : 0;
 $idPropiedad = isset($_POST['idPropiedad']) ? intval($_POST['idPropiedad']) : 0;
-$comentario = isset($_POST['comentario']) ? trim($_POST['comentario']) : '';
+$comentario = htmlspecialchars(trim($_POST['comentario'] ?? ''), ENT_QUOTES, 'UTF-8');
 $calificacion = isset($_POST['calificacion']) ? intval($_POST['calificacion']) : 5;
 
 if ($idReserva <= 0 || $idPropiedad <= 0 || empty($comentario)) {

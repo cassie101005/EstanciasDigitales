@@ -11,8 +11,21 @@ require_once '../../negocio/utilidades/calculadora_precios.php';
 $idPropiedad = intval($_GET['idPropiedad'] ?? 0);
 $fechaInicio = trim($_GET['fechaInicio'] ?? '');
 $fechaFin    = trim($_GET['fechaFin']    ?? '');
+$huespedes   = intval($_GET['huespedes'] ?? 1);
 
 if ($idPropiedad > 0 && !empty($fechaInicio) && !empty($fechaFin)) {
+    // Validar capacidad de huéspedes
+    $stmtCap = $conexion->prepare("SELECT iCapacidadHuespedes FROM tbl_propiedad WHERE idPropiedad = ?");
+    $stmtCap->bind_param("i", $idPropiedad);
+    $stmtCap->execute();
+    $resCap = $stmtCap->get_result()->fetch_assoc();
+    $capacidadMax = $resCap['iCapacidadHuespedes'] ?? 0;
+
+    if ($huespedes > $capacidadMax) {
+        ob_end_clean();
+        echo json_encode(['ok' => false, 'mensaje' => 'La cantidad de huéspedes excede la capacidad máxima.']);
+        exit;
+    }
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaInicio) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaFin)) {
         ob_end_clean();
         echo json_encode(['ok' => false, 'mensaje' => 'Formato de fecha inválido.']);

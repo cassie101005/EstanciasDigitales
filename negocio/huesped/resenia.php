@@ -6,7 +6,35 @@ class ReseniaNegocio {
         $this->conexion = $conexion;
     }
 
+    public function getReviewsCount($idUsuario, $idPropiedad = null) {
+        $sql = "SELECT COUNT(*) as total FROM tbl_resenia WHERE idUsuario = ?";
+        if ($idPropiedad) {
+            $sql .= " AND idPropiedad = ?";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("ii", $idUsuario, $idPropiedad);
+        } else {
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->bind_param("i", $idUsuario);
+        }
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_assoc();
+        return $res['total'];
+    }
+
     public function guardarResenia($idPropiedad, $idUsuario, $calificacion, $comentario) {
+        require_once '../../negocio/utilidades/seguridad.php';
+        
+        // 0. Sanitizar y validar patrones maliciosos
+        if (esSospechoso($comentario)) {
+            return ['ok' => false, 'error' => 'Se detectó contenido malicioso en el comentario.'];
+        }
+        $comentario = sanitizarEntrada($comentario);
+
+        // 1. Verificar límite de 3 comentarios por huésped EN ESTA PROPIEDAD
+        if ($this->getReviewsCount($idUsuario, $idPropiedad) >= 3) {
+            return ['ok' => false, 'error' => 'Has alcanzado el límite máximo de 3 comentarios para esta propiedad.'];
+        }
+
         // Verificar si el usuario ya ha calificado (iCalificacion > 0) esta propiedad
         $checkSql = "SELECT idResenia FROM tbl_resenia WHERE idPropiedad = ? AND idUsuario = ? AND iCalificacion > 0 LIMIT 1";
         $stmtCheck = $this->conexion->prepare($checkSql);
@@ -58,6 +86,34 @@ class ReseniaNegocio {
         }
 
         return ['ok' => false, 'error' => 'Error al guardar el comentario: ' . $this->conexion->error];
+    }
+
+    public function actualizarResenia($idResenia, $idUsuario, $comentario) {
+        require_once '../../negocio/utilidades/seguridad.php';
+        
+        if (esSospechoso($comentario)) {
+            return ['ok' => false, 'error' => 'Se detectó contenido malicioso en el comentario.'];
+        }
+        $comentario = sanitizarEntrada($comentario);
+
+        // Verificar propiedad del comentario
+        $sqlCheck = "SELECT idResenia FROM tbl_resenia WHERE idResenia = ? AND idUsuario = ? LIMIT 1";
+        $stmtCheck = $this->conexion->prepare($sqlCheck);
+        $stmtCheck->bind_param("ii", $idResenia, $idUsuario);
+        $stmtCheck->execute();
+        if ($stmtCheck->get_result()->num_rows === 0) {
+            return ['ok' => false, 'error' => 'No tienes permiso para editar este comentario.'];
+        }
+
+        $sql = "UPDATE tbl_resenia SET vComentario = ?, dtFechaActualizacion = NOW() WHERE idResenia = ? AND idUsuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("sii", $comentario, $idResenia, $idUsuario);
+
+        if ($stmt->execute()) {
+            return ['ok' => true, 'mensaje' => 'Comentario actualizado correctamente.'];
+        }
+
+        return ['ok' => false, 'error' => 'Error al actualizar: ' . $this->conexion->error];
     }
 }
 ?>

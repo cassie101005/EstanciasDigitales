@@ -1,11 +1,19 @@
 <?php
 require_once '../../datos/conexion.php';
+require_once '../../negocio/utilidades/seguridad.php';
 
 // Protección
 if (!isset($id) || !isset($tipo) || !isset($respuesta)) {
     $resultado = ['ok' => false, 'error' => 'Acceso no permitido'];
     return;
 }
+
+// Sanitizar entrada
+if (esSospechoso($respuesta)) {
+    $resultado = ['ok' => false, 'error' => 'Se detectó contenido malicioso en la respuesta.'];
+    return;
+}
+$respuesta = sanitizarEntrada($respuesta);
 
 $tiposPermitidos = ['comentario', 'resenia'];
 if (!in_array($tipo, $tiposPermitidos, true)) {

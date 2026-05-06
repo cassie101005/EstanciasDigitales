@@ -1,10 +1,10 @@
 <?php
 require_once '../../datos/conexion.php';
 
-function getHostReservas($idHost, $conexion) {
+function getHostReservas($idHost, $conexion)
+{
     $hoy_str = date('Y-m-d');
-    
-    // ── ACTUALIZAR ESTADOS A FINALIZADA Y NOTIFICAR ──
+
     $sqlFinal = "SELECT r.idReserva, r.idPropiedad, p.vNombre as nombrePropiedad
                  FROM tbl_reserva r
                  JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
@@ -12,13 +12,17 @@ function getHostReservas($idHost, $conexion) {
                  AND r.idEstadoReserva != 4 
                  AND r.idEstadoReserva != 3
                  AND r.dtFechaFin < '$hoy_str'";
+
     $resFinal = $conexion->query($sqlFinal);
+
     if ($resFinal && $resFinal->num_rows > 0) {
         require_once '../../negocio/utilidades/notificaciones.php';
+
         while ($r = $resFinal->fetch_assoc()) {
             $titulo = "Reserva finalizada";
             $mensaje = "La estancia en '" . $r['nombrePropiedad'] . "' ha concluido.";
             $url = "presentacion/anfitrion/reservas.php";
+
             registrarNotificacion($idHost, 'reserva_finalizada', $titulo, $mensaje, $url, $r['idReserva']);
         }
     }
@@ -28,9 +32,15 @@ function getHostReservas($idHost, $conexion) {
                       SET r.idEstadoReserva = 3 
                       WHERE p.idUsuario = $idHost 
                       AND r.idEstadoReserva != 4 
+                      AND r.idEstadoReserva != 3
                       AND r.dtFechaFin < '$hoy_str'");
 
-    $sqlRes = "SELECT r.*, p.vNombre as nombrePropiedad, p.idPropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto,
+    $sqlRes = "SELECT r.*, 
+                      p.vNombre as nombrePropiedad, 
+                      p.idPropiedad, 
+                      u.vNombre as guestNombre, 
+                      u.vApellido as guestApellido, 
+                      u.vFoto as guestFoto,
                       MAX(c.vMotivo) as motivoCancelacionReal,
                       MAX(c.dPenalizacion) as penalizacion,
                       MAX(c.dReembolso) as reembolso,
@@ -41,20 +51,24 @@ function getHostReservas($idHost, $conexion) {
                LEFT JOIN tbl_cancelacion c ON r.idReserva = c.idReserva
                WHERE p.idUsuario = ?
                GROUP BY r.idReserva
-               ORDER BY r.dtFechaInicio DESC";
+               ORDER BY r.dtFechaInicio ASC";
+
     $stmtRes = $conexion->prepare($sqlRes);
     $stmtRes->bind_param("i", $idHost);
     $stmtRes->execute();
     $result = $stmtRes->get_result();
-    
+
     $reservas = [];
+
     while ($row = $result->fetch_assoc()) {
         $reservas[] = $row;
     }
+
     return $reservas;
 }
 
-function getHostComentarios($idHost, $conexion) {
+function getHostComentarios($idHost, $conexion)
+{
     $sqlCom = "SELECT id, tipo, vComentario, iCalificacion, fecha, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario, vRespuesta FROM (
                     SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario, c.vRespuesta
                     FROM tbl_comentarios c
@@ -69,43 +83,54 @@ function getHostComentarios($idHost, $conexion) {
                     WHERE p.idUsuario = ?
                ) as t
                ORDER BY fecha DESC";
+
     $stmtCom = $conexion->prepare($sqlCom);
     $stmtCom->bind_param("ii", $idHost, $idHost);
     $stmtCom->execute();
     $result = $stmtCom->get_result();
-    
+
     $comentarios = [];
+
     while ($row = $result->fetch_assoc()) {
         $comentarios[] = $row;
     }
+
     return $comentarios;
 }
 
-function getHostStats($idHost, $conexion) {
+function getHostStats($idHost, $conexion)
+{
     $sqlAvg = "SELECT AVG(calif) as promedio, COUNT(*) as total FROM (
                     SELECT iCalificacion as calif FROM tbl_comentarios c JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad WHERE p.idUsuario = ? AND iCalificacion > 0
                     UNION ALL
                     SELECT iCalificacion as calif FROM tbl_resenia r JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad WHERE p.idUsuario = ? AND iCalificacion > 0
                ) as t_avg";
+
     $stmtAvg = $conexion->prepare($sqlAvg);
     $stmtAvg->bind_param("ii", $idHost, $idHost);
     $stmtAvg->execute();
+
     $avgData = $stmtAvg->get_result()->fetch_assoc();
+
     return [
         'promedio' => round($avgData['promedio'] ?? 5.0, 1),
         'total' => $avgData['total'] ?? 0
     ];
 }
 
-function getPoliticasCancelacion($conexion) {
+function getPoliticasCancelacion($conexion)
+{
     $sqlPol = "SELECT vNombreOpcion, vDescripcion FROM tbl_politicas_reservas";
     $stmtPol = $conexion->query($sqlPol);
+
     $politicas = [];
+
     if ($stmtPol && $stmtPol->num_rows > 0) {
-        while($rowPol = $stmtPol->fetch_assoc()) {
+        while ($rowPol = $stmtPol->fetch_assoc()) {
             $politicas[] = $rowPol;
         }
     }
+
     return $politicas;
 }
 ?>

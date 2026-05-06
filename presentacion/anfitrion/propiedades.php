@@ -45,7 +45,7 @@ $totalIngresos = getHostIngresos($idHost, $conexion);
                     </div>
                     <div class="kpi-host-card">
                         <span class="label">Ingresos Totales</span>
-                        <div class="value">$<?php echo number_format($totalIngresos, 2); ?> <span style="font-size: 11px; background: #f0f4ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Ganancia neta acumulada</span></div>
+                        <div class="value">$<?php echo number_format($totalIngresos, 2, '.', ','); ?> <span style="font-size: 11px; background: #f0f4ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; margin-left: 10px;">Ganancia neta acumulada</span></div>
                     </div>
                 </section>
 

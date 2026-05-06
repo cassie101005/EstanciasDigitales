@@ -33,7 +33,7 @@ class QueriesCalendario {
                    FROM tbl_reserva r
                    JOIN tbl_usuarios u ON u.idUsuario = r.idUsuario
                    WHERE r.idPropiedad = ? 
-                   AND LOWER(r.vEstatus) NOT LIKE '%cancel%'
+                   AND TRIM(LOWER(r.vEstatus)) != 'cancelada'
                    AND (YEAR(r.dtFechaInicio) = ? OR YEAR(r.dtFechaFin) = ?)
                    AND (MONTH(r.dtFechaInicio) = ? OR MONTH(r.dtFechaFin) = ?)";
         $stmtRes = $this->conexion->prepare($sqlRes);
@@ -108,8 +108,8 @@ class QueriesCalendario {
     public function validarSolapamientoReservas($idPropiedad, $fechaInicio, $fechaFin) {
         $sql = "SELECT idReserva FROM tbl_reserva 
                 WHERE idPropiedad = ? 
-                AND dtFechaInicio < ? AND dtFechaFin > ?
-                AND LOWER(vEstatus) NOT LIKE '%cancel%'";
+                AND dtFechaInicio <= ? AND dtFechaFin >= ?
+                AND TRIM(LOWER(vEstatus)) != 'cancelada'";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
         $stmt->execute();
@@ -122,7 +122,7 @@ class QueriesCalendario {
     public function validarSolapamientoBloqueos($idPropiedad, $fechaInicio, $fechaFin) {
         $sql = "SELECT idDisponibilidad FROM tbl_disponibilidad_administrativa_propiedad
                 WHERE idPropiedad = ? AND bEstado = 1
-                AND dtFechaInicio < ? AND dtFechaFin > ?";
+                AND dtFechaInicio <= ? AND dtFechaFin >= ?";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
         $stmt->execute();
@@ -144,7 +144,7 @@ class QueriesCalendario {
      */
     public function insertarTarifa($idPropiedad, $fechaInicio, $fechaFin, $precio) {
         // Primero desactivamos tarifas previas que se solapen (opcional, o simplemente permitimos la nueva)
-        $sqlDeact = "UPDATE tbl_tarifa_propiedad SET bEstado = 0 WHERE idPropiedad = ? AND dtFechaInicio < ? AND dtFechaFin > ?";
+        $sqlDeact = "UPDATE tbl_tarifa_propiedad SET bEstado = 0 WHERE idPropiedad = ? AND dtFechaInicio <= ? AND dtFechaFin >= ?";
         $stmtD = $this->conexion->prepare($sqlDeact);
         $stmtD->bind_param("iss", $idPropiedad, $fechaFin, $fechaInicio);
         $stmtD->execute();

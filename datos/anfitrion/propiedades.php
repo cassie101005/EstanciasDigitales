@@ -13,7 +13,7 @@ if ($accion === 'detalle') {
         echo json_encode(['error' => 'ID inválido para eliminar.']);
         exit;
     }
-} else if ($accion !== 'listar' && $accion !== 'listar_tipos') {
+} else if ($accion !== 'listar' && $accion !== 'listar_tipos' && $accion !== 'ingresos') {
     echo json_encode(['error' => 'Acción no reconocida: ' . $accion]);
     exit;
 }

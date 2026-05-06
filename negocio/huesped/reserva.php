@@ -15,6 +15,18 @@ if (!validarDisponibilidad($idPropiedad, $fechaInicio, $fechaFin, $conexion)) {
     return;
 }
 
+// 1.1 Validar capacidad de huéspedes
+$stmtCap = $conexion->prepare("SELECT iCapacidadHuespedes FROM tbl_propiedad WHERE idPropiedad = ?");
+$stmtCap->bind_param("i", $idPropiedad);
+$stmtCap->execute();
+$resCap = $stmtCap->get_result()->fetch_assoc();
+$capacidadMax = $resCap['iCapacidadHuespedes'] ?? 0;
+
+if ($huespedes > $capacidadMax) {
+    $resultado = ['ok' => false, 'mensaje' => 'La cantidad de huéspedes (' . $huespedes . ') excede la capacidad máxima de la propiedad (' . $capacidadMax . ').'];
+    return;
+}
+
 // 2. Validar fechas pasadas y coherencia
 $hoy = new DateTime();
 $hoy->setTime(0, 0, 0); // Ignorar la hora para comparar solo fechas
@@ -30,6 +42,14 @@ $finObj->setTime(0, 0, 0);
 
 if ($inicioObj < $hoy) {
     $resultado = ['ok' => false, 'mensaje' => 'No puedes realizar reservas con fechas de llegada en el pasado.'];
+    return;
+}
+
+$fechaMaxima = clone $hoy;
+$fechaMaxima->modify('+1 year');
+
+if ($inicioObj > $fechaMaxima || $finObj > $fechaMaxima) {
+    $resultado = ['ok' => false, 'mensaje' => 'Solo puedes realizar reservas desde la fecha actual hasta máximo 1 año en el futuro.'];
     return;
 }
 

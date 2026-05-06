@@ -2,13 +2,14 @@
 require_once '../../datos/conexion.php';
 
 function getHostIngresos($idHost, $conexion) {
-    // Calcular ingresos totales: reservas no canceladas + penalizaciones de canceladas
+    // Calcular ingresos totales: reservas confirmadas (1), en curso (2), finalizadas (3) + penalizaciones de canceladas
     $sqlIngresos = "SELECT 
                         (SELECT IFNULL(SUM(r.dTotalReserva), 0)
                          FROM tbl_reserva r 
                          JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
                          WHERE p.idUsuario = ? 
-                         AND (r.vEstatus IS NULL OR (UPPER(r.vEstatus) != 'CANCELADA' AND UPPER(r.vEstatus) != 'CANCELADO')))
+                         AND r.idEstadoReserva IN (1, 2, 3) 
+                         AND TRIM(LOWER(r.vEstatus)) NOT IN ('cancelada', 'pendiente cancelacion'))
                         +
                         (SELECT IFNULL(SUM(c.dPenalizacion), 0)
                          FROM tbl_cancelacion c
@@ -21,27 +22,6 @@ function getHostIngresos($idHost, $conexion) {
         $stmtIng->execute();
         $resIng = $stmtIng->get_result()->fetch_assoc();
         return floatval($resIng['totalIngresos'] ?? 0);
-    } else {
-        // Fallback for different column name
-        $sqlIngresos2 = "SELECT 
-                            (SELECT IFNULL(SUM(r.dTotalReserva), 0)
-                             FROM tbl_reserva r 
-                             JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad 
-                             WHERE p.idUsuario = ? 
-                             AND (r.vEstado IS NULL OR (UPPER(r.vEstado) != 'CANCELADA' AND UPPER(r.vEstado) != 'CANCELADO')))
-                            +
-                            (SELECT IFNULL(SUM(c.dPenalizacion), 0)
-                             FROM tbl_cancelacion c
-                             JOIN tbl_reserva r ON c.idReserva = r.idReserva
-                             JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
-                             WHERE p.idUsuario = ?) as totalIngresos";
-        $stmtIng2 = $conexion->prepare($sqlIngresos2);
-        if ($stmtIng2) {
-            $stmtIng2->bind_param("ii", $idHost, $idHost);
-            $stmtIng2->execute();
-            $resIng2 = $stmtIng2->get_result()->fetch_assoc();
-            return floatval($resIng2['totalIngresos'] ?? 0);
-        }
     }
     return 0;
 }

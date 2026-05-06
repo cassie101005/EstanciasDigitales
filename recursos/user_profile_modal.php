@@ -228,15 +228,34 @@ async function closeProfileModal(e) {
             await guardarCambiosPerfil();
             return;
         } else if (result.dismiss === Swal.DismissReason.cancel) {
-            // Descartar: recargar para limpiar cambios visuales
             fotoPerfilModificada = false;
-            location.reload();
+            // Reset form to its initial state
+            document.getElementById('profileForm').reset();
+            // Reset image to the previous valid avatar in navbar
+            const prevAvatarSrc = document.querySelector('.nav-profile-avatar img, .sidebar-profile-avatar img, .sidebar-host-profile img').src;
+            if (prevAvatarSrc) document.getElementById('profilePreview').src = prevAvatarSrc;
+            
+            // Close modal
+            var modal = document.getElementById('profileModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Clean password fields explicitly just in case
+            document.getElementById('pw_current').value = '';
+            document.getElementById('pw_confirm').value = '';
             return;
         } else {
             // Si solo cerró el SweetAlert sin elegir, no cerramos el modal
             return;
         }
     }
+
+    // Reset here too if it closes without prompt
+    document.getElementById('profileForm').reset();
+    const currentAvatarSrc = document.querySelector('.nav-profile-avatar img, .sidebar-profile-avatar img, .sidebar-host-profile img').src;
+    if (currentAvatarSrc) document.getElementById('profilePreview').src = currentAvatarSrc;
+    document.getElementById('pw_current').value = '';
+    document.getElementById('pw_confirm').value = '';
 
     modal.classList.remove('active');
     document.body.style.overflow = '';
@@ -274,6 +293,16 @@ async function guardarCambiosPerfil() {
                 icon: 'error',
                 title: 'Error de contraseña',
                 text: 'datos no coinciden o errones'
+            });
+            return;
+        }
+        
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/;
+        if (!regex.test(pwCurrent)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Contraseña insegura',
+                text: 'La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas y números.'
             });
             return;
         }
@@ -357,7 +386,7 @@ async function guardarCambiosPerfil() {
                     img.src = newAvatarSrc;
                 });
                 
-                // 2. Actualizar nombre en sidebars si existe
+                // Actualizar name en sidebars si existe
                 const newNombre = document.querySelector('[name="nombre"]').value;
                 const newApellido = document.querySelector('[name="apellido"]').value;
                 const fullName = newNombre + ' ' + newApellido;
@@ -367,6 +396,15 @@ async function guardarCambiosPerfil() {
                 });
                 
                 // 3. Reset estado de modificacion
+                // Update default values of inputs so reset() will revert to these newly saved values
+                document.querySelectorAll('#profileForm input').forEach(input => {
+                    if (input.type !== 'password' && input.type !== 'file') {
+                        input.defaultValue = input.value;
+                    }
+                });
+                document.getElementById('pw_current').value = '';
+                document.getElementById('pw_confirm').value = '';
+
                 initialProfileData = getProfileFormData();
                 fotoPerfilModificada = false;
                 

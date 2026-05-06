@@ -51,13 +51,21 @@ if (isset($_FILES['fotoPerfil'])) {
     }
 }
 
+$rawPassword = trim($_POST['contrasenia'] ?? '');
+if (!empty($rawPassword)) {
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/', $rawPassword)) {
+        echo json_encode(['ok' => false, 'mensaje' => 'La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas y números.']);
+        exit;
+    }
+}
+
 $datos = [
     'nombre' => htmlspecialchars(trim($_POST['nombre'] ?? '')),
     'apellido' => htmlspecialchars(trim($_POST['apellido'] ?? '')),
     'fechaNacimiento' => htmlspecialchars(trim($_POST['fechaNacimiento'] ?? '')),
     'correo' => htmlspecialchars(trim($_POST['correo'] ?? '')),
     'telefono' => htmlspecialchars(trim($_POST['telefono'] ?? '')),
-    'contrasenia' => !empty(trim($_POST['contrasenia'] ?? '')) ? password_hash(trim($_POST['contrasenia']), PASSWORD_DEFAULT) : $userActual['vContrasenia'],
+    'contrasenia' => !empty($rawPassword) ? password_hash($rawPassword, PASSWORD_DEFAULT) : $userActual['vContrasenia'],
     'foto' => $fotoPath
 ];
 
@@ -65,6 +73,14 @@ if (!empty($datos['telefono'])) {
     if (!preg_match('/^[0-9]{10}$/', $datos['telefono'])) {
         echo json_encode(['ok' => false, 'mensaje' => 'El teléfono debe tener exactamente 10 dígitos y solo contener números.']);
         exit;
+    }
+
+    if ($datos['telefono'] !== $userActual['vTelefono']) {
+        $resTelefono = $queriesAuth->verificarTelefonoExistente($datos['telefono']);
+        if ($resTelefono->num_rows > 0) {
+            echo json_encode(['ok' => false, 'mensaje' => 'Este número de teléfono ya está registrado por otro usuario.']);
+            exit;
+        }
     }
 }
 
