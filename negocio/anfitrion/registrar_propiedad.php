@@ -182,6 +182,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
     $numeroHabitaciones = intval($_POST['numeroHabitaciones'] ?? 0);
     $numeroBanos = intval($_POST['numeroBanos'] ?? 0);
 
+    // Validar que el tipo de propiedad existe en la base de datos
+    if (!$queriesRegistro->existeTipoPropiedad($idTipoPropiedad)) {
+        http_response_code(400);
+        $resultado = ['ok' => false, 'error' => 'El tipo de propiedad seleccionado no es válido.'];
+        return;
+    }
+
     // Validación estricta de Tarifa de Limpieza
     if (!preg_match('/^\d{1,5}(\.\d{1,2})?$/', $tarifaLimpieza)) {
         http_response_code(400);

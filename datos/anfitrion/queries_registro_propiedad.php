@@ -24,6 +24,17 @@ class QueriesRegistroPropiedad {
     }
     
     /**
+     * Verificar si un tipo de propiedad existe
+     */
+    public function existeTipoPropiedad($idTipoPropiedad) {
+        $sql = "SELECT idTipoPropiedad FROM tbl_tipo_propiedad WHERE idTipoPropiedad = ? AND bEstado = 1";
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->bind_param("i", $idTipoPropiedad);
+        $stmt->execute();
+        return $stmt->get_result()->num_rows > 0;
+    }
+
+    /**
      * Obtener países
      */
     public function obtenerPaises() {

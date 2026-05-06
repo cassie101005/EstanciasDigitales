@@ -126,6 +126,13 @@ elseif ($accion === 'actualizar') {
         return;
     }
 
+    // Validar que el tipo de propiedad existe en la base de datos
+    if (!$queriesRegistro->existeTipoPropiedad($idTipoPropiedad)) {
+        http_response_code(400);
+        $resultado = ['ok' => false, 'error' => 'El tipo de propiedad seleccionado no es válido.'];
+        return;
+    }
+
     $datos = [
         'idPropiedad' => $idPropiedad,
         'idCiudad' => $idCiudad,
