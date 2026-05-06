@@ -306,6 +306,9 @@ $totalComentarios = $stats['total'];
                                                 </td>
                                                 <td style="padding: 1.25rem 2rem;">
                                                     <span style="font-size: 12px; font-weight: 600; color: #94a3b8;"><?php echo date('d/m/Y', strtotime($com['fecha'])); ?></span>
+                                                    <?php if (!empty($com['fecha_edicion']) && $com['fecha_edicion'] !== $com['fecha']): ?>
+                                                        <br><span style="font-size: 10px; font-style: italic; color: var(--primary); font-weight: 700;">Editado el <?php echo date('d/m/Y', strtotime($com['fecha_edicion'])); ?></span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td style="padding: 1.25rem 2rem; text-align: center;">
                                                     <button onclick="abrirModalRespuesta('<?php echo $com['tipo']; ?>', <?php echo $com['id']; ?>, '<?php echo addslashes(htmlspecialchars($com['guestNombre'])); ?>')" 

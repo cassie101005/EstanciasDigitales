@@ -8,6 +8,7 @@ if (!isset($idPropiedad) || !isset($idUsuario) || !isset($fechaInicio) || !isset
 }
 
 require_once '../../negocio/utilidades/seguridad.php';
+require_once '../../negocio/utilidades/calculadora_precios.php';
 
 // 0. Validar CSRF
 if (!validarTokenCSRF($_POST['csrf_token'] ?? '')) {

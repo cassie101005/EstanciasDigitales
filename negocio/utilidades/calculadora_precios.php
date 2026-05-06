@@ -22,7 +22,7 @@ function calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion
     }
 
     // 1. Obtener precio base y CATEGORÍA de la propiedad
-    $sqlProp = "SELECT p.dPrecioNoche, tp.vNombreCategoria as tipo 
+    $sqlProp = "SELECT p.dPrecioNoche, p.dTarifaLimpieza, tp.vNombreCategoria as tipo 
                 FROM tbl_propiedad p
                 LEFT JOIN tbl_tipo_propiedad tp ON p.idTipoPropiedad = tp.idTipoPropiedad
                 WHERE p.idPropiedad = ?";
@@ -32,6 +32,7 @@ function calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion
     $resProp = $stmtProp->get_result();
     $prop = $resProp->fetch_assoc();
     $precioBase = floatval($prop['dPrecioNoche'] ?? 0);
+    $tarifaLimpiezaNoche = floatval($prop['dTarifaLimpieza'] ?? 0);
     $categoria  = $prop['tipo'] ?? '';
 
     // 2. Iterar noche por noche (excluyendo el día de salida)
@@ -95,22 +96,7 @@ function calcularPrecioEstancia($idPropiedad, $fechaInicio, $fechaFin, $conexion
         $noches++;
     }
 
-    // Cálculo dinámico de limpieza por porcentaje según categoría
-    $obtenerPorcentaje = function($cat) {
-        $porcentajes = [
-            'habitacion' => 0.05, 'habitación' => 0.05,
-            'departamento' => 0.08,
-            'casa' => 0.10,
-            'cabaña' => 0.12, 'cabana' => 0.12,
-            'villa' => 0.15,
-            'lujo' => 0.18, 'premium' => 0.18
-        ];
-        $catNormalizada = strtolower(trim($cat));
-        return $porcentajes[$catNormalizada] ?? 0.08;
-    };
-
-    $porcentajeLimpieza = $obtenerPorcentaje($categoria);
-    $limpieza  = round($totalBase * $porcentajeLimpieza, 2);
+    $limpieza  = round($tarifaLimpiezaNoche * $noches, 2);
     $impuestos = round($totalBase * 0.16, 2);
     $granTotal = round($totalBase + $limpieza + $impuestos, 2);
 

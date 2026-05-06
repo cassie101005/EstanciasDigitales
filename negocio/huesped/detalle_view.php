@@ -87,6 +87,7 @@ function getPropertyPoliticas($idPropiedad, $conexion) {
 function getPropertyResenias($idPropiedad, $conexion) {
     $sqlResenias = "SELECT * FROM (
                         SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha,
+                               r.dtFechaActualizacion as fecha_edicion,
                                u.vNombre, u.vApellido, u.vFoto, u.idUsuario,
                                r.vRespuesta, r.dtFechaRespuesta,
                                CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto
@@ -97,6 +98,7 @@ function getPropertyResenias($idPropiedad, $conexion) {
                         WHERE r.idPropiedad = ?
                         UNION ALL
                         SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha,
+                               NULL as fecha_edicion,
                                u.vNombre, u.vApellido, u.vFoto, u.idUsuario,
                                c.vRespuesta, NULL as dtFechaRespuesta,
                                CONCAT(h.vNombre, ' ', h.vApellido) as hostNombre, h.vFoto as hostFoto

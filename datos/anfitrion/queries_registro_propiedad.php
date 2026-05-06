@@ -91,21 +91,23 @@ class QueriesRegistroPropiedad {
                     vNombre,
                     vDireccion,
                     dPrecioNoche,
+                    dTarifaLimpieza,
                     vDescripcion,
                     iCapacidadHuespedes,
                     iNumeroHabitaciones,
                     iNumeroBanos
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param(
-            "iiissssiii",
+            "iiisssssiii",
             $datos['idCiudad'],
             $datos['idUsuario'],
             $datos['idTipoPropiedad'],
             $datos['nombre'],
             $datos['direccion'],
             $datos['precioNoche'],
+            $datos['tarifaLimpieza'],
             $datos['descripcion'],
             $datos['capacidadHuespedes'],
             $datos['numeroHabitaciones'],

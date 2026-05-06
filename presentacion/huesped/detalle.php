@@ -230,7 +230,12 @@ if (isset($_SESSION['idUsuario'])) {
                                             <img src="<?php echo !empty($res['vFoto']) ? '../../' . $res['vFoto'] : 'https://i.pravatar.cc/100?u=' . $res['idUsuario']; ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
                                             <div>
                                                 <p style="font-weight: 800;"><?php echo htmlspecialchars($res['vNombre'] . ' ' . $res['vApellido']); ?></p>
-                                                <p style="font-size: 12px; color: #64748b;"><?php echo date('d M, Y', strtotime($res['fecha'])); ?></p>
+                                                <p style="font-size: 12px; color: #64748b;">
+                                                    <?php echo date('d M, Y', strtotime($res['fecha'])); ?>
+                                                    <?php if (!empty($res['fecha_edicion']) && $res['fecha_edicion'] !== $res['fecha']): ?>
+                                                        • <span style="font-style: italic; color: var(--primary);">Editado el <?php echo date('d M, Y', strtotime($res['fecha_edicion'])); ?></span>
+                                                    <?php endif; ?>
+                                                </p>
                                                 <?php if (isset($_SESSION['idUsuario']) && $_SESSION['idUsuario'] == $res['idUsuario']): ?>
                                                     <button type="button" class="btn-edit-comment" 
                                                             onclick="editComment(<?php echo $res['id']; ?>, '<?php echo addslashes($res['vComentario']); ?>')"

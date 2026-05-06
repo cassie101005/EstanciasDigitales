@@ -51,7 +51,7 @@ function getGuestReservas($idUsuario, $conexion) {
             LEFT JOIN tbl_estado es ON ci.idEstado = es.idEstado
             LEFT JOIN tbl_pais pa ON es.idPais = pa.idPais
             WHERE r.idUsuario = ?
-            ORDER BY r.dtFechaInicio DESC";
+            ORDER BY r.dtFechaRegistro DESC, r.idReserva DESC";
 
     $stmt = $conexion->prepare($sql);
     $stmt->bind_param("i", $idUsuario);

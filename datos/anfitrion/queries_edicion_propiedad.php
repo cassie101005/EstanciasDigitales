@@ -55,6 +55,7 @@ class QueriesEdicionPropiedad {
                     vNombre             = ?, 
                     idTipoPropiedad     = ?, 
                     dPrecioNoche        = ?, 
+                    dTarifaLimpieza     = ?, 
                     iCapacidadHuespedes = ?, 
                     iNumeroHabitaciones = ?, 
                     iNumeroBanos        = ?,
@@ -64,10 +65,11 @@ class QueriesEdicionPropiedad {
                 WHERE idPropiedad = ? AND idUsuario = ?";
         $stmt = $this->conexion->prepare($sql);
         $stmt->bind_param(
-            "sidiiiissii",
+            "siddiiiissii",
             $datos['nombre'],
             $datos['idTipoPropiedad'],
             $datos['precioNoche'],
+            $datos['tarifaLimpieza'],
             $datos['capacidadHuespedes'],
             $datos['numeroHabitaciones'],
             $datos['numeroBanos'],

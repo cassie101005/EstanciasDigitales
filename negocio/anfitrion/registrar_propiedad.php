@@ -176,10 +176,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
     $nombre = htmlspecialchars(trim($_POST['nombre'] ?? ''), ENT_QUOTES, 'UTF-8');
     $direccion = htmlspecialchars(trim($_POST['direccion'] ?? ''), ENT_QUOTES, 'UTF-8');
     $precioNoche = floatval($_POST['precioNoche'] ?? 0);
+    $tarifaLimpieza = trim($_POST['dTarifaLimpieza'] ?? ''); // Traer como string para validar regex exacto
     $descripcion = htmlspecialchars(trim($_POST['descripcion'] ?? ''), ENT_QUOTES, 'UTF-8');
     $capacidadHuespedes = intval($_POST['capacidadHuespedes'] ?? 0);
     $numeroHabitaciones = intval($_POST['numeroHabitaciones'] ?? 0);
     $numeroBanos = intval($_POST['numeroBanos'] ?? 0);
+
+    // Validación estricta de Tarifa de Limpieza
+    if (!preg_match('/^\d{1,5}(\.\d{1,2})?$/', $tarifaLimpieza)) {
+        http_response_code(400);
+        $resultado = ['ok' => false, 'error' => 'Tarifa de limpieza inválida. Solo números positivos, máximo 5 dígitos enteros y 2 decimales.'];
+        return;
+    }
 
     $servicios = array_unique(json_decode($_POST['servicios'] ?? '[]', true) ?: []);
     $reglas = array_unique(json_decode($_POST['reglas'] ?? '[]', true) ?: []);
@@ -192,6 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $accion === 'guardar') {
         'nombre' => $nombre,
         'direccion' => $direccion,
         'precioNoche' => $precioNoche,
+        'tarifaLimpieza' => $tarifaLimpieza,
         'descripcion' => $descripcion,
         'capacidadHuespedes' => $capacidadHuespedes,
         'numeroHabitaciones' => $numeroHabitaciones,

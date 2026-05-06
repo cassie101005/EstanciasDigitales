@@ -51,7 +51,7 @@ function getHostReservas($idHost, $conexion)
                LEFT JOIN tbl_cancelacion c ON r.idReserva = c.idReserva
                WHERE p.idUsuario = ?
                GROUP BY r.idReserva
-               ORDER BY r.dtFechaInicio ASC";
+               ORDER BY r.dtFechaRegistro DESC, r.idReserva DESC";
 
     $stmtRes = $conexion->prepare($sqlRes);
     $stmtRes->bind_param("i", $idHost);
@@ -69,14 +69,14 @@ function getHostReservas($idHost, $conexion)
 
 function getHostComentarios($idHost, $conexion)
 {
-    $sqlCom = "SELECT id, tipo, vComentario, iCalificacion, fecha, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario, vRespuesta FROM (
-                    SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario, c.vRespuesta
+    $sqlCom = "SELECT id, tipo, vComentario, iCalificacion, fecha, fecha_edicion, nombrePropiedad, guestNombre, guestApellido, guestFoto, idUsuario, vRespuesta FROM (
+                    SELECT c.idComentario as id, 'comentario' as tipo, c.vComentario, c.iCalificacion, c.dtFechaRegistro as fecha, NULL as fecha_edicion, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, c.idUsuario, c.vRespuesta
                     FROM tbl_comentarios c
                     JOIN tbl_propiedad p ON c.idPropiedad = p.idPropiedad
                     JOIN tbl_usuarios u ON c.idUsuario = u.idUsuario
                     WHERE p.idUsuario = ?
                     UNION ALL
-                    SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, r.idUsuario, r.vRespuesta
+                    SELECT r.idResenia as id, 'resenia' as tipo, r.vComentario, r.iCalificacion, r.dtFechaResenia as fecha, r.dtFechaActualizacion as fecha_edicion, p.vNombre as nombrePropiedad, u.vNombre as guestNombre, u.vApellido as guestApellido, u.vFoto as guestFoto, r.idUsuario, r.vRespuesta
                     FROM tbl_resenia r
                     JOIN tbl_propiedad p ON r.idPropiedad = p.idPropiedad
                     JOIN tbl_usuarios u ON r.idUsuario = u.idUsuario

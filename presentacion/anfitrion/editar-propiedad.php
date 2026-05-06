@@ -73,6 +73,16 @@ $idPropiedad = intval($_GET['id'] ?? 0);
                             </div>
                         </div>
 
+                        <div class="np-grid-2">
+                            <div class="np-form-group">
+                                <label class="np-label">Tarifa de limpieza por noche <span class="np-required">*</span></label>
+                                <div class="np-input-icon-wrap">
+                                    <span class="np-input-prefix">$</span>
+                                    <input id="dTarifaLimpieza" type="text" name="dTarifaLimpieza" class="np-input np-input-prefixed" placeholder="0.00" required>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="np-grid-3">
                             <div class="np-form-group">
                                 <label class="np-label">Huéspedes</label>

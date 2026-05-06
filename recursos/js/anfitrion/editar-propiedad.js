@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('nombre').value = p.vNombre;
         document.getElementById('idTipoPropiedad').value = p.idTipoPropiedad;
         document.getElementById('precioNoche').value = p.dPrecioNoche;
+        document.getElementById('dTarifaLimpieza').value = p.dTarifaLimpieza;
         document.getElementById('capacidadHuespedes').value = p.iCapacidadHuespedes;
         document.getElementById('numeroHabitaciones').value = p.iNumeroHabitaciones;
         document.getElementById('numeroBanos').value = p.iNumeroBanos;

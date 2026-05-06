@@ -79,12 +79,20 @@ elseif ($accion === 'actualizar') {
     }
     $idTipoPropiedad = intval($_POST['idTipoPropiedad'] ?? 0);
     $precioNoche = floatval($_POST['precioNoche'] ?? 0);
+    $tarifaLimpieza = trim($_POST['dTarifaLimpieza'] ?? ''); // Traer como string para validar regex
     $capacidadHuespedes = intval($_POST['capacidadHuespedes'] ?? 0);
     $numeroHabitaciones = intval($_POST['numeroHabitaciones'] ?? 0);
     $numeroBanos = intval($_POST['numeroBanos'] ?? 0);
     $idCiudad = intval($_POST['idCiudad'] ?? 0);
     $direccion = trim($_POST['direccion'] ?? '');
     $descripcion = trim($_POST['descripcion'] ?? '');
+
+    // Validación estricta de Tarifa de Limpieza
+    if (!preg_match('/^\d{1,5}(\.\d{1,2})?$/', $tarifaLimpieza)) {
+        http_response_code(400);
+        $resultado = ['ok' => false, 'error' => 'Tarifa de limpieza inválida. Solo números positivos, máximo 5 dígitos enteros y 2 decimales.'];
+        return;
+    }
 
     $servicios = json_decode($_POST['servicios'] ?? '[]', true) ?: [];
     $reglas = json_decode($_POST['reglas'] ?? '[]', true) ?: [];
@@ -103,6 +111,7 @@ elseif ($accion === 'actualizar') {
         'nombre' => $nombre,
         'direccion' => $direccion,
         'precioNoche' => $precioNoche,
+        'tarifaLimpieza' => $tarifaLimpieza,
         'descripcion' => $descripcion,
         'capacidadHuespedes' => $capacidadHuespedes,
         'numeroHabitaciones' => $numeroHabitaciones,

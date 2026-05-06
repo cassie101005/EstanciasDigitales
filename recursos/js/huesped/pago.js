@@ -46,7 +46,16 @@ async function procesarPago() {
             method: 'POST',
             body: formData
         });
-        const result = await response.json();
+        
+        const responseText = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            console.error("Respuesta no es JSON:", responseText);
+            throw new Error("El servidor devolvió una respuesta inesperada. Por favor, contacta al soporte.");
+        }
 
         if (result.ok) {
             Swal.fire({
@@ -61,6 +70,10 @@ async function procesarPago() {
         }
     } catch (error) {
         console.error(error);
-        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'Hubo un problema al conectar con el servidor.' });
+        Swal.fire({ 
+            icon: 'error', 
+            title: 'Error de proceso', 
+            text: error.message || 'Hubo un problema al procesar la reserva.' 
+        });
     }
 }
