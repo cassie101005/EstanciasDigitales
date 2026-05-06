@@ -87,21 +87,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    const getTotalImages = () => {
+        const actuales = document.querySelectorAll('.img-edit-card').length;
+        const nuevas = fileInput.files.length;
+        return actuales + nuevas;
+    };
+
     window.eliminarImagen = async (idImg, btn) => {
+        const totalNuevas = fileInput.files.length;
+        if (getTotalImages() <= 3) {
+            Swal.fire({
+                title: 'No se puede eliminar',
+                text: 'La propiedad debe tener al menos 3 imágenes. Si quieres cambiar esta foto, primero selecciona las fotos nuevas.',
+                icon: 'error',
+                confirmButtonColor: 'var(--primary)'
+            });
+            return;
+        }
+
         if(!confirm('¿Eliminar esta imagen?')) return;
         const fd = new FormData();
         fd.append('idImagen', idImg);
         fd.append('idPropiedad', idPropiedad);
+        fd.append('totalNuevas', totalNuevas);
         fd.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
         const r = await fetch('../../apis/anfitrion/editar_propiedad.php?accion=eliminar_imagen', { method: 'POST', body: fd });
         const d = await r.json();
-        if(d.ok) btn.closest('.img-edit-card').remove();
+        if(d.ok) {
+            btn.closest('.img-edit-card').remove();
+        } else {
+            Swal.fire('Error', d.error || 'No se pudo eliminar la imagen', 'error');
+        }
     };
 
     // --- Protección contra cambios no guardados ---
     let formModificado = false;
     form.addEventListener('input', () => formModificado = true);
     form.addEventListener('change', () => formModificado = true);
+    fileInput.addEventListener('change', () => formModificado = true);
 
     // Función para manejar navegación segura
     const navegacionSegura = (url) => {
@@ -164,6 +187,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Envío de Formulario ---
     form.onsubmit = async (e) => {
         e.preventDefault();
+
+        // VALIDACIÓN OBLIGATORIA: Mínimo 3 imágenes
+        if (getTotalImages() < 3) {
+            Swal.fire({
+                title: 'Faltan imágenes',
+                text: 'Debes tener al menos 3 imágenes para guardar los cambios.',
+                icon: 'error',
+                confirmButtonColor: 'var(--primary)'
+            });
+            return;
+        }
+
         const btn = document.getElementById('btnGuardar');
         btn.disabled = true;
         btn.innerText = 'Guardando...';

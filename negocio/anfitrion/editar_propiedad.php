@@ -68,18 +68,42 @@ elseif ($accion === 'actualizar') {
     $idPropiedad = intval($_POST['idPropiedad'] ?? 0);
     $nombre = trim($_POST['nombre'] ?? '');
 
+    // Primero validar que la propiedad pertenece al usuario (IDOR Protection)
+    $checkOwner = $queriesEdicion->obtenerPropiedadPorId($idPropiedad, $idUsuario);
+    if ($checkOwner->num_rows === 0) {
+        http_response_code(403);
+        $resultado = ['ok' => false, 'error' => 'No tienes permiso para editar esta propiedad.'];
+        return;
+    }
+
+    // VALIDACIÓN OBLIGATORIA: Mínimo 3 imágenes
+    $resImgs = $queriesEdicion->obtenerImagenes($idPropiedad);
+    $totalActuales = $resImgs->num_rows;
+    $totalNuevas = 0;
+    if (!empty($_FILES['imagenes']['name'][0])) {
+        foreach ($_FILES['imagenes']['error'] as $err) {
+            if ($err === UPLOAD_ERR_OK) $totalNuevas++;
+        }
+    }
+
+    if (($totalActuales + $totalNuevas) < 3) {
+        http_response_code(400);
+        $resultado = ['ok' => false, 'error' => 'Debes mantener al menos 3 imágenes para guardar la propiedad.'];
+        return;
+    }
+
     if (!preg_match('/^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ]+$/u', $nombre)) {
         $resultado = ['ok' => false, 'error' => 'El nombre de la propiedad solo puede contener letras y números, sin caracteres especiales.'];
         return;
     }
-
+    // ... (rest of the logic remains)
     if (!preg_match('/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/u', $nombre)) {
         $resultado = ['ok' => false, 'error' => 'El nombre de la propiedad debe contener al menos una letra.'];
         return;
     }
     $idTipoPropiedad = intval($_POST['idTipoPropiedad'] ?? 0);
     $precioNoche = floatval($_POST['precioNoche'] ?? 0);
-    $tarifaLimpieza = trim($_POST['dTarifaLimpieza'] ?? ''); // Traer como string para validar regex
+    $tarifaLimpieza = trim($_POST['dTarifaLimpieza'] ?? ''); 
     $capacidadHuespedes = intval($_POST['capacidadHuespedes'] ?? 0);
     $numeroHabitaciones = intval($_POST['numeroHabitaciones'] ?? 0);
     $numeroBanos = intval($_POST['numeroBanos'] ?? 0);
@@ -87,7 +111,6 @@ elseif ($accion === 'actualizar') {
     $direccion = trim($_POST['direccion'] ?? '');
     $descripcion = trim($_POST['descripcion'] ?? '');
 
-    // Validación estricta de Tarifa de Limpieza
     if (!preg_match('/^\d{1,5}(\.\d{1,2})?$/', $tarifaLimpieza)) {
         http_response_code(400);
         $resultado = ['ok' => false, 'error' => 'Tarifa de limpieza inválida. Solo números positivos, máximo 5 dígitos enteros y 2 decimales.'];
@@ -99,7 +122,6 @@ elseif ($accion === 'actualizar') {
     $politicas = json_decode($_POST['politicas'] ?? '[]', true) ?: [];
 
     if ($idPropiedad <= 0 || empty($nombre) || $idTipoPropiedad <= 0 || $precioNoche <= 0) {
-        error_log("FALLO EDICION: idPropiedad=$idPropiedad, nombre=$nombre, idTipo=$idTipoPropiedad, precio=$precioNoche");
         $resultado = ['ok' => false, 'error' => 'Faltan datos obligatorios.'];
         return;
     }
@@ -118,30 +140,14 @@ elseif ($accion === 'actualizar') {
         'numeroBanos' => $numeroBanos
     ];
 
-    // Primero validar que la propiedad pertenece al usuario (IDOR Protection)
-    $checkOwner = $queriesEdicion->obtenerPropiedadPorId($idPropiedad, $idUsuario);
-    if ($checkOwner->num_rows === 0) {
-        http_response_code(403);
-        $resultado = ['ok' => false, 'error' => 'No tienes permiso para editar esta propiedad.'];
-        return;
-    }
-
     $affectedRows = $queriesEdicion->actualizarPropiedad($datos, $idUsuario);
-    if ($affectedRows > 0) {
+    if ($affectedRows >= 0) {
         $queriesEdicion->limpiarRelaciones($idPropiedad);
-
-        foreach ($servicios as $idS)
-            $queriesRegistro->insertarServicioPropiedad(intval($idS), $idPropiedad);
-        foreach ($reglas as $idR)
-            $queriesRegistro->insertarReglaPropiedad(intval($idR), $idPropiedad);
-        foreach ($politicas as $idP)
-            $queriesRegistro->insertarPoliticaPropiedad(intval($idP), $idPropiedad);
+        foreach ($servicios as $idS) $queriesRegistro->insertarServicioPropiedad(intval($idS), $idPropiedad);
+        foreach ($reglas as $idR) $queriesRegistro->insertarReglaPropiedad(intval($idR), $idPropiedad);
+        foreach ($politicas as $idP) $queriesRegistro->insertarPoliticaPropiedad(intval($idP), $idPropiedad);
 
         $resultado = ['ok' => true, 'mensaje' => 'Propiedad actualizada correctamente.'];
-    } elseif ($affectedRows === 0) {
-        // Si es 0, puede ser que no hubo cambios o que el IDOR falló (aunque ya lo validamos arriba)
-        // El requerimiento pide detener si es 0.
-        $resultado = ['ok' => true, 'mensaje' => 'No se realizaron cambios en la propiedad.'];
     } else {
         $resultado = ['ok' => false, 'error' => 'No se pudo actualizar la propiedad.'];
     }
@@ -151,6 +157,23 @@ elseif ($accion === 'actualizar') {
 elseif ($accion === 'eliminar_imagen') {
     $idImagen = intval($_POST['idImagen'] ?? 0);
     $idPropiedad = intval($_POST['idPropiedad'] ?? 0);
+
+    // Validar propiedad y anfitrión
+    $checkOwner = $queriesEdicion->obtenerPropiedadPorId($idPropiedad, $idUsuario);
+    if ($checkOwner->num_rows === 0) {
+        http_response_code(403);
+        $resultado = ['ok' => false, 'error' => 'No tienes permiso para modificar esta propiedad.'];
+        return;
+    }
+
+    // Validar mínimo 3 imágenes (en DB + nuevas seleccionadas en el frontend)
+    $totalNuevas = intval($_POST['totalNuevas'] ?? 0);
+    $resImgs = $queriesEdicion->obtenerImagenes($idPropiedad);
+    if (($resImgs->num_rows + $totalNuevas) <= 3) {
+        http_response_code(400);
+        $resultado = ['ok' => false, 'error' => 'No puedes tener menos de 3 imágenes. Si deseas cambiar esta foto, selecciona primero las fotos nuevas.'];
+        return;
+    }
 
     if ($queriesEdicion->eliminarImagen($idImagen, $idPropiedad)) {
         $resultado = ['ok' => true];
